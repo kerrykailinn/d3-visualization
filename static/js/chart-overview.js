@@ -1,12 +1,15 @@
 /**
- * chart-overview-v2.js
- * 图1：全球合作版图（三档分类配色 · 扩充数据 · 大地图）
- * Target: <div id="overview-chart"></div>
- * 依赖: D3.js v7, TopoJSON client v3
+ * chart-overview.js (合并版)
+ * 包含：全球合作版图 + 中国科研合作国家排名
  */
+
+/* ================================================================
+ * 第一部分：图1 全球合作版图（Target: <div id="overview-chart"></div>）
+ * ================================================================ */
 (function () {
   'use strict';
 
+  // 1. 全局挂载数据，供全站图表共享
   window.RAW_DATA = [
     {country:"USA",cn:"美国",iso3:"USA",num:"840",p11:137380,p16:264560,r16:1,region:"北美",cee:false,r11:1},
     {country:"UNITED KINGDOM",cn:"英国",iso3:"GBR",num:"826",p11:29966,p16:71470,r16:2,region:"西欧",cee:false,r11:2},
@@ -122,7 +125,7 @@
     { min: 5000, fill: '#1e3a8a', stroke: '#1d4ed8', label: '深度合作 ≥5,000篇'   },
     { min: 500,  fill: '#3b82f6', stroke: '#2563eb', label: '中度合作 500–4,999篇' },
     { min: 1,    fill: '#93c5fd', stroke: '#60a5fa', label: '少量合作 <500篇'       },
-    { min: 0,    fill: '#dde4ed', stroke: '#c5cdd9', label: '无合作记录'             }
+    { min: 0,    fill: '#dde4ed', stroke: '#c5cdd9', label: '无合作记录'            }
   ];
 
   function getTier(val) {
@@ -132,7 +135,6 @@
     return TIERS[2];
   }
 
-  // 默认时段改为 p11（2011–2015）
   let currentPeriod = 'p11';
   let worldGeoData  = null;
   let resizeTimer;
@@ -199,12 +201,12 @@
     el.style.fontFamily = "'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif";
 
     el.innerHTML = `
-      <div id="ov2-statbar" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+      <div id="ov2-statbar" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
         margin-bottom:18px;"></div>
 
-      <div id="ov2-wrap" style="display:grid;grid-template-columns:1fr 290px;gap:18px;align-items:start;">
+      <div id="ov2-wrap" style="display:grid;grid-template-columns:minmax(0,0.72fr) minmax(260px,0.28fr);gap:18px;align-items:stretch;">
         <div style="background:#fff;border-radius:14px;padding:18px 20px 14px;
-          box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid #dde4ec;">
+          box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid #dde4ec;display:flex;flex-direction:column;min-height:100%;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;
             flex-wrap:wrap;gap:10px;margin-bottom:14px;">
             <div>
@@ -225,7 +227,7 @@
           </div>
 
           <div id="ov2-mapwrap" style="position:relative;border-radius:10px;overflow:hidden;
-            background:#cde5f4;min-height:320px;">
+            background:#cde5f4;min-height:440px;flex:1;">
             <svg id="ov2-svg" style="width:100%;display:block;"></svg>
           </div>
 
@@ -233,30 +235,80 @@
             margin-top:11px;align-items:center;"></div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div id="ov2-tiers" style="background:#fff;border-radius:14px;padding:16px;
-            box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid #dde4ec;"></div>
-          <div id="ov2-insight" style="background:#fff;border-radius:14px;padding:16px;
-            box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid #dde4ec;"></div>
+        <div style="background:#fff;border-radius:14px;padding:18px 18px 16px;
+          box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid #dde4ec;position:sticky;top:12px;">
+          <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:10px;">
+            数据说明
+          </div>
+          <div id="ov2-copy" style="font-size:13px;line-height:1.75;color:#334155;"></div>
         </div>
       </div>
+
+      <div id="rk2-root" style="margin-top:22px;"></div>
     `;
 
     document.getElementById('ov2-p11').onclick = () => switchPeriod('p11');
     document.getElementById('ov2-p16').onclick = () => switchPeriod('p16');
   }
 
+  function renderNarrative() {
+    const el = document.getElementById('ov2-copy');
+    if (!el) return;
+
+    const period = currentPeriod;
+    const periodLabel = period === 'p16' ? '2016–2020' : '2011–2015';
+    const total = period === 'p11' ? 427285 : 911293;
+    const ceeTotal = d3.sum(window.CEE_COUNTRIES, d => d[period]);
+    const share = (ceeTotal / total * 100).toFixed(2);
+    const top3 = window.RAW_DATA
+      .filter(d => (d[period] || 0) > 0)
+      .sort((a, b) => b[period] - a[period])
+      .slice(0, 3);
+    const ceeGrowth = d3.sum(window.CEE_COUNTRIES, d => d.p11 || 0) > 0
+      ? ((d3.sum(window.CEE_COUNTRIES, d => d.p16 || 0) - d3.sum(window.CEE_COUNTRIES, d => d.p11 || 0)) / d3.sum(window.CEE_COUNTRIES, d => d.p11 || 0) * 100).toFixed(1)
+      : '—';
+
+    el.innerHTML = `
+      <p style="margin:0 0 10px;">
+        这张图展示了中国科研合作网络的全球分布，颜色越深表示合作发文量越高。
+        从整体上看，合作高度集中在美国、英国、澳大利亚、德国、日本等传统科研合作中心。
+      </p>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;">当前时期：${periodLabel}</div>
+        <div style="display:grid;grid-template-columns:1fr;gap:4px;">
+          <div><span style="color:#1e40af;font-weight:600;">全球合作总量：</span>${window.fmt(total)} 篇</div>
+          <div><span style="color:#e07b27;font-weight:600;">中东欧合作总量：</span>${window.fmt(ceeTotal)} 篇</div>
+          <div><span style="color:#0f172a;font-weight:600;">中东欧占比：</span>${share}%</div>
+        </div>
+      </div>
+      <p style="margin:0 0 10px;">
+        橙色边框标出的是<strong>中东欧16国</strong>，用于单独观察这一地区在全球合作网络中的位置。
+        虽然中东欧整体规模低于美国、英国等核心国家，但它在全球科研合作中的参与度是持续存在的，且在第二阶段保持增长。
+      </p>
+      <p style="margin:0 0 10px;">
+        从前列国家看，合作主要集中在
+        ${top3.map((d, i) => `<strong>${i + 1}. ${d.cn}</strong>（${window.fmt(d[period])}篇）`).join('、')}
+        等科研合作基础较强的国家。
+      </p>
+      <p style="margin:0 0 10px;">
+        聚焦中东欧，${period === 'p16' ? '2016–2020' : '2011–2015'} 期间该地区总量较上一阶段变化约 <strong>${ceeGrowth}%</strong>，
+        说明中东欧并非“低存在感”区域，而是一个值得进一步观察的合作板块。
+      </p>
+      <p style="margin:0;">
+        可以点击年份按钮切换时期；鼠标悬浮在任一国家上，可查看该国合作量、增幅和全球排名。
+      </p>
+    `;
+  }
+
   function updateStats() {
     const G = currentPeriod === 'p11' ? 427285 : 911293;
     const ceeTot = d3.sum(window.CEE_COUNTRIES, d => d[currentPeriod]);
     const pct    = (ceeTot / G * 100).toFixed(2);
-    const top    = window.CEE_COUNTRIES.reduce((a,b) => b[currentPeriod]>a[currentPeriod]?b:a);
     const lbl    = currentPeriod === 'p11' ? '2011–2015' : '2016–2020';
     const cards  = [
       { t: `全球合作总量（${lbl}）`, v: window.fmt(G),       u:'篇', c:'#1e40af' },
-      { t: '中东欧合作总量',         v: window.fmt(ceeTot), u:'篇', c:'#e07b27' },
-      { t: '中东欧占全球比例',        v: pct,                u:'%',  c:'#e07b27' },
-      { t: '中东欧领头羊',           v: top.cn,             u:`#${top[currentPeriod==='p11'?'r11':'r16']}`, c:'#2563eb' }
+      { t: '中东欧合作总量',        v: window.fmt(ceeTot), u:'篇', c:'#e07b27' },
+      { t: '中东欧占全球比例',        v: pct,                u:'%',  c:'#e07b27' }
     ];
     document.getElementById('ov2-statbar').innerHTML = cards.map(c=>`
       <div style="background:#fff;border-radius:10px;padding:13px 16px;text-align:center;
@@ -267,65 +319,7 @@
         </div>
       </div>
     `).join('');
-  }
-
-  function updateRight() {
-    const p = currentPeriod;
-    const cntHigh = window.RAW_DATA.filter(d => d[p] >= 5000).length;
-    const cntMed  = window.RAW_DATA.filter(d => d[p] >= 500 && d[p] < 5000).length;
-    const cntLow  = window.RAW_DATA.filter(d => d[p] > 0 && d[p] < 500).length;
-
-    document.getElementById('ov2-tiers').innerHTML = `
-      <div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;
-        letter-spacing:.07em;margin-bottom:10px;">合作层级分布</div>
-      ${TIERS.slice(0,3).map((t,i) => {
-        const cnt = [cntHigh,cntMed,cntLow][i];
-        return `<div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
-          <div style="width:13px;height:13px;border-radius:3px;background:${t.fill};flex-shrink:0;"></div>
-          <div style="flex:1;font-size:11.5px;color:#374151;">${t.label}</div>
-          <div style="font-size:13px;font-weight:700;color:${t.fill};min-width:28px;text-align:right;">${cnt}</div>
-        </div>`;
-      }).join('')}
-      <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
-        <div style="width:13px;height:13px;border-radius:3px;background:#dde4ed;flex-shrink:0;"></div>
-        <div style="flex:1;font-size:11.5px;color:#94a3b8;">无合作记录</div>
-        <div style="font-size:13px;font-weight:700;color:#94a3b8;">—</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:9px;margin-top:6px;padding-top:9px;
-        border-top:1px solid #f1f5f9;">
-        <div style="width:13px;height:9px;border:2px solid #e07b27;border-radius:2px;flex-shrink:0;"></div>
-        <div style="font-size:11.5px;color:#374151;">中东欧16国（橙框标注）</div>
-      </div>
-    `;
-
-    const isP16 = p === 'p16';
-    document.getElementById('ov2-insight').innerHTML = `
-      <div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;
-        letter-spacing:.07em;margin-bottom:10px;">核心发现</div>
-      <div style="font-size:12px;color:#475569;line-height:1.75;">
-        ${isP16 ? `
-        <p style="margin:0 0 9px;"><strong style="color:#0f172a;">规模跃升</strong><br>
-        2016–2020年全球合作达<strong style="color:#1e40af;">91.1万篇</strong>，
-        增长<strong style="color:#059669;">+113%</strong>；中东欧升至
-        <strong style="color:#e07b27;">34,950篇</strong>，增幅+105%。</p>
-        <p style="margin:0 0 9px;"><strong style="color:#0f172a;">区域定位</strong><br>
-        中东欧占全球<strong style="color:#e07b27;">3.84%</strong>，
-        作为地理连片区域处于全球中上游地位。</p>
-        <p style="margin:0;"><strong style="color:#0f172a;">内部分化</strong><br>
-        波兰·捷克·希腊三国合计占中东欧约<strong>46%</strong>，
-        尾部国家仍有极大<strong style="color:#e07b27;">扩展空间</strong>。</p>
-        ` : `
-        <p style="margin:0 0 9px;"><strong style="color:#0f172a;">版图初成</strong><br>
-        2011–2015年合作<strong style="color:#1e40af;">42.7万篇</strong>，
-        中东欧16国贡献<strong style="color:#e07b27;">17,036篇</strong>（占比3.99%）。</p>
-        <p style="margin:0 0 9px;"><strong style="color:#0f172a;">头部格局</strong><br>
-        波兰3,252篇、捷克2,450篇、希腊2,086篇，三国合计占区域46%。</p>
-        <p style="margin:0;"><strong style="color:#0f172a;">尾部潜力</strong><br>
-        黑山（11篇）、阿尔巴尼亚（6篇）等国合作量极低，
-        结构性<strong style="color:#e07b27;">扩展空间</strong>巨大。</p>
-        `}
-      </div>
-    `;
+    renderNarrative();
   }
 
   function loadTopojson() {
@@ -348,18 +342,16 @@
     if (!wrap) return;
 
     const W = wrap.clientWidth || 720;
-    // 使用标准 NaturalEarth1 比例（约 0.5 宽高比），垂直居中向上微移
-    const H = Math.round(W * 0.58);
+    const H = Math.max(Math.round(W * 0.6), 440);
 
     const svg = d3.select('#ov2-svg')
       .attr('viewBox', `0 0 ${W} ${H}`)
       .style('height', H + 'px');
     svg.selectAll('*').remove();
 
-    // scale = W/6.28 是 NaturalEarth1 标准比例；translateY 向上偏移 4% 使陆地块视觉居中
     const proj = d3.geoNaturalEarth1()
       .scale(W / 5.55)
-      .translate([W / 2, H / 2 + 8]);
+      .translate([W / 2, H / 2]);
     const path = d3.geoPath().projection(proj);
 
     const root = svg.append('g');
@@ -371,7 +363,6 @@
     buildLayers(root, path);
     renderLegend();
     updateStats();
-    updateRight();
   }
 
   function buildLayers(root, path) {
@@ -404,7 +395,6 @@
       .transition().duration(500)
       .attr('fill', f => getTier(window.dataByNum[f.id]?.[p] ?? 0).fill);
     updateStats();
-    updateRight();
   }
 
   function renderLegend() {
@@ -459,10 +449,728 @@
     if (c) ro.observe(c);
 
     function applyResp() {
-      const g = document.getElementById('ov2-wrap');
       const s = document.getElementById('ov2-statbar');
-      if (g) g.style.gridTemplateColumns = window.innerWidth < 900 ? '1fr' : '1fr 290px';
-      if (s) s.style.gridTemplateColumns = window.innerWidth < 600 ? '1fr 1fr' : 'repeat(4,1fr)';
+      if (s) s.style.gridTemplateColumns = window.innerWidth < 600 ? '1fr 1fr' : 'repeat(3,1fr)';
+    }
+    applyResp();
+    window.addEventListener('resize', applyResp);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+
+
+/* ================================================================
+ * 第二部分：图2 中国科研合作国家排名（Target: <div id="trend-chart"></div>）
+ * ================================================================ */
+(function () {
+  'use strict';
+
+  // 1. 获取全局数据
+  const COUNTRIES_DATA = window.RAW_DATA || [];
+
+  // =========================================================
+  // 2. 区域聚合
+  // =========================================================
+  const REGION_COLOR = {
+    '北美':'#1e3a8a','西欧':'#2563eb','东亚':'#3b82f6','东南亚':'#60a5fa',
+    '中东欧':'#d97706','中东':'#93c5fd','南亚':'#4f83ff','东欧':'#7cb0ff',
+    '拉丁美洲':'#6d8df0','非洲':'#8ab4f8','大洋洲':'#1d4ed8','中亚':'#a5c4ff'
+  };
+
+  const GLOBAL_TOTALS = {
+    p11: COUNTRIES_DATA.reduce((s, d) => s + (d.p11 || 0), 0),
+    p16: COUNTRIES_DATA.reduce((s, d) => s + (d.p16 || 0), 0)
+  };
+
+  function buildRegions(period) {
+    const map = {};
+    COUNTRIES_DATA.forEach(d => {
+      const r = d.region || '其他';
+      if (!map[r]) map[r] = { region: r, p11: 0, p16: 0, countries: [] };
+      map[r].p11 += d.p11 || 0;
+      map[r].p16 += d.p16 || 0;
+      map[r].countries.push(d);
+    });
+    return Object.values(map).sort((a, b) => b[period] - a[period]);
+  }
+
+  // =========================================================
+  // 3. 状态
+  // =========================================================
+  let currentPeriod  = 'p11';
+  let currentMetric  = 'share';
+  let selectedRegion = '中东欧';
+  let isAnimating    = false;
+  const fmt = d3.format(',');
+  const pctFmt = d3.format('.1f');
+  const growthColor = '#16a34a';
+
+  function getGlobalTotal(period) {
+    return GLOBAL_TOTALS[period] || 0;
+  }
+
+  function getSharePct(value, period) {
+    const total = getGlobalTotal(period);
+    return total > 0 ? value / total * 100 : 0;
+  }
+
+  function getGrowthPct(p11, p16) {
+    return p11 > 0 ? (p16 - p11) / p11 * 100 : null;
+  }
+
+  function metricLabel(value, metric) {
+    if (metric === 'growth') return value == null ? '—' : `${value >= 0 ? '+' : ''}${pctFmt(value)}%`;
+    return `${pctFmt(value)}%`;
+  }
+
+  // =========================================================
+  // 4. Tooltip
+  // =========================================================
+  function initTooltip() {
+    if (document.getElementById('rk2-tt')) return;
+    const tt = document.createElement('div');
+    tt.id = 'rk2-tt';
+    tt.style.cssText = `position:fixed;display:none;pointer-events:none;z-index:9999;
+      background:rgba(15,23,42,.95);color:#f8fafc;border-radius:9px;
+      padding:11px 14px;font-size:12px;line-height:1.65;
+      box-shadow:0 6px 24px rgba(0,0,0,.28);max-width:210px;
+      font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;`;
+    document.body.appendChild(tt);
+
+    window.rk2ShowTip = function(e, d, isRegion) {
+      const p = currentPeriod;
+      const growth = getGrowthPct(d.p11, d.p16);
+      if (isRegion) {
+        tt.innerHTML = `
+          <div style="font-weight:700;font-size:13px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:5px;margin-bottom:6px;">${d.region}</div>
+          <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:3px;">
+            <span style="color:rgba(255,255,255,.5);">占全球比例</span><span style="color:#93c5fd;font-weight:600;">${pctFmt(getSharePct(d[p], p))}%</span>
+          </div>
+          ${p === 'p16' ? `<div style="display:flex;justify-content:space-between;gap:12px;">
+            <span style="color:rgba(255,255,255,.5);">增幅</span>
+            <span style="color:${growthColor};">${growth == null ? '—' : `+${pctFmt(growth)}%`}</span>
+          </div>` : ''}`;
+      } else {
+        const regionData = buildRegions(p).find(r => r.region === d.region);
+        const regionTotal = regionData ? d3.sum(regionData.countries, c => c[p] || 0) : 0;
+        const regionShare = regionTotal > 0 ? (d[p] || 0) / regionTotal * 100 : 0;
+        tt.innerHTML = `
+          <div style="font-weight:700;font-size:13px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:5px;margin-bottom:6px;">${d.cn}</div>
+          <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:3px;">
+            <span style="color:rgba(255,255,255,.5);">占地区比例</span>
+            <span style="color:#93c5fd;font-weight:600;">${pctFmt(regionShare)}%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:3px;">
+            <span style="color:rgba(255,255,255,.5);">占全球比例</span>
+            <span style="color:#93c5fd;font-weight:600;">${pctFmt(getSharePct(d[p], p))}%</span>
+          </div>
+          ${p === 'p16' ? `<div style="display:flex;justify-content:space-between;gap:12px;">
+            <span style="color:rgba(255,255,255,.5);">增幅</span>
+            <span style="color:${growthColor};">${growth == null ? '—' : `+${pctFmt(growth)}%`}</span>
+          </div>` : ''}
+          ${d.cee?`<div style="margin-top:6px;background:#92400e;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;">★ 中东欧</div>`:''}`;
+      }
+      tt.style.display = 'block';
+      window.rk2MoveTip(e);
+    };
+    window.rk2MoveTip = function(e) {
+      let x = e.clientX + 14, y = e.clientY + 12;
+      if (x + 220 > window.innerWidth)  x = e.clientX - 228;
+      if (y + 180 > window.innerHeight) y = e.clientY - 190;
+      tt.style.left = x + 'px'; tt.style.top = y + 'px';
+    };
+    window.rk2HideTip = () => { tt.style.display = 'none'; };
+  }
+
+  // =========================================================
+  // 5. 注入 HTML 骨架
+  // =========================================================
+  function injectHTML() {
+    const el = document.getElementById('rk2-root');
+    if (!el) return;
+    el.style.fontFamily = "'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif";
+
+    el.innerHTML = `
+      <div style="background:#fff;border-radius:14px;padding:20px 22px;
+        box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid #dde4ec;">
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;
+          flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:3px;">
+              中国科研合作国家排名
+            </div>
+            <div style="font-size:11.5px;color:#64748b;">
+              左栏：按地区汇总 · 右栏：点击地区查看内部国家排名 ·
+              <span style="color:#d97706;font-weight:600;">橙色</span> = 中东欧国家
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div id="rk2-metric-box" style="display:none;align-items:center;gap:8px;font-size:12px;color:#64748b;">
+              <span>筛选：</span>
+              <select id="rk2-metric" style="border:1px solid #dbe3ee;border-radius:8px;padding:6px 10px;background:#fff;color:#334155;font-size:12px;">
+                <option value="share">按占全球比例</option>
+                <option value="growth">按增幅</option>
+              </select>
+            </div>
+            <div style="display:inline-flex;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+              <button id="rk2-p11" style="padding:5px 14px;font-size:12px;font-weight:500;
+                border:none;background:#1e40af;color:#fff;cursor:pointer;">2011–2015</button>
+              <button id="rk2-p16" style="padding:5px 14px;font-size:12px;font-weight:500;
+                border:none;background:#f8fafc;color:#64748b;cursor:pointer;">2016–2020</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="rk2-grid" style="display:grid;grid-template-columns:38fr 62fr;gap:20px;align-items:start;">
+          <div>
+            <div id="rk2-region-title" style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;
+              letter-spacing:.06em;margin-bottom:8px;">按地区汇总占全球比例</div>
+            <svg id="rk2-region-svg" style="display:block;width:100%;overflow:visible;"></svg>
+          </div>
+          <div style="overflow:hidden;">
+            <div id="rk2-country-header" style="font-size:11px;font-weight:700;color:#94a3b8;
+              text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">中东欧 地区内各国占比排名</div>
+            <div style="overflow:hidden;">
+              <svg id="rk2-country-svg" style="display:block;width:100%;overflow:visible;"></svg>
+            </div>
+          </div>
+        </div>
+
+        <div id="rk2-callout" style="margin-top:18px;border-radius:10px;padding:14px 16px;
+          background:linear-gradient(135deg,#fef3c7,#fffbeb);
+          border:1.5px solid #f59e0b;"></div>
+
+      </div>
+    `;
+
+    document.getElementById('rk2-p11').onclick = () => switchPeriod('p11');
+    document.getElementById('rk2-p16').onclick = () => switchPeriod('p16');
+    document.getElementById('rk2-metric').onchange = e => {
+      currentMetric = e.target.value;
+      renderRegionBars();
+      updateCountrySvg(selectedRegion, false);
+      updateCallout();
+    };
+  }
+
+  // =========================================================
+  // 6. 渲染区域条形图（整体重绘，无动画问题）
+  // =========================================================
+  function renderRegionBars() {
+    const p = currentPeriod;
+    const metric = p === 'p16' ? currentMetric : 'share';
+    const regions = buildRegions(p).map(d => ({
+      ...d,
+      share: getSharePct(d[p], p),
+      growth: getGrowthPct(d.p11, d.p16)
+    })).sort((a, b) => {
+      if (metric === 'growth') return (b.growth ?? -Infinity) - (a.growth ?? -Infinity);
+      return b.share - a.share;
+    });
+    const el = document.getElementById('rk2-region-svg');
+    if (!el) return;
+    const W = el.parentElement.clientWidth || 380;
+
+    const mL = 58, mR = 86, mT = 4, mB = 6;
+    const ROW = 30;
+    const H   = regions.length * ROW + mT + mB;
+    const iW  = W - mL - mR;
+
+    const showGrowth = p === 'p16' && metric === 'growth';
+    const max = d3.max(regions, d => showGrowth ? (d.growth ?? 0) : d.share);
+    const x   = d3.scaleLinear().domain([0, Math.max(max * 1.05, 1)]).range([0, iW]);
+    const svg = d3.select('#rk2-region-svg').attr('width', W).attr('height', H);
+    svg.selectAll('*').remove();
+
+    const g = svg.append('g').attr('transform', `translate(${mL},${mT})`);
+    const title = document.getElementById('rk2-region-title');
+    if (title) title.textContent = showGrowth ? '按地区增幅' : '按地区汇总占全球比例';
+
+    regions.forEach((d, i) => {
+      const y       = i * ROW;
+      const isCEE   = d.region === '中东欧';
+      const isSel   = d.region === selectedRegion;
+      const color   = isCEE ? '#d97706' : (REGION_COLOR[d.region] || '#6b7280');
+      const growth  = d.growth;
+      const grColor = growth == null ? '#94a3b8' : growthColor;
+
+      if (isSel) {
+        g.append('rect').attr('x', -mL).attr('y', y+1).attr('width', W).attr('height', ROW-2)
+          .attr('fill', isCEE ? '#fef3c7' : '#f0f7ff').attr('rx', 5);
+      }
+
+      g.append('rect')
+        .attr('x', 0).attr('y', y + 6)
+        .attr('width', 0).attr('height', ROW - 14).attr('rx', 3)
+        .attr('fill', color).attr('fill-opacity', isSel ? 1 : 0.65)
+        .transition().duration(500).delay(i * 30)
+        .attr('width', x(showGrowth ? (d.growth ?? 0) : d.share));
+
+      g.append('text')
+        .attr('x', -5).attr('y', y + ROW/2 + 4.5)
+        .attr('text-anchor', 'end').attr('font-size', isSel ? 12.5 : 11.5)
+        .attr('font-weight', isSel ? '700' : '500')
+        .attr('fill', isSel ? (isCEE ? '#b45309' : '#1e293b') : '#6b7280')
+        .text(d.region);
+
+      g.append('text')
+        .attr('x', x(showGrowth ? (d.growth ?? 0) : d.share) + 5).attr('y', y + ROW/2 + 4.5)
+        .attr('font-size', 10.5).attr('font-weight', isSel ? '700' : '400')
+        .attr('fill', showGrowth ? growthColor : (isCEE ? '#b45309' : '#64748b'))
+        .text(showGrowth ? metricLabel(d.growth, 'growth') : `${pctFmt(d.share)}%`);
+
+      // 增幅标注：仅 p16 且“占比模式”显示
+      if (p === 'p16' && !showGrowth) {
+        g.append('text')
+          .attr('x', iW + mR - 4).attr('y', y + ROW/2 + 4.5)
+          .attr('text-anchor', 'end').attr('font-size', isSel ? 11.5 : 10.5)
+          .attr('font-weight', '700').attr('fill', grColor)
+          .attr('opacity', 0)
+          .text(growth == null ? '—' : `+${pctFmt(growth)}%`)
+          .transition().duration(400).delay(i * 30 + 300)
+          .attr('opacity', 1);
+      }
+
+      g.append('rect')
+        .attr('x', -mL).attr('y', y).attr('width', W).attr('height', ROW)
+        .attr('fill', 'transparent').attr('cursor', 'pointer')
+        .on('click', () => {
+          if (isAnimating) return;
+          selectedRegion = d.region;
+          renderRegionBars();
+          initCountrySvg(selectedRegion);
+        })
+        .on('mouseover', e => window.rk2ShowTip(e, d, true))
+        .on('mousemove', window.rk2MoveTip)
+        .on('mouseout',  window.rk2HideTip);
+    });
+  }
+
+  // =========================================================
+  // 7. 固定布局常量（两个时段共用，消除抖动根源）
+  // =========================================================
+  // 始终保留箭头列宽度，p11 时箭头透明隐藏
+  const ARROW_W  = 36;   // 箭头列宽度（固定）
+  const NAME_W   = 62;   // 国家名列宽度（固定）
+  const ML_FIXED = ARROW_W + NAME_W;  // = 98，始终不变
+  const GROWTH_W = 50;   // 增幅列宽度（固定）
+  const MR_FIXED = 6 + GROWTH_W;      // = 56，始终不变
+  const ROW_H    = 26;   // 行高（固定）
+  const MT       = 4;
+  const EASE     = d3.easeCubicInOut;
+  const ANIM_DUR = 900;
+
+  // =========================================================
+  // 8. 初始化国家 SVG（切换地区时调用，重建元素）
+  // =========================================================
+  function initCountrySvg(region) {
+    const el  = document.getElementById('rk2-country-svg');
+    const hdr = document.getElementById('rk2-country-header');
+    if (!el) return;
+
+    const regionData = buildRegions('p11').find(r => r.region === region);
+    if (!regionData) return;
+    const countries = regionData.countries; // 国家列表（顺序固定，只是数据容器）
+    const n = countries.length;
+
+    const isCEE = region === '中东欧';
+    if (hdr) hdr.innerHTML = `<span style="color:${isCEE?'#d97706':'#1e40af'};">${region}</span> 地区内各国${currentPeriod === 'p16' && currentMetric === 'growth' ? '增幅排名' : '占比排名'}`;
+
+    const W  = el.parentElement.clientWidth || 400;
+    const iW = W - ML_FIXED - MR_FIXED;
+    const H  = n * ROW_H + MT + 8;
+
+    const svg = d3.select('#rk2-country-svg').attr('width', W).attr('height', H);
+    svg.selectAll('*').remove();
+
+    const g = svg.append('g').attr('class', 'rk2c-main').attr('transform', `translate(${ML_FIXED},${MT})`);
+
+    // 斑马背景（按初始顺序，静态，不动）
+    g.append('g').attr('class', 'rk2c-zebra');
+    // 条形层
+    g.append('g').attr('class', 'rk2c-bars');
+    // 文字层：国家名
+    g.append('g').attr('class', 'rk2c-names');
+    // 文字层：数值
+    g.append('g').attr('class', 'rk2c-vals');
+    // 文字层：箭头
+    g.append('g').attr('class', 'rk2c-arrows');
+    // 文字层：增幅
+    g.append('g').attr('class', 'rk2c-growths');
+    // 热区层
+    g.append('g').attr('class', 'rk2c-hots');
+
+    // 用当前时段渲染一次（无动画）
+    updateCountrySvg(region, false);
+  }
+
+  // =========================================================
+  // 9. 更新国家 SVG（时段切换时调用，带位移动画）
+  // =========================================================
+  function updateCountrySvg(region, animate) {
+    const p   = currentPeriod;
+    const el  = document.getElementById('rk2-country-svg');
+    if (!el) return;
+
+    const regionData = buildRegions(p).find(r => r.region === region);
+    if (!regionData) return;
+
+    const showGrowth = p === 'p16' && currentMetric === 'growth';
+    const regionTotal = d3.sum(regionData.countries, d => d[p] || 0);
+    const countryShare = d => regionTotal > 0 ? (d[p] || 0) / regionTotal * 100 : 0;
+    const countries = [...regionData.countries].sort((a, b) => {
+      if (showGrowth) return (getGrowthPct(b.p11, b.p16) ?? -Infinity) - (getGrowthPct(a.p11, a.p16) ?? -Infinity);
+      return countryShare(b) - countryShare(a);
+    });
+    const n = countries.length;
+
+    const W  = +el.getAttribute('width') || (el.parentElement.clientWidth || 400);
+    const iW = W - ML_FIXED - MR_FIXED;
+
+    // x 比例尺：按当前指标显示
+    const maxVal = d3.max(regionData.countries, d => showGrowth ? (getGrowthPct(d.p11, d.p16) ?? 0) : countryShare(d));
+    const x = d3.scaleLinear().domain([0, Math.max(maxVal * 1.05, 1)]).range([0, iW]);
+
+    // 目标 y 位置
+    const targetY = {};
+    countries.forEach((d, i) => { targetY[d.cn] = i * ROW_H; });
+
+    const svg = d3.select('#rk2-country-svg');
+    const g   = svg.select('g.rk2c-main');
+
+    const barColor = d => d.cee ? '#d97706' : (REGION_COLOR[d.region] || '#6b7280');
+
+    // ── 计算区域内排名变化（用于箭头）──
+    const sorted11 = [...regionData.countries].sort((a, b) => b.p11 - a.p11);
+    const sorted16 = [...regionData.countries].sort((a, b) => b.p16 - a.p16);
+    const rank11 = {}, rank16 = {};
+    sorted11.forEach((d, i) => { rank11[d.cn] = i + 1; });
+    sorted16.forEach((d, i) => { rank16[d.cn] = i + 1; });
+
+    const dur = animate ? ANIM_DUR : 0;
+
+    // ── 斑马背景（按目标顺序静态渲染）──
+    const zebraG = g.select('g.rk2c-zebra');
+    zebraG.selectAll('rect').remove();
+    countries.forEach((d, i) => {
+      zebraG.append('rect')
+        .attr('x', -ML_FIXED).attr('width', W)
+        .attr('y', targetY[d.cn]).attr('height', ROW_H)
+        .attr('fill', i % 2 === 0 ? 'rgba(0,0,0,0.018)' : 'transparent');
+    });
+
+    const titleNode = document.getElementById('rk2-country-header');
+    const isCEERegion = region === '中东欧';
+    if (titleNode) titleNode.innerHTML = `<span style="color:${isCEERegion?'#d97706':'#1e40af'};">${region}</span> 地区内各国${showGrowth ? '增幅排名' : '占比排名'}`;
+
+    // ── 条形 ──
+    g.select('g.rk2c-bars').selectAll('rect.rk2c-bar')
+      .data(countries, d => d.cn)
+      .join(
+        enter => enter.append('rect').attr('class', 'rk2c-bar')
+          .attr('rx', 3).attr('x', 0)
+          .attr('height', ROW_H - 6)
+          .attr('fill', barColor).attr('fill-opacity', 0.85)
+          .attr('width', d => x(showGrowth ? (getGrowthPct(d.p11, d.p16) ?? 0) : countryShare(d)))
+          .attr('y', d => targetY[d.cn] + 3),
+        update => {
+          const sel = update.attr('fill', barColor).attr('fill-opacity', 0.85);
+          if (dur > 0) {
+            sel.transition().duration(dur).ease(EASE)
+              .attr('y', d => targetY[d.cn] + 3)
+              .attr('width', d => x(showGrowth ? (getGrowthPct(d.p11, d.p16) ?? 0) : countryShare(d)));
+          } else {
+            sel.attr('y', d => targetY[d.cn] + 3)
+               .attr('width', d => x(showGrowth ? (getGrowthPct(d.p11, d.p16) ?? 0) : countryShare(d)));
+          }
+        }
+      );
+
+    // ── 国家名 ──
+    g.select('g.rk2c-names').selectAll('text.rk2c-name')
+      .data(countries, d => d.cn)
+      .join(
+        enter => enter.append('text').attr('class', 'rk2c-name')
+          .attr('x', -6).attr('text-anchor', 'end')
+          .attr('font-size', 11)
+          .attr('fill', d => d.cee ? '#b45309' : '#374151')
+          .attr('font-weight', d => d.cee ? '700' : '400')
+          .text(d => d.cn.length > 5 ? d.cn.slice(0,5)+'…' : d.cn)
+          .attr('y', d => targetY[d.cn] + ROW_H/2 + 4),
+        update => {
+          const sel = update;
+          if (dur > 0) {
+            sel.transition().duration(dur).ease(EASE)
+              .attr('y', d => targetY[d.cn] + ROW_H/2 + 4);
+          } else {
+            sel.attr('y', d => targetY[d.cn] + ROW_H/2 + 4);
+          }
+        }
+      );
+
+    // ── 数值标注 ──
+    g.select('g.rk2c-vals').selectAll('text.rk2c-val')
+      .data(countries, d => d.cn)
+      .join(
+        enter => enter.append('text').attr('class', 'rk2c-val')
+          .attr('font-size', 10.5)
+          .attr('fill', d => showGrowth ? growthColor : (d.cee ? '#b45309' : '#64748b'))
+          .text(d => showGrowth ? metricLabel(getGrowthPct(d.p11, d.p16), 'growth') : `${pctFmt(countryShare(d))}%`)
+          .attr('x', d => x(showGrowth ? (getGrowthPct(d.p11, d.p16) ?? 0) : countryShare(d)) + 5)
+          .attr('y', d => targetY[d.cn] + ROW_H/2 + 4),
+        update => {
+          const sel = update
+            .text(d => showGrowth ? metricLabel(getGrowthPct(d.p11, d.p16), 'growth') : `${pctFmt(countryShare(d))}%`)
+            .attr('x', d => x(showGrowth ? (getGrowthPct(d.p11, d.p16) ?? 0) : countryShare(d)) + 5)
+            .attr('fill', d => showGrowth ? growthColor : (d.cee ? '#b45309' : '#64748b'));
+          if (dur > 0) {
+            sel.transition().duration(dur).ease(EASE)
+              .attr('y', d => targetY[d.cn] + ROW_H/2 + 4);
+          } else {
+            sel.attr('y', d => targetY[d.cn] + ROW_H/2 + 4);
+          }
+        }
+      );
+
+    // ── 箭头（固定占位，p11 时透明）──
+    const showArrow = p === 'p16';
+    g.select('g.rk2c-arrows').selectAll('text.rk2c-arrow')
+      .data(countries, d => d.cn)
+      .join(
+        enter => enter.append('text').attr('class', 'rk2c-arrow')
+          .attr('x', -NAME_W - 4).attr('text-anchor', 'end')
+          .attr('font-size', 10).attr('font-weight', 700)
+          .attr('opacity', showArrow ? 1 : 0)
+          .text(d => {
+            const delta = rank11[d.cn] - rank16[d.cn];
+            if (delta > 0) return `↑${delta}`;
+            if (delta < 0) return `↓${Math.abs(delta)}`;
+            return '—';
+          })
+          .attr('fill', d => {
+            const delta = rank11[d.cn] - rank16[d.cn];
+            return delta > 0 ? '#16a34a' : delta < 0 ? '#dc2626' : '#94a3b8';
+          })
+          .attr('y', d => targetY[d.cn] + ROW_H/2 + 4),
+        update => {
+          const sel = update
+            .text(d => {
+              const delta = rank11[d.cn] - rank16[d.cn];
+              if (delta > 0) return `↑${delta}`;
+              if (delta < 0) return `↓${Math.abs(delta)}`;
+              return '—';
+            })
+            .attr('fill', d => {
+              const delta = rank11[d.cn] - rank16[d.cn];
+              return delta > 0 ? '#16a34a' : delta < 0 ? '#dc2626' : '#94a3b8';
+            });
+          if (dur > 0) {
+            sel.transition().duration(dur).ease(EASE)
+              .attr('y', d => targetY[d.cn] + ROW_H/2 + 4)
+              .attr('opacity', showArrow ? 1 : 0);
+          } else {
+            sel.attr('y', d => targetY[d.cn] + ROW_H/2 + 4)
+               .attr('opacity', showArrow ? 1 : 0);
+          }
+        }
+      );
+
+    // ── 增幅列（仅 p16 且占比模式显示）──
+    const showGrowthLabel = p === 'p16' && currentMetric !== 'growth';
+    g.select('g.rk2c-growths').selectAll('text.rk2c-growth')
+      .data(countries, d => d.cn)
+      .join(
+        enter => enter.append('text').attr('class', 'rk2c-growth')
+          .attr('x', iW + GROWTH_W - 2).attr('text-anchor', 'end')
+          .attr('font-size', 10).attr('font-weight', 600)
+          .attr('opacity', showGrowthLabel ? 1 : 0)
+          .attr('fill', d => {
+            const g = getGrowthPct(d.p11, d.p16);
+            if (g == null) return '#94a3b8';
+            return growthColor;
+          })
+          .text(d => {
+            const g = getGrowthPct(d.p11, d.p16);
+            return g == null ? '' : `+${pctFmt(g)}%`;
+          })
+          .attr('y', d => targetY[d.cn] + ROW_H/2 + 4),
+        update => {
+          if (dur > 0) {
+            update.transition().duration(dur).ease(EASE)
+              .attr('y', d => targetY[d.cn] + ROW_H/2 + 4)
+              .attr('opacity', showGrowthLabel ? 1 : 0);
+          } else {
+            update.attr('y', d => targetY[d.cn] + ROW_H/2 + 4)
+                  .attr('opacity', showGrowthLabel ? 1 : 0);
+          }
+        }
+      );
+
+    // ── 热区 ──
+    g.select('g.rk2c-hots').selectAll('rect.rk2c-hot')
+      .data(countries, d => d.cn)
+      .join(
+        enter => enter.append('rect').attr('class', 'rk2c-hot')
+          .attr('x', -ML_FIXED).attr('width', W)
+          .attr('height', ROW_H)
+          .attr('fill', 'transparent').attr('cursor', 'default')
+          .attr('y', d => targetY[d.cn])
+          .on('mouseover', (e, d) => window.rk2ShowTip(e, d, false))
+          .on('mousemove', window.rk2MoveTip)
+          .on('mouseout',  window.rk2HideTip),
+        update => {
+          if (dur > 0) {
+            update.transition().duration(dur).ease(EASE)
+              .attr('y', d => targetY[d.cn]);
+          } else {
+            update.attr('y', d => targetY[d.cn]);
+          }
+        }
+      );
+
+    if (dur > 0) {
+      isAnimating = true;
+      setTimeout(() => { isAnimating = false; }, dur + 150);
+    }
+  }
+
+  // =========================================================
+  // 10. CEE 说明板
+  // =========================================================
+  function updateCallout() {
+    const el = document.getElementById('rk2-callout');
+    if (!el) return;
+    const regions11 = buildRegions('p11').map(d => ({ ...d, share: getSharePct(d.p11, 'p11'), growth: getGrowthPct(d.p11, d.p16) }));
+    const regions16 = buildRegions('p16').map(d => ({ ...d, share: getSharePct(d.p16, 'p16'), growth: getGrowthPct(d.p11, d.p16) }));
+    const cee11 = regions11.find(d => d.region === '中东欧');
+    const cee16 = regions16.find(d => d.region === '中东欧');
+    const ceeRank16 = [...regions16].sort((a, b) => b.share - a.share).findIndex(d => d.region === '中东欧') + 1;
+    const topRegions16 = [...regions16].sort((a, b) => b.share - a.share).slice(0, 3);
+    const topCeeCountries = [...(buildRegions('p16').find(d => d.region === '中东欧')?.countries || [])]
+      .sort((a, b) => getSharePct(b.p16, 'p16') - getSharePct(a.p16, 'p16'))
+      .slice(0, 3);
+    const ceeGrowth = cee11 && cee16 && cee11.p11 > 0 ? ((cee16.p16 - cee11.p11) / cee11.p11 * 100) : null;
+    el.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:6px;">
+            🔍 为什么聚焦中东欧？
+          </div>
+          <div style="font-size:12px;color:#78350f;line-height:1.75;">
+            <strong>中东欧16国</strong>在全球科研合作中并不是“边缘区域”：
+            2011–2015 约占全球合作的 <strong>${cee11 ? pctFmt(cee11.share) : '—'}%</strong>，
+            2016–2020 提升到 <strong>${cee16 ? pctFmt(cee16.share) : '—'}%</strong>，
+            位列区域<strong>第${ceeRank16 || '—'}位</strong>，且增长非常明显。
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;min-width:260px;">
+          <div style="display:flex;align-items:flex-start;gap:8px;">
+            <span style="font-size:15px;">📋</span>
+            <div style="font-size:12px;color:#78350f;line-height:1.65;">
+              <strong>17+1机制（2012）</strong>：中国与17个中东欧国家建立合作机制，
+              形成制度化科研合作框架，合作增速与政策时间高度吻合。
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:8px;">
+            <span style="font-size:15px;">🔗</span>
+            <div style="font-size:12px;color:#78350f;line-height:1.65;">
+              <strong>区域战略枢纽</strong>：从国家层面看，波兰、捷克、匈牙利/希腊等国家处于中东欧合作前列，
+              说明该区域内部并非均质，而是存在明显的核心节点。
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:8px;">
+            <span style="font-size:15px;">📈</span>
+            <div style="font-size:12px;color:#78350f;line-height:1.65;">
+              <strong>增幅${ceeGrowth == null ? '—' : `+${pctFmt(ceeGrowth)}%`}</strong>：
+              与全球合作扩张同步，但中东欧内部增长分化更明显，提示后续可以继续拆分比较不同国家的贡献。
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:8px;">
+            <span style="font-size:15px;">⭐</span>
+            <div style="font-size:12px;color:#78350f;line-height:1.65;">
+              <strong>前列国家</strong>：${topRegions16.map(d => `${d.region}（${pctFmt(d.share)}%）`).join('、')}，
+              其中中东欧对应国家主要由 ${topCeeCountries.map(d => d.cn).join('、')} 拉动。
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function syncMetricControls() {
+    const box = document.getElementById('rk2-metric-box');
+    const sel = document.getElementById('rk2-metric');
+    if (!box || !sel) return;
+    if (currentPeriod === 'p16') {
+      box.style.display = 'flex';
+      sel.value = currentMetric;
+    } else {
+      box.style.display = 'none';
+      currentMetric = 'share';
+      sel.value = 'share';
+    }
+  }
+
+  function switchPeriod(p) {
+    if (currentPeriod === p || isAnimating) return;
+    currentPeriod = p;
+
+    const b11 = document.getElementById('rk2-p11');
+    const b16 = document.getElementById('rk2-p16');
+    if (p === 'p11') {
+      b11.style.background = '#1e40af'; b11.style.color = '#fff';
+      b16.style.background = '#f8fafc'; b16.style.color = '#64748b';
+    } else {
+      b16.style.background = '#1e40af'; b16.style.color = '#fff';
+      b11.style.background = '#f8fafc'; b11.style.color = '#64748b';
+    }
+
+    syncMetricControls();
+
+    renderRegionBars();
+    // 带动画更新国家图（true = 触发位移动画）
+    updateCountrySvg(selectedRegion, true);
+    updateCallout();
+  }
+
+  // =========================================================
+  // 12. 初始化
+  // =========================================================
+  let resizeTimer;
+  function renderAll() {
+    syncMetricControls();
+    renderRegionBars();
+    initCountrySvg(selectedRegion);
+    updateCallout();
+  }
+
+  function init() {
+    initTooltip();
+    injectHTML();
+
+    function tryRender(n) {
+      const el = document.getElementById('overview-chart');
+      if (el && el.parentElement && el.parentElement.clientWidth > 0) {
+        renderAll();
+      } else if (n < 20) {
+        setTimeout(() => tryRender(n + 1), 100);
+      }
+    }
+    setTimeout(() => tryRender(0), 80);
+
+    let resTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resTimer);
+      resTimer = setTimeout(renderAll, 200);
+    });
+
+    function applyResp() {
+      const grid = document.getElementById('rk2-grid');
+      if (grid) grid.style.gridTemplateColumns = window.innerWidth < 800 ? '1fr' : '38fr 62fr';
     }
     applyResp();
     window.addEventListener('resize', applyResp);
