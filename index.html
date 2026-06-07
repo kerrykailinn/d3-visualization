@@ -138,23 +138,49 @@
         <p class="section-heading__note">观察合作是否从少数优势方向扩展至更多学科结构。</p>
       </div>
       <div class="viz-grid viz-grid--asym discipline-layout">
-        <article class="viz-card">
-          <div class="figure-chip">图 04</div>
-          <div class="viz-card__head">
-            <span class="viz-label">学科结构</span>
-            <h3>学科分布与变化</h3>
-          </div>
-          <div id="discipline-chart" class="viz-canvas"></div>
-        </article>
+        <div class="discipline-col">
+          <article class="viz-card">
+            <div class="figure-chip">图 04</div>
+            <div class="viz-card__head">
+              <span class="viz-label">学科结构</span>
+              <h3>学科分布与变化</h3>
+            </div>
+            <div id="discipline-chart" class="viz-canvas"></div>
+          </article>
 
-        <article class="viz-card">
-          <div class="figure-chip">图 05</div>
+          <article class="viz-card">
+            <div class="figure-chip">图 05</div>
+            <div class="viz-card__head">
+              <span class="viz-label">国家 × 学科</span>
+              <h3>重点国家学科构成</h3>
+            </div>
+            <div id="country-discipline-treemap" class="viz-canvas"></div>
+          </article>
+        </div>
+
+      <!-- 右侧改为两个独立的看板容器，分别和上下图表对齐 -->
+      <div class="discipline-panel-col">
+        <!-- 饼图对应的数据看板 -->
+        <aside class="viz-card discipline-data-panel" id="discipline-panel-top">
+          <div class="figure-chip">数据看板</div>
           <div class="viz-card__head">
-            <span class="viz-label">国家 × 学科</span>
-            <h3>重点国家学科构成</h3>
+            <h3>学科分布数据</h3>
           </div>
-          <div id="country-discipline-treemap" class="viz-canvas"></div>
-        </article>
+          <div class="viz-canvas">
+            <div id="disc-panel-discipline" class="disc-panel-box"></div>
+          </div>
+        </aside>
+
+        <!-- 树图对应的数据看板 -->
+        <aside class="viz-card discipline-data-panel" id="discipline-panel-bottom">
+          <div class="figure-chip">数据看板</div>
+          <div class="viz-card__head">
+            <h3>国家学科数据</h3>
+          </div>
+          <div class="viz-canvas">
+            <div id="disc-panel-country" class="disc-panel-box"></div>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -168,7 +194,14 @@
         </div>
         <p class="section-heading__note">从机构侧判断合作权力是否仍集中于少数核心节点。</p>
       </div>
-      <div id="network-chart" class="il-viz-stack"></div>
+      <div class="viz-card viz-card--wide">
+        <div class="figure-chip">图 06</div>
+        <div class="viz-card__head">
+          <span class="viz-label">机构结构</span>
+          <h3>机构协作结构工作台</h3>
+        </div>
+        <div id="network-chart" class="viz-canvas"></div>
+      </div>
     </section>
 
     <section class="research-section archive-section" id="archive">

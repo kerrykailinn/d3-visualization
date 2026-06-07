@@ -5,37 +5,25 @@
   ];
 
   const CATEGORY_ORDER = [
-    '哲学',
-    '经济学',
-    '法学',
-    '教育学',
-    '文学',
-    '历史学',
-    '理学',
-    '工学',
     '农学',
     '医学',
-    '军事学',
+    '历史学',
+    '哲学',
+    '工学',
+    '教育学',
+    '文学',
+    '法学',
+    '理学',
     '管理学',
+    '经济学',
     '艺术学',
     '跨学科'
   ];
 
   const CATEGORY_COLORS = [
-    '#8AA6A3',
-    '#B8A29A',
-    '#7C91A7',
-    '#B8B2D0',
-    '#A5B48A',
-    '#C2A69A',
-    '#90A2B3',
-    '#ACA87E',
-    '#B78E9F',
-    '#8A9C8A',
-    '#A48D84',
-    '#7F8EA6',
-    '#B7AD87',
-    '#A9A9A9'
+   '#1bb5b9', '#eea78b', '#d5c1d6', '#9566a8', '#a4d2a1', '#e59d6a',
+    '#58a7e7', '#24808c', '#d5e5c9', '#d4dee9', '#dfc2d8', '#b84725',
+    '#ead198', '#299d82', '#895c56'
   ];
 
   const STATE = {
@@ -61,13 +49,7 @@
 
     injectStyles();
     createDOM();
-
-    try {
-      await ensureVoronoiTreemap();
-    } catch (error) {
-      console.warn('Voronoi Treemap 插件加载失败，后备为矩形树图：', error);
-    }
-
+    // 使用矩形 treemap 实现（不加载 Voronoi treemap 相关脚本）
     await loadData();
     window.addEventListener('resize', debounce(resizeChart, 180));
   }
@@ -76,29 +58,66 @@
     const css = `
       #country-discipline-treemap { width:100%; position:relative; }
       .country-treemap-title { font-size:1.35rem; font-weight:600; color:#1f2937; margin-bottom:0.75rem; text-align:center; }
+      .country-treemap-subtitle { font-size:13px; color:#6b7280; text-align:center; margin-bottom:8px; }
       .country-treemap-svg { width:100%; height:auto; overflow:visible; }
-      .country-treemap-legend { display:flex; flex-wrap:wrap; justify-content:center; gap:0.85rem; padding-top:1rem; }
-      .country-treemap-legend .legend-item { display:flex; align-items:center; gap:0.45rem; padding:0.25rem 0.35rem; font-size:0.88rem; color:#334155; }
-      .country-treemap-legend .legend-swatch { width:16px; height:16px; border-radius:4px; flex-shrink:0; border:1px solid rgba(15,23,42,0.1); }
-      .country-treemap-tooltip { position:fixed; pointer-events:none; z-index:9999; background:rgba(15,23,42,0.93); color:#f8fafc; padding:0.8rem 1rem; border-radius:10px; font-size:0.92rem; line-height:1.5; opacity:0; transition:opacity 160ms ease; box-shadow:0 16px 40px rgba(15,23,42,0.18); max-width:260px; }
-      .country-treemap-path { cursor:pointer; transition:opacity 180ms ease, transform 180ms ease; }
-      .country-treemap-path:hover { opacity:0.95; }
-      .country-treemap-country-boundary { fill:none; stroke:#111827; stroke-width:3px; opacity:1; }
-      .country-treemap-label { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill:#0f172a; font-weight:600; }
+      /* allow svg to shrink inside flex layout and not force the right panel down */
+      .treemap-left { min-width: 0; flex: 1 1 0%; }
+      .treemap-inner {
+        display: flex;
+        gap: 18px;
+        align-items: stretch; /* 关键：让左右高度一致 */
+      }
+      .treemap-left {
+        flex: 1;
+        min-width: 0; /* 关键：允许SVG缩小 */
+      }
+      .treemap-right {
+        /* 固定宽度，不被 SVG 挤压 */
+        flex-shrink: 0;
+        flex-basis: 380px;
+        /* column layout so multiple cards stack vertically and can stretch */
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      /* make direct dashboard children stretch to fill available height */
+      .treemap-right > .country-dashboard,
+      .treemap-right > #disc-panel-country { flex: 1 1 0%; height: 100%; overflow: auto; }
+      .country-treemap-svg {
+        width: 100%;
+        height: auto;
+        max-width: 100%; /* 关键：防止SVG溢出 */
+      }
+      .country-treemap-svg { display:block; max-width:100%; }
+      .country-treemap-legend { display:grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap:8px 12px; align-items:start; padding-top:1rem; }
+      .country-treemap-legend .legend-item { display:flex; align-items:center; gap:0.45rem; padding:0.18rem 0.25rem; font-size:0.88rem; color:#334155; }
+      .country-treemap-legend .legend-swatch { width:14px; height:14px; border-radius:4px; flex-shrink:0; border:1px solid rgba(15,23,42,0.06); }
+      .country-treemap-path { cursor:pointer; transition:opacity 180ms ease, transform 180ms ease; stroke:#ffffff; stroke-width:0.9; }
+      /* enhance borders between countries and within country partitions */
+      .country-treemap-path { stroke:#ffffff; stroke-width:1; }
+      .country-treemap-country-boundary { fill:none; stroke:#f3f6f8; stroke-width:2.4px; stroke-linejoin:round; }
+      /* selected highlight */
+      .country-selected { filter: drop-shadow(0 6px 12px rgba(16,24,40,0.08)); stroke:#0b1220; stroke-width:2.4px; }
+      .country-treemap-label { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill:#ffffff; font-weight:700; pointer-events:none; }
       .country-treemap-small-label { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill:#334155; font-weight:500; }
-      .country-treemap-country-boundary { stroke-linejoin:round; stroke:#0b1220; stroke-opacity:0.9; }
-      .country-treemap-country-boundary { pointer-events:all; stroke-width:2px; }
 
-      /* Dashboard (right side) */
-      .country-dashboard { position:fixed; right:20px; top:120px; width:460px; max-width:44vw; max-height:72vh; overflow:auto; background:#ffffff; border:1px solid rgba(15,23,42,0.06); border-radius:12px; box-shadow:0 18px 36px rgba(2,6,23,0.12); padding:14px; z-index:10005; display:none; }
-      .country-dashboard.visible { display:block; }
-      .country-dashboard .cd-header { display:flex; justify-content:space-between; align-items:center; gap:8px; }
-      .country-dashboard .cd-title { font-size:1.02rem; font-weight:700; color:#0f172a; }
-      .country-dashboard .cd-close { background:transparent; border:0; font-size:1.05rem; cursor:pointer; color:#64748b; }
-      .country-dashboard .cd-section { margin-top:10px; }
-      .country-dashboard svg { width:100%; height:120px; }
-      .country-dashboard .cd-meta { font-size:0.92rem; color:#334155; margin-top:6px; }
-      .country-dashboard .cd-subtitle { font-size:0.95rem; font-weight:600; color:#0f172a; margin-bottom:6px; }
+      /* Dashboard (right column inside treemap container) */
+      /* Panel inner elements styled under the generic disc-panel-box so external container styles apply */
+      .disc-panel-box .cd-header { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+      .disc-panel-box .cd-title { font-size:1.06rem; font-weight:700; color:#0b2540; }
+      .disc-panel-box .cd-close { background:transparent; border:0; font-size:1.05rem; cursor:pointer; color:#64748b; }
+      .disc-panel-box .cd-section { margin-top:12px; }
+      .disc-panel-box svg { width:100%; height:120px; }
+      .disc-panel-box .cd-meta { font-size:0.95rem; color:#334155; margin-top:6px; line-height:1.5 }
+      .disc-panel-box .cd-subtitle { font-size:0.95rem; font-weight:600; color:#0f172a; margin-bottom:6px; }
+      .disc-panel-box .value { font-weight:700; font-size:1.06rem; color:#0b2540 }
+      /* dashboard card styles */
+      .country-dashboard, #disc-panel-country { background:#ffffff; border-radius:12px; box-shadow:0 8px 20px rgba(16,24,40,0.06); padding:16px; box-sizing:border-box; overflow:auto; }
+      .country-dashboard .cd-header, #disc-panel-country .cd-header { align-items:center; }
+      .country-dashboard .cd-title, #disc-panel-country .cd-title { font-size:1.05rem; color:#0b2540 }
+      .country-dashboard .cd-close, #disc-panel-country .cd-close { background:transparent; border:0; cursor:pointer }
+      /* ensure the right panel stays vertically aligned to top */
+      /* treemap-inner uses stretch to keep equal heights */
     `;
     d3.select('head').append('style').html(css);
   }
@@ -107,33 +126,63 @@
     STATE.container.append('div')
       .attr('class', 'country-treemap-title')
       .text('TOP10 Countries: Discipline Distribution by Paper Count');
+    STATE.container.append('div').attr('class','country-treemap-subtitle').text('直观展示中东欧Top10国家的学科分布差异与论文规模对比');
 
-    STATE.svg = STATE.container.append('svg')
+    // layout: left = chart + legend, right = dashboard
+    const inner = STATE.container.append('div').attr('class','treemap-inner');
+    const leftCol = inner.append('div').attr('class','treemap-left').style('flex','1 1 0%').style('min-width','0');
+
+    STATE.svg = leftCol.append('svg')
       .attr('class', 'country-treemap-svg')
       .attr('viewBox', '0 0 1000 640');
 
     STATE.chartGroup = STATE.svg.append('g');
-    STATE.legendContainer = STATE.container.append('div').attr('class', 'country-treemap-legend');
-    STATE.tooltip = d3.select('body').append('div').attr('class', 'country-treemap-tooltip');
-    // right-side dashboard for selected country
-    STATE.dashboard = STATE.container.append('div').attr('class', 'country-dashboard');
-    STATE.dashboard.html(`
-      <div class="cd-header">
-        <div class="cd-title">Country Details</div>
-        <button class="cd-close">×</button>
-      </div>
-      <div class="cd-meta"></div>
-      <div class="cd-section">
-        <div class="cd-subtitle">TOP3学科大类</div>
-        <svg class="cd-stacked"></svg>
-      </div>
-      <div class="cd-section">
-        <div class="cd-subtitle">TOP10学科子类</div>
-        <svg class="cd-top10"></svg>
-      </div>
-    `);
-    STATE.dashboard.select('.cd-close').on('click', () => STATE.dashboard.classed('visible', false));
-    document.addEventListener('click', (e) => { if (!e.target.closest || !e.target.closest('.country-dashboard')) STATE.dashboard.classed('visible', false); });
+    STATE.legendContainer = leftCol.append('div').attr('class', 'country-treemap-legend');
+    STATE.tooltip = null;
+
+    // If a unified external panel exists (added in page markup), use it; otherwise create a local dashboard
+    const externalPanel = d3.select('#disc-panel-country');
+    if (!externalPanel.empty()) {
+      // use the external sub-panel directly; don't add extra wrapper class to avoid style conflicts
+      STATE.dashboard = externalPanel;
+      STATE.dashboard.html(`
+        <div class="cd-header">
+          <div class="cd-title">Country Details</div>
+          <button class="cd-close">×</button>
+        </div>
+        <div class="cd-meta"></div>
+        <div class="cd-section">
+          <div class="cd-subtitle">TOP3学科大类</div>
+          <svg class="cd-stacked"></svg>
+        </div>
+        <div class="cd-section">
+          <div class="cd-subtitle">TOP10学科子类</div>
+          <svg class="cd-top10"></svg>
+        </div>
+      `);
+      STATE.dashboard.select('.cd-close').on('click', () => STATE.dashboard.classed('visible', false));
+    } else {
+      const rightCol = inner.append('div').attr('class','treemap-right').style('flex-shrink','0').style('flex-basis','380px');
+      // keep reference so we can set its height to match the chart
+      STATE.rightCol = rightCol;
+      STATE.dashboard = rightCol.append('div').attr('class', 'country-dashboard');
+      STATE.dashboard.html(`
+        <div class="cd-header">
+          <div class="cd-title">Country Details</div>
+          <button class="cd-close">×</button>
+        </div>
+        <div class="cd-meta"></div>
+        <div class="cd-section">
+          <div class="cd-subtitle">TOP3学科大类</div>
+          <svg class="cd-stacked"></svg>
+        </div>
+        <div class="cd-section">
+          <div class="cd-subtitle">TOP10学科子类</div>
+          <svg class="cd-top10"></svg>
+        </div>
+      `);
+      STATE.dashboard.select('.cd-close').on('click', () => STATE.dashboard.classed('visible', false));
+    }
 
     resizeChart();
   }
@@ -201,6 +250,8 @@
       computeCountryStats();
       await renderChart();
       buildLegend();
+      // render dashboard default (overview)
+      renderDashboardDefault();
     } catch (error) {
       console.error('加载国家学科数据失败：', error);
     }
@@ -248,33 +299,34 @@
 
   async function renderChart() {
     if (!STATE.rootHierarchy) return;
-    STATE.dimensions.width = Math.max(700, STATE.container.node().clientWidth);
+    // compute available width for the treemap by subtracting the right panel width and gap
+    const containerW = STATE.container.node().clientWidth;
+    const rightPanelWidth = 380; // must match .treemap-right flex-basis
+    const gap = 18; // must match .treemap-inner gap
+    const availableW = Math.max(0, containerW - rightPanelWidth - gap);
+    // keep a sensible minimum width for the chart
+    STATE.dimensions.width = Math.max(700, availableW);
     STATE.dimensions.height = Math.max(520, STATE.dimensions.width * 0.65);
 
     STATE.svg
       .attr('viewBox', `0 0 ${STATE.dimensions.width} ${STATE.dimensions.height}`)
       .style('height', `${STATE.dimensions.height}px`);
 
+    // ensure dashboard height matches treemap area
+    if (STATE.rightCol) {
+      // set right column height so its child cards (flex:1) stretch to match the treemap
+      STATE.rightCol.style('height', `${STATE.dimensions.height}px`);
+    } else if (STATE.dashboard) {
+      // fallback: set dashboard height directly
+      STATE.dashboard.style('height', `${STATE.dimensions.height}px`);
+    }
+
     STATE.chartGroup
       .selectAll('.country-boundary')
       .raise();
 
-    const radius = Math.min(STATE.dimensions.width, STATE.dimensions.height) * 0.46;
-    const centerX = STATE.dimensions.width / 2;
-    const centerY = STATE.dimensions.height / 2;
-
-    const clip = Array.from({ length: 120 }, (_, i) => {
-      const angle = (2 * Math.PI * i) / 120;
-      return [
-        centerX + radius * Math.cos(angle),
-        centerY + radius * Math.sin(angle)
-      ];
-    });
-
-    const layoutSucceeded = await computeVoronoiPolygons(clip);
-    if (!layoutSucceeded) {
-      computeRectangularFallback();
-    }
+    // always use rectangular treemap layout (矩形布局)
+    computeRectangularFallback();
 
     const leaves = STATE.rootHierarchy.leaves();
     const countries = STATE.rootHierarchy.children || [];
@@ -297,7 +349,6 @@
       .append('path')
       .attr('class', 'country-treemap-country-boundary')
       .on('click', (event, d) => {
-        console.log('[treemap] boundary clicked', d.data.name);
         event.stopPropagation();
         showCountryDashboard(d.data.name);
       })
@@ -309,19 +360,15 @@
     const leafSelection = STATE.chartGroup.selectAll('.country-treemap-leaf')
       .data(leaves, d => `${d.parent.data.name}|${d.data.name}`);
 
-    leafSelection.exit().transition().duration(220).style('opacity', 0).remove();
+      leafSelection.exit().transition().duration(220).style('opacity', 0).remove();
 
     const leafEnter = leafSelection.enter()
-      .append('path')
+      .append('rect')
       .attr('class', 'country-treemap-path country-treemap-leaf')
-      .attr('fill-opacity', 0.92)
+      .attr('fill-opacity', 0.96)
       .attr('stroke', '#ffffff')
-      .attr('stroke-width', 0.9)
-      .on('mouseenter', handleMouseEnter)
-      .on('mousemove', handleMouseMove)
-      .on('mouseleave', handleMouseLeave)
+      .attr('stroke-width', 1)
       .on('click', (event, d) => {
-        console.log('[treemap] leaf clicked', d.parent?.data?.name || d.data?.name);
         event.stopPropagation();
         showCountryDashboard(d.parent?.data?.name || d.data?.name);
       });
@@ -331,26 +378,22 @@
         const key = (d.data && (d.data.name || d.data.category) || '').toString().trim();
         try {
           if (STATE.colorScale) {
-            const c = STATE.colorScale(key);
-            if (c) return c;
+            const base = STATE.colorScale(key);
+            try { const c = d3.hsl(base); c.s *= 0.92; return c + ''; } catch(e){ return base; }
           }
         } catch (e) {}
         return '#9AA6A3';
       })
       .transition()
       .duration(450)
-      .attrTween('d', function (d) {
-        const previous = this.__previous || d.polygon;
-        const current = d.polygon || [];
-        this.__previous = current;
-        return interpolatePolygon(previous, current);
-      });
+      .attr('x', d => d.x0)
+      .attr('y', d => d.y0)
+      .attr('width', d => Math.max(0, d.x1 - d.x0))
+      .attr('height', d => Math.max(0, d.y1 - d.y0));
 
     leafEnter.merge(leafSelection)
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 0.9);
-
-    leafSelection.merge(leafEnter).attr('fill', d => STATE.colorScale(d.data.name));
+      .attr('stroke', '#ffffff')
+      .attr('stroke-width', 1);
 
     // ensure country boundaries are above leaves and clickable
     STATE.chartGroup.selectAll('.country-treemap-country-boundary').raise();
@@ -385,7 +428,7 @@
   function computeRectangularFallback() {
     const treemap = d3.treemap()
       .size([STATE.dimensions.width, STATE.dimensions.height])
-      .paddingInner(1)
+      .paddingInner(2)
       .round(true);
 
     treemap(STATE.rootHierarchy);
@@ -405,23 +448,29 @@
   }
 
   function renderLabels(countries, leaves) {
-    STATE.chartGroup.selectAll('.country-treemap-country-label').remove();
-    STATE.chartGroup.selectAll('.country-treemap-category-label').remove();
+    // remove any previously rendered labels to avoid duplicates on resize/redraw
+    STATE.chartGroup.selectAll('.country-treemap-label, .country-treemap-small-label, .country-treemap-country-label, .country-treemap-category-label').remove();
 
     countries.forEach(country => {
       if (!country.polygon) return;
       const [cx, cy] = d3.polygonCentroid(country.polygon);
-      STATE.chartGroup.append('text')
-        .attr('class', 'country-treemap-label')
+      const txt = STATE.chartGroup.append('text')
+        // include both generic and specific classes so future clears can target them
+        .attr('class', 'country-treemap-label country-treemap-country-label')
         .attr('x', cx)
         .attr('y', cy)
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
-        .attr('font-size', '18px')
-        .attr('paint-order', 'stroke')
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 4)
+        .attr('font-size', Math.max(12, Math.min(20, Math.round(Math.min(STATE.dimensions.width, STATE.dimensions.height) / 40))))
         .text(country.data.name);
+      // simple truncation if too long to avoid overflow
+      // set max width by measuring and scaling down font-size slightly
+      const bbox = txt.node().getBBox();
+      const maxW = Math.max(60, Math.min(STATE.dimensions.width / 6, 220));
+      if (bbox.width > maxW) {
+        const scale = maxW / bbox.width;
+        txt.attr('transform', `translate(${cx},${cy}) scale(${scale}) translate(${-cx},${-cy})`);
+      }
     });
   }
 
@@ -434,6 +483,8 @@
     sums.sort((a, b) => d3.descending(a[1], b[1]));
     STATE.countryRankList = sums.map(([country, total]) => ({ country, total }));
     STATE.countryTotalMap = new Map(sums.map(([c, t]) => [c, t]));
+    // overall total across all countries (for percentage calculation)
+    STATE.overallTotal = d3.sum(STATE.rawRows, r => r.paper_n);
   }
 
   function getSubColor(category, idx, total) {
@@ -447,7 +498,6 @@
   }
 
   function showCountryDashboard(countryName) {
-    console.log('[treemap] showCountryDashboard', countryName);
     const rows = (STATE.rawRows || []).filter(r => r.country_cn === countryName);
     if (!rows.length) return;
     const total = STATE.countryTotalMap?.get(countryName) ?? d3.sum(rows, r => r.paper_n);
@@ -480,7 +530,42 @@
     renderStackedChart(STATE.dashboard.select('svg.cd-stacked'), topCatsDetailed);
     renderTop10Chart(STATE.dashboard.select('svg.cd-top10'), top10);
 
+    // highlight selection in chart
+    clearSelectionHighlight();
+    STATE.selectedCountry = countryName;
+    highlightCountry(countryName);
     STATE.dashboard.classed('visible', true);
+  }
+
+  function renderDashboardDefault(){
+    // default panel: Top10 totals and Top3 countries ranking
+    const totalTop10 = d3.sum(STATE.countryRankList, d => d.total);
+    const overall = STATE.overallTotal || totalTop10;
+    const pct = overall ? (totalTop10 / overall * 100) : 0;
+    STATE.dashboard.select('.cd-title').text('Top10 国家概览');
+    STATE.dashboard.select('.cd-meta').html(`<div><strong>Top10 国家论文总数：</strong><span class="value">${totalTop10}</span></div><div style="margin-top:6px;color:#6b7280">占全部文献：${pct.toFixed(1)}%</div>`);
+
+    const top3 = STATE.countryRankList.slice(0,3);
+    const top3Html = top3.map((r,i)=>`<div style="margin-top:6px"><strong>${i+1}. ${r.country}</strong>：${r.total}</div>`).join('');
+    STATE.dashboard.select('.cd-stacked').selectAll('*').remove();
+    STATE.dashboard.select('.cd-top10').selectAll('*').remove();
+    STATE.dashboard.select('.cd-section').filter(function(){ return d3.select(this).select('.cd-subtitle').text() === 'TOP3学科大类'; }).selectAll('*').remove();
+    // append top3 block
+    STATE.dashboard.select('.cd-section').filter(function(d,i){ return i===1; }).html(`<div class="cd-subtitle">Top3 国家论文数</div>${top3Html}`);
+  }
+
+  function clearSelectionHighlight(){
+    STATE.chartGroup.selectAll('.country-treemap-leaf').classed('country-selected', false);
+    STATE.chartGroup.selectAll('.country-treemap-country-boundary').classed('country-selected', false);
+  }
+
+  function highlightCountry(countryName){
+    // add class on leaves belonging to the country
+    STATE.chartGroup.selectAll('.country-treemap-leaf').filter(d => (d.parent && d.parent.data && d.parent.data.name) === countryName)
+      .classed('country-selected', true);
+    // highlight the country boundary
+    STATE.chartGroup.selectAll('.country-treemap-country-boundary').filter(d => d.data && d.data.name === countryName)
+      .classed('country-selected', true);
   }
 
   function renderStackedChart(svgSel, data) {
@@ -545,23 +630,16 @@
   }
 
   function handleMouseEnter(event, d) {
-    d3.select(this).attr('opacity', 0.92).attr('stroke-width', 1.6);
-    STATE.tooltip.html(`
-      <div><strong>国家：</strong>${d.parent.data.name}</div>
-      <div><strong>学科大类：</strong>${d.data.name}</div>
-      <div><strong>论文数量：</strong>${d.data.value}</div>
-    `).style('opacity', 1);
+    // hover tooltip removed; keep slight visual feedback
+    d3.select(this).attr('opacity', 0.96).attr('stroke-width', 1.6);
   }
 
   function handleMouseMove(event) {
-    const [x, y] = d3.pointer(event);
-    STATE.tooltip.style('left', `${event.pageX + 14}px`)
-      .style('top', `${event.pageY + 14}px`);
+    // no-op: tooltip removed
   }
 
   function handleMouseLeave() {
     d3.select(this).attr('opacity', 0.92).attr('stroke-width', 0.9);
-    STATE.tooltip.style('opacity', 0);
   }
 
   function polygonPath(polygon) {
