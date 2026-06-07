@@ -1,511 +1,3188 @@
-/**
- * chart-cee-v4.js
- * 改动（相对v3）：
- *  1. 删除右下 stacked bar 占比模块
- *  2. 修复 hover 联动（地图↔排名图双向同步）
- *  3. 增速百分比默认隐藏，hover 时才出现（当前行右侧显示）
- *  4. 地图高度自动对齐条形图高度
- */
+
 (function () {
   'use strict';
 
-  const CEE_DATA = [
-    {cn:'波兰',    iso3:'POL', num:'616', p11:3252, p16:6866},
-    {cn:'捷克',    iso3:'CZE', num:'203', p11:2450, p16:5063},
-    {cn:'希腊',    iso3:'GRC', num:'300', p11:2086, p16:4193},
-    {cn:'匈牙利',  iso3:'HUN', num:'348', p11:1901, p16:3673},
-    {cn:'罗马尼亚',iso3:'ROU', num:'642', p11:1596, p16:3124},
-    {cn:'塞尔维亚',iso3:'SRB', num:'688', p11:1295, p16:1967},
-    {cn:'斯洛文尼亚',iso3:'SVN',num:'705',p11:1045, p16:1920},
-    {cn:'斯洛伐克',iso3:'SVK', num:'703', p11:896,  p16:1809},
-    {cn:'克罗地亚',iso3:'HRV', num:'191', p11:907,  p16:1690},
-    {cn:'保加利亚',iso3:'BGR', num:'100', p11:693,  p16:1621},
-    {cn:'爱沙尼亚',iso3:'EST', num:'233', p11:714,  p16:1528},
-    {cn:'拉脱维亚',iso3:'LVA', num:'428', p11:97,   p16:1028},
-    {cn:'北马其顿',iso3:'MKD', num:'807', p11:70,   p16:178 },
-    {cn:'黑山',    iso3:'MNE', num:'499', p11:11,   p16:129 },
-    {cn:'波黑',    iso3:'BIH', num:'070', p11:17,   p16:90  },
-    {cn:'阿尔巴尼亚',iso3:'ALB',num:'008',p11:6,    p16:71  }
+  const MODULE_ID = 'ksj-trend-dashboard';
+  const TARGET_ID = 'trend-chart';
+
+  const DATA_PATHS = {
+    area: ['area.csv', './area.csv', 'static/data/area.csv', './static/data/area.csv'],
+    country: ['country.csv', './country.csv', 'static/data/country.csv', './static/data/country.csv']
+  };
+
+  const CEE_COUNTRIES = [
+    { country: 'POLAND', cn: '波兰', iso3: 'POL' },
+    { country: 'CZECH REPUBLIC', cn: '捷克', iso3: 'CZE' },
+    { country: 'GREECE', cn: '希腊', iso3: 'GRC' },
+    { country: 'HUNGARY', cn: '匈牙利', iso3: 'HUN' },
+    { country: 'ROMANIA', cn: '罗马尼亚', iso3: 'ROU' },
+    { country: 'SERBIA', cn: '塞尔维亚', iso3: 'SRB' },
+    { country: 'SLOVENIA', cn: '斯洛文尼亚', iso3: 'SVN' },
+    { country: 'SLOVAKIA', cn: '斯洛伐克', iso3: 'SVK' },
+    { country: 'CROATIA', cn: '克罗地亚', iso3: 'HRV' },
+    { country: 'BULGARIA', cn: '保加利亚', iso3: 'BGR' },
+    { country: 'ESTONIA', cn: '爱沙尼亚', iso3: 'EST' },
+    { country: 'LATVIA', cn: '拉脱维亚', iso3: 'LVA' },
+    { country: 'MACEDONIA', cn: '马其顿', iso3: 'MKD' },
+    { country: 'MONTENEGRO', cn: '黑山', iso3: 'MNE' },
+    { country: 'BOSNIA & HERZEGOVINA', cn: '波黑', iso3: 'BIH' },
+    { country: 'ALBANIA', cn: '阿尔巴尼亚', iso3: 'ALB' },
+    { country: 'KOSOVO', cn: '科索沃', iso3: 'XKX' }
   ];
 
-  const REGION_GROWTH = [
-    {r:'中亚',    p11:211,    p16:1080  },
-    {r:'南亚',    p11:8508,   p16:32592 },
-    {r:'非洲',    p11:3454,   p16:10811 },
-    {r:'中东',    p11:15248,  p16:40701 },
-    {r:'北美',    p11:159497, p16:309710},
-    {r:'西欧',    p11:119600, p16:260000},
-    {r:'东南亚',  p11:18975,  p16:44491 },
-    {r:'中东欧',  p11:17036,  p16:34950, isCEE:true},
-    {r:'拉丁美洲',p11:9586,   p16:20116 },
-    {r:'东欧',    p11:10289,  p16:21038 },
-    {r:'东亚',    p11:37244,  p16:61536 }
-  ].map(d=>({...d, growth:+((d.p16-d.p11)/d.p11*100).toFixed(1)}))
-   .sort((a,b)=>b.growth-a.growth);
+  const COUNTRY_META = new Map(CEE_COUNTRIES.map(d => [d.country, d]));
+  const COUNTRY_CN_TO_META = new Map(CEE_COUNTRIES.map(d => [d.cn, d]));
 
-  const GLOBAL = {p11:296949, p16:609382};
-  GLOBAL.growth = +((GLOBAL.p16-GLOBAL.p11)/GLOBAL.p11*100).toFixed(1);
+  const fmt = {
+    int: d3.format(','),
+    pct: d3.format('.2f'),
+    pct1: d3.format('.1f'),
+    pct2: d3.format('.2f'),
+    growth: d3.format('+.0%'),
+    signedInt: d3.format('+,.0f')
+  };
 
-  const CEE_T11 = CEE_DATA.reduce((s,d)=>s+d.p11,0);
-  const CEE_T16 = CEE_DATA.reduce((s,d)=>s+d.p16,0);
+  const state = {
+    root: null,
+    tooltip: null,
+    data: {
+      yearly: [],
+      countries: [],
+      stages: []
+    },
+    view: {
+      sortBy: 'p2',
+      stage: 'p2',
+      highlightMode: 'all',
+      selectedCountry: null,
+      hoveredCountry: null
+    },
+    resizeTimer: null,
+    ro: null
+  };
 
-  const ceeByNum = {};
-  CEE_DATA.forEach(d=>{
-    [d.num, +d.num, String(+d.num)].forEach(k=>{ ceeByNum[k]=d; });
-  });
+  document.addEventListener('DOMContentLoaded', init);
 
-  const ROW = 30, BAR = 9, GAP = 3;
-  const RANK_DATA = [...CEE_DATA].sort((a,b)=>b.p16-a.p16);
+  async function init() {
+    const target = document.getElementById(TARGET_ID);
+    if (!target) return;
+    state.root = d3.select(target);
+    injectStyles();
+    injectSkeleton();
+    state.tooltip = d3.select('body').append('div').attr('class', 'ksj-tooltip');
 
-  let worldGeoData = null;
-  let resizeTimer;
-  const fmt = d3.format(',');
-
-  /* ─── Tooltip ─── */
-  function initTooltip() {
-    if (document.getElementById('cee4-tt')) return;
-    const tt = document.createElement('div');
-    tt.id = 'cee4-tt';
-    tt.style.cssText = `
-      position:fixed;display:none;pointer-events:none;z-index:9999;
-      background:rgba(15,23,42,.96);color:#f8fafc;border-radius:10px;
-      padding:12px 15px;font-size:12px;line-height:1.7;
-      box-shadow:0 8px 28px rgba(0,0,0,.32);max-width:220px;
-      font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;
-      border:1px solid rgba(255,255,255,.08);
-    `;
-    document.body.appendChild(tt);
-
-    window.cee4ShowTip = function(e, d) {
-      const gr = d.p11>0 ? ((d.p16-d.p11)/d.p11*100).toFixed(1) : '—';
-      const s11 = (d.p11/CEE_T11*100).toFixed(1);
-      const s16 = (d.p16/CEE_T16*100).toFixed(1);
-      tt.innerHTML = `
-        <div style="font-weight:700;font-size:13px;border-bottom:1px solid rgba(255,255,255,.12);
-          padding-bottom:5px;margin-bottom:7px;">${d.cn}</div>
-        <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:3px;">
-          <span style="color:rgba(255,255,255,.5);">2011–2015</span><span>${fmt(d.p11)} 篇</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:3px;">
-          <span style="color:rgba(255,255,255,.5);">2016–2020</span>
-          <span style="color:#93c5fd;font-weight:600;">${fmt(d.p16)} 篇</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:3px;">
-          <span style="color:rgba(255,255,255,.5);">增幅</span>
-          <span style="color:#6ee7b7;font-weight:600;">+${gr}%</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;gap:12px;">
-          <span style="color:rgba(255,255,255,.5);">区域占比</span>
-          <span style="color:#fbbf24;">${s11}% → ${s16}%</span>
-        </div>`;
-      tt.style.display='block';
-      window.cee4MoveTip(e);
-    };
-    window.cee4MoveTip = function(e) {
-      let x=e.clientX+14, y=e.clientY+12;
-      if(x+230>window.innerWidth)  x=e.clientX-238;
-      if(y+220>window.innerHeight) y=e.clientY-228;
-      tt.style.left=x+'px'; tt.style.top=y+'px';
-    };
-    window.cee4HideTip = ()=>{ tt.style.display='none'; };
+    try {
+      const [areaRows, countryRows] = await Promise.all([
+        loadCsvFromCandidates(DATA_PATHS.area),
+        loadCsvFromCandidates(DATA_PATHS.country)
+      ]);
+      prepareData(areaRows, countryRows);
+      renderAll();
+      setupResize();
+    } catch (error) {
+      showLoadError(error);
+    }
   }
 
-  /* ─── HTML 骨架 ─── */
-  function injectHTML() {
-    const el = document.getElementById('ranking-chart');
-    if (!el) return;
-    el.style.fontFamily = "'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif";
+  function injectSkeleton() {
+    state.root.html(`
+      <div id="${MODULE_ID}" class="ksj-wrap">
+        <nav class="level mb-5 ksj-zyl-stats" id="ksj-hero-metrics"></nav>
 
-    el.innerHTML = `
-      <div style="background:#fff;border-radius:14px;padding:22px 24px;
-        box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid #dde4ec;">
-
-        <div style="margin-bottom:18px;">
-          <div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px;">
-            中东欧16国深度分析
-          </div>
-          <div style="font-size:11.5px;color:#64748b;">
-            悬停地图或排名图 → 双向联动高亮 ·
-            <span style="color:#d97706;font-weight:600;">橙色</span>深浅 = 2016–2020发文量 ·
-            增速在悬停时显示
-          </div>
-        </div>
-
-        <!-- 主体双栏 -->
-        <div id="cee4-main" style="display:grid;grid-template-columns:300px 1fr;
-          gap:20px;align-items:start;margin-bottom:22px;">
-
-          <!-- 左列：地图（高度跟随条形图） -->
-          <div>
-            <div style="font-size:10.5px;font-weight:700;color:#94a3b8;
-              text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">
-              地图（2016–2020 发文量着色）
-            </div>
-            <div id="cee4-map-wrap" style="background:#eef4fa;border-radius:10px;
-              overflow:hidden;border:1px solid #dde4ec;">
-              <svg id="cee4-map-svg" style="width:100%;display:block;"></svg>
-              <div style="font-size:10px;color:#94a3b8;padding:5px 10px;text-align:center;">
-                悬停查看各国数据
+        <div class="box mb-5 ksj-zyl-box">
+          <div class="level mb-4">
+            <div class="level-left">
+              <div class="content mb-0">
+                <h3 class="title is-4 mb-1">整体趋势：年度合作规模与占比</h3>
+                <p class="subtitle is-6 has-text-grey mt-2">
+                  展示2011—2020年中国—中东欧合作论文量，以及其在中国国际合作总量中的占比变化。
+                </p>
               </div>
             </div>
           </div>
 
-          <!-- 右列：排名图 -->
-          <div>
-            <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;flex-wrap:wrap;">
-              <span style="font-size:10.5px;font-weight:700;color:#94a3b8;
-                text-transform:uppercase;letter-spacing:.07em;">
-                16国发文量排序（两时段对比）
-              </span>
-              <span style="display:flex;align-items:center;gap:12px;font-size:10.5px;">
-                <span style="display:flex;align-items:center;gap:4px;">
-                  <span style="display:inline-block;width:12px;height:8px;border-radius:2px;
-                    background:#94a3b8;opacity:.7;"></span>
-                  <span style="color:#64748b;">2011–2015</span>
-                </span>
-                <span style="display:flex;align-items:center;gap:4px;">
-                  <span style="display:inline-block;width:12px;height:8px;border-radius:2px;
-                    background:#d97706;"></span>
-                  <span style="color:#64748b;">2016–2020</span>
-                </span>
-                <span style="color:#94a3b8;font-size:10px;">（悬停显示增速）</span>
-              </span>
+          <div class="columns is-desktop">
+            <div class="column is-three-quarters">
+              <div class="ksj-chart-surface macro-large" id="ksj-macro-chart"></div>
             </div>
-            <svg id="cee4-rank-svg" style="display:block;width:100%;overflow:visible;"></svg>
+            <div class="column">
+              <div class="box ksj-zyl-side-card" id="ksj-macro-card">
+                <p class="heading mb-2">年度指标</p>
+                <p class="has-text-grey is-size-7">悬停年份可查看年度合作量、合作占比和较基期变化。</p>
+              </div>
+            </div>
           </div>
 
+          <div id="ksj-proportion-strip"></div>
         </div>
 
+        <div class="box mb-5 ksj-zyl-box">
+          <div class="level mb-4">
+            <div class="level-left">
+              <div class="content mb-0">
+                <h3 class="title is-4 mb-1">国家结构：阶段排名与新增合作量</h3>
+                <p class="subtitle is-6 has-text-grey mt-2">
+                  对比2011—2015与2016—2020两个阶段的国家排名、排名变化和新增合作量。
+                </p>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="buttons has-addons mb-0 ksj-toolbar" id="ksj-rank-toolbar">
+                <button class="button is-small ksj-pill is-light" data-focus="core" title="后期排名前3，或后期合作份额≥13%">核心</button>
+                <button class="button is-small ksj-pill is-light" data-focus="chaser" title="未进入核心或稳定范围，且增长率高于中位数、新增量为正">追赶</button>
+                <button class="button is-small ksj-pill is-light" data-focus="tail" title="未满足核心、稳定、追赶条件，合作规模或增量较小">长尾</button>
+                <button class="button is-small ksj-pill is-link active" data-focus="all">全部</button>
+              </div>
+            </div>
+          </div>
 
+          <div class="columns is-desktop">
+            <div class="column is-three-quarters">
+              <div class="ksj-chart-surface tall" id="ksj-rank-flow"></div>
+            </div>
+            <div class="column">
+              <div class="box ksj-zyl-side-card" id="ksj-selected-card">
+                <p class="heading mb-2">国家结构</p>
+                <p class="has-text-grey is-size-7">悬停或点击国家可查看两阶段合作量、排名变化、增长率和结构类型。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="box mb-5 ksj-zyl-box">
+          <div class="level mb-4">
+            <div class="level-left">
+              <div class="content mb-0">
+                <h3 class="title is-4 mb-1">国家均衡：国家份额与集中度</h3>
+                <p class="subtitle is-6 has-text-grey mt-2">
+                  气泡表示各国阶段合作量，Lorenz曲线用于判断合作是否集中于少数国家。
+                </p>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="buttons has-addons mb-0 ksj-toolbar" id="ksj-balance-toolbar">
+                <button class="button is-small ksj-pill is-link active" data-stage="p2">2016–2020</button>
+                <button class="button is-small ksj-pill is-light" data-stage="p1">2011–2015</button>
+                <button class="button is-small ksj-pill is-light" data-focus="top3">Top3</button>
+                <button class="button is-small ksj-pill is-light" data-focus="top5">Top5</button>
+                <button class="button is-small ksj-pill is-light active" data-focus="all">全部</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="notification is-light ksj-link-bridge-card" id="ksj-balance-link-card">
+            <p class="heading mb-2">阶段与筛选</p>
+            <p class="has-text-grey is-size-7 mb-0">
+              选择阶段或高亮范围后，气泡图、Lorenz曲线和贡献条会同步更新。
+            </p>
+          </div>
+
+          <div class="columns is-desktop ksj-balance-pair">
+            <div class="column">
+              <div class="ksj-chart-surface balance-large" id="ksj-bubble-map"></div>
+            </div>
+            <div class="column">
+              <div class="ksj-chart-surface lorenz-large compact" id="ksj-lorenz-chart"></div>
+            </div>
+          </div>
+
+
+          <div class="notification is-info is-light mt-3" id="ksj-conclusion"></div>
+        </div>
+      </div>
+    `);
+  }
+
+
+  function injectStyles() {
+    if (document.getElementById('ksj-trend-style')) return;
+    const css = `
+      #trend-chart,
+      #${MODULE_ID} {
+        width: 100%;
+        position: relative;
+        font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #172033;
+      }
+
+      #${MODULE_ID} * {
+        box-sizing: border-box;
+      }
+
+      .ksj-wrap {
+        --ink: #172033;
+        --muted: #6b778d;
+        --soft: #eef5fb;
+        --line: #d9e4ef;
+        --blue: #5b8def;
+        --blue-dark: #315cba;
+        --orange: #f2a65a;
+        --orange-dark: #d97706;
+        --green: #6abf8f;
+        --red: #e76f6f;
+        --purple: #8c7ae6;
+        --paper: rgba(255, 255, 255, 0.92);
+        --shadow: 0 18px 45px rgba(31, 47, 70, 0.12);
+        width: 100%;
+      }
+
+      .ksj-hero-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+        gap: 20px;
+        padding: 26px;
+        margin: 0 0 22px;
+        border: 1px solid rgba(91, 141, 239, 0.18);
+        border-radius: 24px;
+        background:
+          radial-gradient(circle at 10% 10%, rgba(91,141,239,.16), transparent 28%),
+          radial-gradient(circle at 95% 5%, rgba(242,166,90,.16), transparent 25%),
+          linear-gradient(135deg, #f8fbff 0%, #ffffff 58%, #fffaf4 100%);
+        box-shadow: var(--shadow);
+      }
+
+      .ksj-eyebrow {
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--blue-dark);
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .ksj-hero-card h2 {
+        font-size: clamp(1.8rem, 2.6vw, 2.45rem);
+        line-height: 1.12;
+        margin: 0 0 12px;
+        color: var(--ink);
+        font-weight: 850;
+      }
+
+      .ksj-hero-card p,
+      .ksj-viz-card p,
+      .ksj-panel-copy,
+      .ksj-definition-box p {
+        color: var(--muted);
+        line-height: 1.72;
+      }
+
+      .ksj-hero-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .ksj-metric {
+        min-height: 102px;
+        padding: 15px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(217, 228, 239, .9);
+        box-shadow: 0 8px 20px rgba(31, 47, 70, .07);
+      }
+
+      .ksj-metric-label {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 750;
+        margin-bottom: 7px;
+      }
+
+      .ksj-metric-value {
+        font-size: 1.5rem;
+        font-weight: 850;
+        color: var(--ink);
+      }
+
+      .ksj-metric-foot {
+        margin-top: 5px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .ksj-story-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 22px;
+        align-items: start;
+      }
+
+      .ksj-story-grid.no-sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      .ksj-main-panel.full-width {
+        width: 100%;
+      }
+
+      .ksj-insight-panel {
+        position: sticky;
+        top: 18px;
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, .92);
+        box-shadow: 0 14px 32px rgba(31, 47, 70, .09);
+      }
+
+      .ksj-panel-title {
+        font-size: 1.05rem;
+        color: var(--ink);
+        font-weight: 850;
+        margin-bottom: 9px;
+      }
+
+      .ksj-definition-box,
+      .ksj-selected-card {
+        margin-top: 14px;
+        padding: 14px;
+        border: 1px solid rgba(217,228,239,.95);
+        border-radius: 16px;
+        background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+      }
+
+      .ksj-mini-title {
+        font-size: 13px;
+        color: var(--ink);
+        font-weight: 850;
+        margin-bottom: 8px;
+      }
+
+      .ksj-muted {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .ksj-country-name {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: var(--ink);
+        margin-bottom: 4px;
+      }
+
+      .ksj-country-type {
+        display: inline-flex;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #eef5ff;
+        color: var(--blue-dark);
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .ksj-country-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .ksj-country-stat {
+        padding: 9px;
+        border-radius: 13px;
+        background: #f7fafc;
+        border: 1px solid rgba(217,228,239,.8);
+      }
+
+      .ksj-country-stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 2px;
+      }
+
+      .ksj-country-stat b {
+        font-size: 14px;
+        color: var(--ink);
+      }
+
+      .ksj-main-panel {
+        min-width: 0;
+      }
+
+      .ksj-viz-card {
+        margin-bottom: 24px;
+        padding: 26px;
+        border-radius: 24px;
+        border: 1px solid rgba(217, 228, 239, .95);
+        background: var(--paper);
+        box-shadow: 0 16px 38px rgba(31, 47, 70, .08);
+      }
+
+      .ksj-card-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+        gap: 18px;
+        align-items: start;
+        margin-bottom: 12px;
+      }
+
+      .ksj-card-header.compact {
+        display: block;
+      }
+
+      .ksj-question-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: #eef5ff;
+        color: var(--blue-dark);
+        font-size: 12px;
+        font-weight: 850;
+        margin-bottom: 8px;
+      }
+
+      .ksj-viz-card h3 {
+        margin: 0 0 6px;
+        color: var(--ink);
+        font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+        font-weight: 850;
+      }
+
+      .ksj-viz-card p {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .ksj-chart-note {
+        padding: 13px 14px;
+        border-left: 4px solid var(--orange);
+        border-radius: 14px;
+        background: #fff8ec;
+        color: #6f4b1a;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .ksj-chart-surface {
+        position: relative;
+        width: 100%;
+        min-height: 340px;
+        border-radius: 18px;
+        background:
+          linear-gradient(180deg, rgba(248,250,252,.92), rgba(255,255,255,.98));
+        border: 1px solid rgba(217, 228, 239, .82);
+        overflow: hidden;
+      }
+
+      .ksj-chart-surface.tall {
+        min-height: 780px;
+      }
+
+      .ksj-chart-surface.balance-large {
+        min-height: 520px;
+      }
+
+      .ksj-chart-surface svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .ksj-heat-strip {
+        margin-top: 12px;
+      }
+
+      .ksj-heat-grid {
+        display: grid;
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .ksj-heat-cell {
+        position: relative;
+        padding: 9px 8px;
+        border-radius: 12px;
+        border: 1px solid rgba(217,228,239,.8);
+        min-height: 60px;
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease;
+      }
+
+      .ksj-heat-cell:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(31,47,70,.12);
+      }
+
+      .ksj-heat-year {
+        font-size: 11px;
+        color: rgba(23,32,51,.68);
+        font-weight: 800;
+      }
+
+      .ksj-heat-value {
+        margin-top: 3px;
+        font-size: 15px;
+        color: var(--ink);
+        font-weight: 900;
+      }
+
+      .ksj-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        margin: 12px 0;
+        border-radius: 16px;
+        background: #f6f9fd;
+        border: 1px solid rgba(217,228,239,.9);
+      }
+
+      .ksj-toolbar-label {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 800;
+        margin-right: 2px;
+      }
+
+      .ksj-toolbar-spacer {
+        flex: 1 1 18px;
+      }
+
+      .ksj-pill {
+        appearance: none;
+        border: 1px solid rgba(91,141,239,.28);
+        background: #fff;
+        color: #315cba;
+        font-weight: 800;
+        font-size: 13px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: transform .18s ease, background .18s ease, box-shadow .18s ease, color .18s ease;
+      }
+
+      .ksj-pill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 16px rgba(31,47,70,.1);
+      }
+
+      .ksj-pill.active {
+        background: var(--blue);
+        color: white;
+        box-shadow: 0 10px 20px rgba(91,141,239,.25);
+      }
+
+      .ksj-pill.ghost {
+        color: #52606f;
+        border-color: rgba(107,119,141,.28);
+      }
+
+      .ksj-pill.ghost.active {
+        background: #172033;
+        color: #fff;
+      }
+
+      .ksj-balance-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .ksj-balance-grid.wide {
+        grid-template-columns: 1fr;
+      }
+
+      .ksj-conclusion {
+        margin-top: 12px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #f2f8ff, #fff8ee);
+        border: 1px solid rgba(217, 228, 239, .95);
+        color: var(--ink);
+        line-height: 1.65;
+      }
+
+      .ksj-conclusion b {
+        color: var(--blue-dark);
+      }
+
+
+      .ksj-conclusion-line {
+        line-height: 1.75;
+      }
+
+      .ksj-axis text {
+        fill: #738097;
+        font-size: 11px;
+      }
+
+      .ksj-axis path,
+      .ksj-axis line {
+        stroke: rgba(115,128,151,.22);
+      }
+
+      .ksj-grid line {
+        stroke: rgba(115,128,151,.16);
+        stroke-dasharray: 3 5;
+      }
+
+      .ksj-grid path {
+        display: none;
+      }
+
+      .ksj-tooltip {
+        position: fixed;
+        pointer-events: none;
+        z-index: 99999;
+        opacity: 0;
+        transform: translate(-50%, calc(-100% - 14px));
+        max-width: 310px;
+        padding: 12px 13px;
+        border-radius: 14px;
+        background: rgba(23, 32, 51, .95);
+        color: #f8fafc;
+        box-shadow: 0 18px 42px rgba(2,6,23,.26);
+        font-size: 13px;
+        line-height: 1.55;
+        transition: opacity .12s ease;
+      }
+
+      .ksj-tooltip-title {
+        font-size: 14px;
+        font-weight: 900;
+        margin-bottom: 5px;
+      }
+
+      .ksj-tooltip-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        white-space: nowrap;
+      }
+
+      .ksj-tooltip-row span:first-child {
+        color: #cbd5e1;
+      }
+
+      .ksj-ribbon,
+      .ksj-bubble,
+      .ksj-country-node,
+      .ksj-radial-arc {
+        cursor: pointer;
+        transition: opacity .18s ease, filter .18s ease, stroke-width .18s ease;
+      }
+
+      .ksj-dim {
+        opacity: .28 !important;
+      }
+
+      .ksj-focus-hit {
+        opacity: 1 !important;
+      }
+
+      .ksj-bubble-node.ksj-focus-hit .ksj-bubble {
+        stroke: #f59e0b;
+        stroke-width: 4.4px;
+        filter: drop-shadow(0 10px 18px rgba(245,158,11,.28));
+      }
+
+      .ksj-ribbon.ksj-focus-hit {
+        stroke-opacity: 1 !important;
+        filter: drop-shadow(0 6px 14px rgba(37,99,235,.18));
+      }
+
+      .ksj-country-node.ksj-focus-hit circle,
+      .ksj-growth-badge.ksj-focus-hit rect,
+      .ksj-lorenz-country-dot.ksj-focus-hit,
+      .ksj-lorenz-segment.ksj-focus-hit {
+        opacity: 1 !important;
+        stroke: #f59e0b !important;
+        stroke-width: 3px !important;
+      }
+
+      .ksj-small-label.ksj-focus-hit,
+      .ksj-strip-label.ksj-focus-hit {
+        fill: #172033 !important;
+        font-weight: 950 !important;
+      }
+
+      .ksj-emphasis {
+        opacity: 1 !important;
+      }
+
+      .ksj-bubble-node.ksj-emphasis .ksj-bubble {
+        stroke: #f59e0b;
+        stroke-width: 5px;
+        filter: drop-shadow(0 0 0 rgba(245,158,11,.0)) drop-shadow(0 12px 20px rgba(245,158,11,.28));
+      }
+
+      .ksj-bubble-node.ksj-dim .ksj-bubble,
+      .ksj-lorenz-country-dot.ksj-dim,
+      .ksj-lorenz-segment.ksj-dim {
+        opacity: .18 !important;
+      }
+
+      .ksj-lorenz-country-dot.ksj-emphasis {
+        stroke: #f59e0b;
+        stroke-width: 3.6;
+        filter: drop-shadow(0 8px 18px rgba(245,158,11,.35));
+      }
+
+      .ksj-lorenz-segment.ksj-emphasis {
+        stroke: #172033;
+        stroke-width: 2.6;
+      }
+
+      .ksj-bubble-node.ksj-emphasis .ksj-label,
+      .ksj-bubble-node.ksj-emphasis .ksj-small-label,
+      .ksj-strip-label.ksj-emphasis {
+        fill: #172033;
+        font-weight: 950;
+      }
+
+      .ksj-label {
+        pointer-events: none;
+        fill: #172033;
+        font-weight: 850;
+      }
+
+      .ksj-small-label {
+        pointer-events: none;
+        fill: #334155;
+        font-size: 12.5px;
+      }
+
+      .ksj-empty {
+        padding: 24px;
+        color: #64748b;
+      }
+
+
+
+      .ksj-explain-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .ksj-explain-chip {
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: #f8fbff;
+        border: 1px solid rgba(217,228,239,.9);
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .ksj-explain-chip b {
+        display: block;
+        color: var(--ink);
+        font-size: 13px;
+        margin-bottom: 2px;
+      }
+
+      .ksj-growth-bar-bg {
+        stroke: rgba(203, 213, 225, .7);
+        stroke-width: 8;
+        stroke-linecap: round;
+      }
+
+      .ksj-growth-bar {
+        stroke-width: 8;
+        stroke-linecap: round;
+      }
+
+      .ksj-bubble-node:hover .ksj-bubble,
+      .ksj-country-node:hover circle {
+        stroke-width: 3.6;
+        fill-opacity: .96;
+      }
+
+      .ksj-emphasis {
+        opacity: 1 !important;
+      }
+
+
+
+      .ksj-macro-layout,
+      .ksj-rank-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 16px;
+        align-items: stretch;
+      }
+
+      .ksj-balance-stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .ksj-balance-pair {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+        align-items: stretch;
+      }
+
+      .ksj-balance-card-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .ksj-link-bridge-card {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(217,228,239,.95);
+        background: linear-gradient(135deg, #f8fbff 0%, #fffaf2 100%);
+        box-shadow: 0 8px 20px rgba(31,47,70,.06);
+      }
+
+      .ksj-link-bridge-card 
+      .ksj-link-bridge-card {
+        border-left: 4px solid #f59e0b;
+        background: #fffaf0;
+        border: 1px solid #fde7c2;
+        box-shadow: none;
+      }
+
+      .ksj-link-bullets {
+        margin-top: 12px;
+        background: #ffffff;
+      }
+
+      .ksj-link-grid {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .ksj-link-mini-stat {
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.88);
+        border: 1px solid rgba(217,228,239,.85);
+      }
+
+      .ksj-link-mini-stat span {
+        display: block;
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+
+      .ksj-link-mini-stat b {
+        display: block;
+        font-size: 14px;
+        color: var(--ink);
+        font-weight: 900;
+      }
+
+      .ksj-chart-surface.macro-large {
+        min-height: 620px;
+      }
+
+      .ksj-chart-surface.balance-large {
+        min-height: 680px;
+      }
+
+      .ksj-chart-surface.lorenz-large {
+        min-height: 680px;
+      }
+
+      .ksj-chart-info-card,
+      .ksj-selected-card,
+      .ksj-side-selected {
+        margin-top: 0;
+        padding: 15px;
+        min-height: 250px;
+        align-self: stretch;
+        border-radius: 18px;
+        border: 1px solid rgba(217,228,239,.95);
+        background:
+          radial-gradient(circle at 85% 0%, rgba(91,141,239,.14), transparent 34%),
+          linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
+        box-shadow: 0 10px 24px rgba(31,47,70,.07);
+      }
+
+      .ksj-side-selected {
+        position: sticky;
+        top: 14px;
+        height: fit-content;
+      }
+
+      .ksj-card-big-value {
+        font-size: 2.05rem;
+        color: var(--blue-dark);
+        font-weight: 950;
+        line-height: 1.1;
+        margin: 8px 0 3px;
+      }
+
+      .ksj-card-formula {
+        margin-top: 12px;
+        padding: 11px 12px;
+        border-radius: 14px;
+        background: #eef6ff;
+        border: 1px solid rgba(91,141,239,.18);
+        color: #315cba;
+        font-size: 12px;
+        line-height: 1.55;
+        font-weight: 760;
+      }
+
+
+      .ksj-bullet-panel {
+        margin-top: 14px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: #f8fbff;
+        border: 1px solid rgba(91,141,239,.16);
+      }
+
+      .ksj-bullet-title {
+        font-size: 12px;
+        font-weight: 820;
+        color: #315cba;
+        margin-bottom: 8px;
+      }
+
+      .ksj-bullet-list {
+        margin: 0;
+        padding-left: 18px;
+        color: #52627a;
+        font-size: 12.5px;
+        line-height: 1.8;
+      }
+
+      .ksj-bullet-list li + li {
+        margin-top: 6px;
+      }
+
+
+      .ksj-explain-box {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.65;
+      }
+
+      .ksj-explain-title {
+        margin-bottom: 6px;
+        color: #1e293b;
+        font-size: 12px;
+        font-weight: 750;
+      }
+
+      .ksj-explain-box p {
+        margin: 0 0 6px 0;
+      }
+
+      .ksj-explain-box p:last-child {
+        margin-bottom: 0;
+      }
+
+      .ksj-formula-steps {
+        margin-top: 12px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .ksj-formula-row {
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+      }
+
+      .ksj-formula-row span {
+        display: block;
+        margin-bottom: 4px;
+        color: #9a3412;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .ksj-formula-row b {
+        display: block;
+        color: #1e293b;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .ksj-mini-surface {
+        position: relative;
+        min-height: 430px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(248,250,252,.94), rgba(255,255,255,.98));
+        border: 1px solid rgba(217, 228, 239, .86);
+        overflow: hidden;
+      }
+
+      .ksj-mini-surface svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .ksj-mini-caption {
+        margin-top: 9px;
+        padding: 9px 11px;
+        border-radius: 13px;
+        background: #f4f8ff;
+        border: 1px solid rgba(217,228,239,.85);
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .ksj-growth-side-panel .panel-bg {
+        fill: rgba(248, 251, 255, .92);
+        stroke: rgba(217, 228, 239, .9);
+      }
+
+      .ksj-growth-column rect {
+        transition: opacity .18s ease, y .18s ease, height .18s ease;
+      }
+
+      .ksj-lorenz-copy {
+        font-size: 11.5px;
+        fill: #667085;
+        font-weight: 700;
+      }
+
+
+
+      .ksj-inline-guide {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .ksj-guide-card,
+      .ksj-lorenz-note-card {
+        padding: 11px 13px;
+        border-radius: 15px;
+        border: 1px solid rgba(217,228,239,.92);
+        background: #f7fbff;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .ksj-guide-card b,
+      .ksj-lorenz-note-card b {
+        display: block;
+        color: var(--ink);
+        font-size: 13px;
+        margin-bottom: 2px;
+      }
+
+      .ksj-wide-selected {
+        margin-top: 12px;
+        display: block;
+      }
+
+      .ksj-growth-micro-bg {
+        fill: #e8f1ff;
+      }
+
+      .ksj-growth-micro-fill {
+        fill: url(#ksj-growth-micro-gradient);
+      }
+
+      .ksj-formula-box {
+        fill: #f7fbff;
+        stroke: rgba(217,228,239,.95);
+      }
+
+      .ksj-why-index {
+        font-size: 11.5px;
+        fill: #667085;
+        font-weight: 750;
+      }
+
+      .ksj-lorenz-ribbon {
+        fill: rgba(91, 141, 239, .14);
+      }
+
+      .ksj-lorenz-country-dot {
+        cursor: pointer;
+        transition: r .15s ease, opacity .15s ease;
+      }
+
+      .ksj-lorenz-country-dot:hover {
+        r: 7;
+      }
+
+      .ksj-context-bar,
+      .ksj-share-point,
+      .ksj-lorenz-segment,
+      .ksj-year-connector {
+        cursor: pointer;
+        transition: opacity .16s ease, stroke-width .16s ease, transform .16s ease;
+      }
+
+
+      .ksj-heat-cell.active {
+        outline: 3px solid rgba(36,111,206,.35);
+        box-shadow: 0 12px 28px rgba(36,111,206,.20);
+        transform: translateY(-2px);
+      }
+
+      .ksj-growth-badge {
+        cursor: pointer;
+      }
+
+      .ksj-growth-badge rect {
+        fill: #eef6ff;
+        stroke: rgba(91,141,239,.28);
+        transition: fill .16s ease, stroke .16s ease;
+      }
+
+      .ksj-growth-badge:hover rect,
+      .ksj-growth-badge.active rect {
+        fill: #dbeafe;
+        stroke: rgba(49,92,186,.48);
+      }
+
+      .ksj-rank-footer {
+        margin-top: 10px;
+        padding: 12px 14px;
+        border-radius: 15px;
+        border: 1px solid rgba(217,228,239,.92);
+        background: #f7fbff;
+        color: var(--muted);
+        font-size: 13.5px;
+        line-height: 1.7;
+      }
+
+      .ksj-rank-footer b {
+        color: var(--ink);
+      }
+
+      .ksj-context-bar:hover,
+      .ksj-lorenz-segment:hover {
+        opacity: 1 !important;
+      }
+
+      .ksj-rank-growth-text {
+        font-size: 13.5px;
+        font-weight: 950;
+        fill: #1f4f9a;
+        letter-spacing: .1px;
+      }
+
+      .ksj-rank-main-title {
+        font-size: 17px;
+        font-weight: 950;
+        fill: #172033;
+      }
+
+      .ksj-rank-subtitle {
+        font-size: 13px;
+        font-weight: 780;
+        fill: #52606f;
+      }
+
+      .ksj-bubble-node.ksj-emphasis .ksj-bubble,
+      .ksj-country-node.ksj-emphasis circle {
+        stroke: #172033 !important;
+        stroke-width: 4px !important;
+        filter: drop-shadow(0 8px 14px rgba(49,92,186,.20));
+      }
+
+      .ksj-ribbon.ksj-emphasis {
+        stroke-opacity: 1 !important;
+        filter: drop-shadow(0 8px 12px rgba(49,92,186,.20));
+      }
+
+      .ksj-lorenz-country-dot.ksj-emphasis {
+        stroke: #172033 !important;
+        stroke-width: 4px !important;
+        filter: drop-shadow(0 5px 10px rgba(49,92,186,.24));
+      }
+
+      .ksj-lorenz-segment.ksj-emphasis {
+        stroke: #172033 !important;
+        stroke-width: 2.6px !important;
+      }
+
+      .ksj-growth-badge.ksj-emphasis rect {
+        fill: #dbeafe !important;
+        stroke: rgba(49,92,186,.60) !important;
+      }
+
+      .ksj-lorenz-focus-guide line {
+        stroke: rgba(35,110,208,.42);
+        stroke-dasharray: 4 5;
+        stroke-width: 1.6;
+        pointer-events: none;
+      }
+
+      .ksj-lorenz-focus-guide circle {
+        fill: none;
+        stroke: #236ed0;
+        stroke-width: 3;
+        pointer-events: none;
+      }
+
+      .ksj-lorenz-focus-guide text {
+        fill: #172033;
+        font-size: 12.5px;
+        font-weight: 900;
+        pointer-events: none;
+      }
+
+
+      .ksj-share-callout {
+        fill: #f6fbff;
+        stroke: rgba(91,141,239,.22);
+      }
+
+
+
+      /* v10: make hover/selection and explanation cards more visible */
+      .ksj-rank-layout {
+        grid-template-columns: minmax(0, 1fr) 380px;
+        gap: 22px;
+      }
+
+      #ksj-selected-card {
+        min-height: 560px;
+        padding: 20px;
+        border-radius: 22px;
+        background:
+          radial-gradient(circle at 88% 0%, rgba(255, 179, 102, .16), transparent 34%),
+          linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
+      }
+
+      #ksj-selected-card .ksj-mini-title {
+        font-size: 14.5px;
+      }
+
+      #ksj-selected-card .ksj-country-name {
+        font-size: 1.55rem;
+      }
+
+      #ksj-selected-card .ksj-muted {
+        font-size: 14px;
+        line-height: 1.75;
+      }
+
+      #ksj-selected-card .ksj-country-stat {
+        padding: 12px;
+      }
+
+      #ksj-selected-card .ksj-country-stat span {
+        font-size: 13px;
+      }
+
+      #ksj-selected-card .ksj-country-stat b {
+        font-size: 18px;
+      }
+
+      #ksj-selected-card .ksj-card-formula {
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .ksj-ribbon {
+        mix-blend-mode: multiply;
+      }
+
+      .ksj-ribbon.ksj-emphasis {
+        stroke: #f59e0b !important;
+        stroke-opacity: 1 !important;
+        filter: drop-shadow(0 8px 16px rgba(245, 158, 11, .24));
+      }
+
+      .ksj-growth-badge.ksj-emphasis rect {
+        fill: #fff7ed !important;
+        stroke: rgba(245, 158, 11, .62) !important;
+      }
+
+      .ksj-growth-badge.ksj-emphasis text {
+        fill: #b45309 !important;
+      }
+
+      .ksj-share-point.active-year {
+        stroke: #f59e0b !important;
+        fill: #fff7ed !important;
+        filter: drop-shadow(0 10px 18px rgba(245,158,11,.30));
+      }
+
+      @media screen and (max-width: 980px) {
+        .ksj-hero-card,
+        .ksj-story-grid,
+        .ksj-balance-grid,
+        .ksj-card-header,
+        .ksj-explain-strip,
+        .ksj-macro-layout,
+        .ksj-rank-layout,
+        .ksj-balance-layout,
+        .ksj-lorenz-layout {
+          grid-template-columns: 1fr;
+        }
+        .ksj-insight-panel {
+          position: relative;
+          top: auto;
+        }
+        .ksj-hero-metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media screen and (max-width: 620px) {
+        .ksj-hero-card,
+        .ksj-viz-card,
+        .ksj-insight-panel {
+          padding: 16px;
+          border-radius: 18px;
+        }
+        .ksj-hero-metrics,
+        .ksj-heat-grid {
+          grid-template-columns: 1fr;
+        }
+        .ksj-toolbar-spacer {
+          display: none;
+        }
+        .ksj-pill {
+          flex: 1 1 auto;
+        }
+      }
+
+      /* ZYL unified academic style override */
+      #${MODULE_ID} .box {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid #ededed;
+      }
+
+      #${MODULE_ID} .title {
+        color: #363636;
+        font-weight: 600;
+      }
+
+      #${MODULE_ID} .subtitle {
+        line-height: 1.6;
+      }
+
+      .ksj-zyl-intro {
+        border-left: 4px solid #d97706;
+        padding: 1.25rem;
+      }
+
+      .ksj-zyl-box {
+        padding: 1.5rem;
+      }
+
+      .ksj-zyl-stats {
+        background: #f8fafc;
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid #2563eb;
+      }
+
+      .ksj-hero-metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0;
+      }
+
+      .ksj-metric {
+        min-height: auto;
+        padding: 0 18px;
+        border: 0;
+        border-right: 1px solid #e2e8f0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        text-align: center;
+      }
+
+      .ksj-metric:last-child {
+        border-right: 0;
+      }
+
+      .ksj-metric-label {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .02em;
+      }
+
+      .ksj-metric-value {
+        color: #1e293b;
+        font-size: 1.45rem;
+        font-weight: 700;
+      }
+
+      .ksj-metric-foot {
+        color: #94a3b8;
+        font-size: 11px;
+      }
+
+      .ksj-chart-surface {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        box-shadow: none;
+      }
+
+      .ksj-zyl-side-card,
+      .ksj-selected-card,
+      .ksj-chart-info-card {
+        border-radius: 8px !important;
+        border: 1px solid #ededed !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        background: #ffffff !important;
+        min-height: auto !important;
+      }
+
+      .ksj-toolbar {
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+        border-radius: 0;
+        gap: 0;
+      }
+
+      .ksj-pill {
+        border-radius: 2px !important;
+        font-weight: 600 !important;
+        box-shadow: none !important;
+        transform: none !important;
+      }
+
+      .ksj-pill:hover {
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .ksj-pill.active {
+        box-shadow: none !important;
+      }
+
+      .ksj-card-big-value {
+        color: #2563eb;
+        font-size: 1.8rem;
+      }
+
+      .ksj-card-formula {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        border-radius: 6px;
+      }
+
+      .ksj-country-stat {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+      }
+
+      .ksj-link-bridge-card {
+        border-left: 4px solid #d97706;
+        border-radius: 8px;
+      }
+
+      .ksj-link-bridge-card .ksj-link-grid {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .ksj-link-mini-stat {
+        padding: 10px 12px;
+        border-radius: 6px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+      }
+
+      .ksj-link-mini-stat span {
+        display: block;
+        font-size: 11px;
+        color: #64748b;
+        margin-bottom: 3px;
+      }
+
+      .ksj-link-mini-stat b {
+        display: block;
+        color: #1e293b;
+        font-size: 13px;
+      }
+
+      .ksj-bubble-node.ksj-emphasis .ksj-bubble,
+      .ksj-lorenz-country-dot.ksj-emphasis {
+        stroke: #d97706 !important;
+        stroke-width: 4px !important;
+        filter: drop-shadow(0 4px 10px rgba(217,119,6,.35));
+      }
+
+      .ksj-bubble-node.ksj-dim .ksj-bubble,
+      .ksj-lorenz-country-dot.ksj-dim,
+      .ksj-lorenz-segment.ksj-dim {
+        opacity: .16 !important;
+      }
+
+      .ksj-chart-surface.balance-large,
+      .ksj-chart-surface.lorenz-large {
+        min-height: 620px;
+      }
+
+      @media screen and (max-width: 980px) {
+        .ksj-hero-metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+        }
+        .ksj-metric {
+          border-right: 0;
+          border-bottom: 1px solid #e2e8f0;
+          padding: 10px;
+        }
+        .ksj-link-bridge-card .ksj-link-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+    `;
+    d3.select('head').append('style').attr('id', 'ksj-trend-style').html(css);
+  }
+
+  async function loadCsvFromCandidates(paths) {
+    let lastError = null;
+    for (const path of paths) {
+      try {
+        const res = await fetch(path, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`${path} returned ${res.status}`);
+        const buffer = await res.arrayBuffer();
+        const text = decodeCsvBuffer(buffer);
+        const rows = d3.csvParse(text);
+        if (rows && rows.length) return rows;
+        lastError = new Error(`${path} is empty`);
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError || new Error('CSV loading failed');
+  }
+
+  function decodeCsvBuffer(buffer) {
+    const decoders = [
+      () => new TextDecoder('utf-8', { fatal: true }).decode(buffer),
+      () => new TextDecoder('gb18030').decode(buffer),
+      () => new TextDecoder('gbk').decode(buffer),
+      () => new TextDecoder('utf-8').decode(buffer)
+    ];
+    for (const decode of decoders) {
+      try {
+        const text = decode();
+        if (text && !text.includes('\uFFFD')) return text;
+      } catch (error) {
+        // try next decoder
+      }
+    }
+    return new TextDecoder('utf-8').decode(buffer);
+  }
+
+  function prepareData(areaRows, countryRows) {
+    const yearly = areaRows
+      .filter(row => /^\d{4}$/.test(String(row.year || '').trim()))
+      .map(row => ({
+        year: +String(row.year || '').trim(),
+        cee: toNumber(row.cee_china_cooperation),
+        china: toNumber(row.china_cooperation),
+        proportion: toNumber(row.proportion)
+      }))
+      .filter(d => Number.isFinite(d.year) && d.year >= 2011 && d.year <= 2020 && d.cee > 0 && d.china > 0)
+      .sort((a, b) => d3.ascending(a.year, b.year));
+
+    if (!yearly.length) {
+      throw new Error('area.csv 未读取到有效年度数据。请检查 year、cee_china_cooperation、china_cooperation、proportion 字段。');
+    }
+
+    const rawCountries = countryRows.map(row => {
+      const rawName = normalizeName(row.country);
+      const meta = COUNTRY_META.get(rawName) || COUNTRY_CN_TO_META.get(String(row.country_cn || '').trim());
+      return {
+        country: rawName,
+        countryCn: meta ? meta.cn : String(row.country_cn || row.country || '').trim(),
+        iso3: meta ? meta.iso3 : rawName.slice(0, 3),
+        p1: toNumber(row['2011_2015_papers']),
+        p2: toNumber(row['2016_2020_papers']),
+        rank2Original: toNumber(row['2016_2020_rank'])
+      };
+    });
+
+    const ceeSet = new Set(CEE_COUNTRIES.map(d => d.country));
+    const countries = rawCountries
+      .filter(d => ceeSet.has(d.country) && d.p1 >= 0 && d.p2 >= 0)
+      .map(d => ({ ...d }));
+
+    if (!countries.length) {
+      throw new Error('country.csv 未匹配到有效国家数据。请检查 country、country_cn、2011_2015_papers、2016_2020_papers 字段。');
+    }
+
+    const totalP1 = d3.sum(countries, d => d.p1);
+    const totalP2 = d3.sum(countries, d => d.p2);
+
+    const rank1 = rankMap(countries, d => d.p1);
+    const rank2 = rankMap(countries, d => d.p2);
+    const growthRates = countries.map(d => d.p1 > 0 ? (d.p2 - d.p1) / d.p1 : Infinity).filter(Number.isFinite);
+    const growthMedian = d3.median(growthRates) || 0;
+
+    countries.forEach(d => {
+      d.total = d.p1 + d.p2;
+      d.diff = d.p2 - d.p1;
+      d.growthRate = d.p1 > 0 ? (d.p2 - d.p1) / d.p1 : d.p2 > 0 ? Infinity : 0;
+      d.share1 = totalP1 > 0 ? d.p1 / totalP1 : 0;
+      d.share2 = totalP2 > 0 ? d.p2 / totalP2 : 0;
+      d.rank1 = rank1.get(d.country) || 999;
+      d.rank2 = rank2.get(d.country) || 999;
+      d.rankChange = d.rank1 - d.rank2;
+      d.type = classifyCountry(d, growthMedian);
+      d.typeLabel = typeLabel(d.type);
+    });
+
+    state.data.yearly = yearly;
+    state.data.countries = countries;
+    state.data.stages = [
+      summarizeStage(countries, 'p1', '2011–2015'),
+      summarizeStage(countries, 'p2', '2016–2020')
+    ];
+  }
+
+  function toNumber(value) {
+    if (value === null || value === undefined) return NaN;
+    const cleaned = String(value).replace(/,/g, '').replace(/%/g, '').trim();
+    if (!cleaned || cleaned.toLowerCase() === 'nan') return NaN;
+    return +cleaned;
+  }
+
+  function normalizeName(name) {
+    return String(name || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  }
+
+  function rankMap(rows, accessor) {
+    const sorted = rows.slice().sort((a, b) => d3.descending(accessor(a), accessor(b)) || d3.ascending(a.country, b.country));
+    return new Map(sorted.map((d, i) => [d.country, i + 1]));
+  }
+
+  function classifyCountry(d, growthMedian) {
+    if (d.rank2 <= 3 || d.share2 >= 0.13) return 'core';
+    if (d.rank2 <= 8 || d.share2 >= 0.07) return 'middle';
+    if (d.growthRate > growthMedian && d.diff > 0) return 'chaser';
+    return 'tail';
+  }
+
+  function typeLabel(type) {
+    return {
+      core: '核心国家',
+      middle: '稳定国家',
+      chaser: '追赶国家',
+      tail: '长尾国家'
+    }[type] || '国家';
+  }
+
+  function summarizeStage(countries, key, label) {
+    const values = countries.map(d => ({ ...d, value: d[key] })).sort((a, b) => d3.descending(a.value, b.value));
+    const total = d3.sum(values, d => d.value);
+    return {
+      key,
+      label,
+      total,
+      top1: values[0],
+      top3Share: d3.sum(values.slice(0, 3), d => d.value) / total,
+      top5Share: d3.sum(values.slice(0, 5), d => d.value) / total,
+      tailShare: d3.sum(values.slice(8), d => d.value) / total,
+      gini: gini(values.map(d => d.value)),
+      hhi: d3.sum(values, d => Math.pow(d.value / total, 2)),
+      values
+    };
+  }
+
+  function gini(values) {
+    const arr = values.filter(v => v >= 0).sort((a, b) => a - b);
+    const n = arr.length;
+    const sum = d3.sum(arr);
+    if (!n || sum === 0) return 0;
+    let weighted = 0;
+    arr.forEach((v, i) => { weighted += (i + 1) * v; });
+    return (2 * weighted) / (n * sum) - (n + 1) / n;
+  }
+
+  function renderAll() {
+    renderHeroMetrics();
+    renderSelectedCard(null);
+    renderBalanceCard(null);
+    renderMacroChart();
+    renderMacroCard(state.data.yearly[state.data.yearly.length - 1]);
+    renderProportionStrip();
+    renderRankToolbar();
+    renderRankFlow();
+    renderBalanceToolbar();
+    renderBalanceLinkCard(null);
+    renderBubbleMap();
+    renderLorenzChart();
+    renderLorenzCard(null);
+    renderConclusion();
+  }
+
+  function renderHeroMetrics() {
+    const y = state.data.yearly;
+    const c = state.data.countries;
+    const first = y[0];
+    const last = y[y.length - 1];
+    const ceeGrowth = first.cee ? (last.cee / first.cee - 1) : 0;
+    const chinaGrowth = first.china ? (last.china / first.china - 1) : 0;
+    const stage1 = state.data.stages[0];
+    const stage2 = state.data.stages[1];
+    const topMover = c.slice().sort((a, b) => d3.descending(a.diff, b.diff))[0];
+
+    d3.select('#ksj-hero-metrics').html(`
+      ${metricHTML('中东欧合作量增长', `${fmt.growth(ceeGrowth)}`, `${first.year}→${last.year}: ${fmt.int(first.cee)} 至 ${fmt.int(last.cee)}`)}
+      ${metricHTML('中国国际合作总量增长', `${fmt.growth(chinaGrowth)}`, `${first.year}→${last.year}: ${fmt.int(first.china)} 至 ${fmt.int(last.china)}`)}
+      ${metricHTML('后期 Top3 占比', `${fmt.pct1(stage2.top3Share * 100)}%`, `前期为 ${fmt.pct1(stage1.top3Share * 100)}%`)}
+      ${metricHTML('新增合作量最高', topMover.countryCn, `+${fmt.int(topMover.diff)} 篇，${topMover.typeLabel}`)}
+    `);
+
+    d3.select('#ksj-macro-note').html(
+      `中东欧合作量由 <b>${fmt.int(first.cee)}</b> 增至 <b>${fmt.int(last.cee)}</b>；` +
+      `占比从 <b>${fmt.pct(first.proportion)}%</b> 至 <b>${fmt.pct(last.proportion)}%</b>。` +
+      `合作占比 = 中东欧合作量 ÷ 中国国际合作总量 × 100%。`
+    );
+  }
+
+  function metricHTML(label, value, foot) {
+    return `
+      <div class="ksj-metric">
+        <div class="ksj-metric-label">${label}</div>
+        <div class="ksj-metric-value">${value}</div>
+        <div class="ksj-metric-foot">${foot}</div>
       </div>
     `;
   }
 
-  /* ─── TopoJSON ─── */
-  function loadTopojson() {
-    if (window.topojson) return Promise.resolve();
-    return new Promise(res=>{
-      const s=document.createElement('script');
-      s.src='https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js';
-      s.onload=res; document.head.appendChild(s);
+  function renderMacroChart() {
+    const el = document.getElementById('ksj-macro-chart');
+    if (!el) return;
+    const data = state.data.yearly;
+    const width = Math.max(980, el.clientWidth || 1120);
+    const height = 620;
+    drawShareLensTimeline(d3.select(el).html(''), data, width, height);
+  }
+
+  function drawShareLensTimeline(box, data, width, height) {
+    const margin = { top: 96, right: 52, bottom: 76, left: 82 };
+    const innerW = width - margin.left - margin.right;
+    const innerH = height - margin.top - margin.bottom;
+    const first = data[0];
+    const last = data[data.length - 1];
+    const minShare = d3.min(data, d => d.proportion);
+    const maxShare = d3.max(data, d => d.proportion);
+    const maxCee = d3.max(data, d => d.cee);
+    const maxD = data.find(d => d.proportion === maxShare);
+    const minD = data.find(d => d.proportion === minShare);
+
+    const svg = box.append('svg')
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('role', 'img')
+      .attr('aria-label', 'CEE collaboration share within China international collaboration');
+
+    const defs = svg.append('defs');
+    const shareGrad = defs.append('linearGradient')
+      .attr('id', `ksj-share-lens-grad-${width}`)
+      .attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
+    shareGrad.append('stop').attr('offset', '0%').attr('stop-color', '#8fc0ff').attr('stop-opacity', .24);
+    shareGrad.append('stop').attr('offset', '100%').attr('stop-color', '#edf6ff').attr('stop-opacity', .04);
+
+    svg.append('text')
+      .attr('x', 26).attr('y', 32)
+      .attr('fill', '#172033')
+      .attr('font-size', 17)
+      .attr('font-weight', 950)
+      .text('年度合作占比');
+
+    svg.append('text')
+      .attr('x', 26).attr('y', 57)
+      .attr('fill', '#667085')
+      .attr('font-size', 12)
+      .attr('font-weight', 760)
+      .text('纵轴表示合作占比，圆点面积表示年度合作量。');
+
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+    const x = d3.scalePoint().domain(data.map(d => d.year)).range([0, innerW]).padding(.38);
+    const y = d3.scaleLinear()
+      .domain([Math.max(0, minShare - .16), maxShare + .22])
+      .nice()
+      .range([innerH, 0]);
+    const r = d3.scaleSqrt().domain([0, maxCee]).range([7, 17]);
+
+    g.append('g')
+      .attr('class', 'ksj-grid')
+      .call(d3.axisLeft(y).ticks(5).tickSize(-innerW).tickFormat(''));
+
+    const line = d3.line()
+      .x(d => x(d.year))
+      .y(d => y(d.proportion))
+      .curve(d3.curveMonotoneX);
+    const area = d3.area()
+      .x(d => x(d.year))
+      .y0(innerH)
+      .y1(d => y(d.proportion))
+      .curve(d3.curveMonotoneX);
+
+    g.append('path')
+      .datum(data)
+      .attr('fill', `url(#ksj-share-lens-grad-${width})`)
+      .attr('d', area);
+
+    g.append('path')
+      .datum(data)
+      .attr('fill', 'none')
+      .attr('stroke', '#73a9ee')
+      .attr('stroke-width', 3.8)
+      .attr('stroke-linecap', 'round')
+      .attr('d', line);
+
+    const focus = g.append('g').attr('class', 'ksj-macro-focus').style('opacity', 0);
+    focus.append('line')
+      .attr('class', 'ksj-focus-line')
+      .attr('y1', 0).attr('y2', innerH)
+      .attr('stroke', '#f59e0b')
+      .attr('stroke-width', 2.1)
+      .attr('stroke-dasharray', '4 5');
+    focus.append('circle')
+      .attr('class', 'ksj-focus-ring')
+      .attr('r', 24)
+      .attr('fill', 'none')
+      .attr('stroke', '#f59e0b')
+      .attr('stroke-width', 2.8)
+      .attr('stroke-opacity', .55);
+
+    g.selectAll('.ksj-share-point')
+      .data(data)
+      .join('circle')
+      .attr('class', 'ksj-share-point')
+      .attr('data-year', d => d.year)
+      .attr('cx', d => x(d.year))
+      .attr('cy', d => y(d.proportion))
+      .attr('r', d => r(d.cee))
+      .attr('data-base-r', d => r(d.cee))
+      .attr('fill', '#ffffff')
+      .attr('stroke', '#73a9ee')
+      .attr('stroke-width', 3)
+      .attr('filter', 'drop-shadow(0 8px 14px rgba(36,111,206,.20))')
+      .on('mouseenter', (event, d) => { highlightMacroYear(d.year); renderMacroCard(d); showYearTooltip(event, d); })
+      .on('mousemove', (event, d) => { highlightMacroYear(d.year); renderMacroCard(d); showYearTooltip(event, d); })
+      .on('mouseleave', () => { hideTooltip(); })
+      .on('click', (event, d) => { highlightMacroYear(d.year); renderMacroCard(d); });
+
+    const labels = [first, maxD, last].filter((d, i, arr) => d && arr.findIndex(x => x.year === d.year) === i);
+    labels.forEach((d) => {
+      const isLast = d.year === last.year;
+      const isFirst = d.year === first.year;
+      const textAnchor = isLast ? 'end' : isFirst ? 'start' : 'middle';
+      const dx = isLast ? -8 : isFirst ? 8 : 0;
+      const dy = isFirst ? 30 : -20;
+      g.append('text')
+        .attr('x', x(d.year) + dx)
+        .attr('y', y(d.proportion) + dy)
+        .attr('text-anchor', textAnchor)
+        .attr('fill', '#172033')
+        .attr('font-size', 12)
+        .attr('font-weight', 920)
+        .text(`${d.year}：${fmt.pct(d.proportion)}%`);
     });
+
+    g.append('g')
+      .attr('class', 'ksj-axis')
+      .attr('transform', `translate(0,${innerH})`)
+      .call(d3.axisBottom(x).tickSizeOuter(0));
+    g.append('g')
+      .attr('class', 'ksj-axis')
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => `${d}%`));
+
+    g.append('text')
+      .attr('x', -innerH / 2)
+      .attr('y', -55)
+      .attr('transform', 'rotate(-90)')
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#667085')
+      .attr('font-size', 12)
+      .attr('font-weight', 850)
+      .text('合作占比');
+
+    g.append('text')
+      .attr('x', innerW / 2)
+      .attr('y', innerH + 48)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#667085')
+      .attr('font-size', 12)
+      .attr('font-weight', 850)
+      .text('年份');
+
+    const overlay = g.append('g').attr('class', 'ksj-overlay-layer');
+    overlay.selectAll('rect')
+      .data(data)
+      .join('rect')
+      .attr('x', d => x(d.year) - Math.max(24, innerW / data.length / 2))
+      .attr('y', 0)
+      .attr('width', Math.max(48, innerW / data.length))
+      .attr('height', innerH)
+      .attr('fill', 'transparent')
+      .style('cursor', 'pointer')
+      .on('mouseenter', (event, d) => { highlightMacroYear(d.year); renderMacroCard(d); showYearTooltip(event, d); })
+      .on('mousemove', (event, d) => { highlightMacroYear(d.year); renderMacroCard(d); showYearTooltip(event, d); })
+      .on('mouseleave', hideTooltip)
+      .on('click', (event, d) => { highlightMacroYear(d.year); renderMacroCard(d); });
+
+    svg.append('g')
+      .attr('class', 'ksj-mini-legend')
+      .attr('transform', `translate(${margin.left},${height - 20})`)
+      .call(gLegend => {
+        gLegend.append('circle').attr('cx', 0).attr('cy', -5).attr('r', 7).attr('fill', '#fff').attr('stroke', '#73a9ee').attr('stroke-width', 3);
+        gLegend.append('text').attr('x', 14).attr('y', -1).attr('fill', '#667085').attr('font-size', 12).attr('font-weight', 780).text('圆点面积：年度合作量');
+        gLegend.append('line').attr('x1', 230).attr('x2', 263).attr('y1', -5).attr('y2', -5).attr('stroke', '#73a9ee').attr('stroke-width', 4).attr('stroke-linecap', 'round');
+        gLegend.append('text').attr('x', 274).attr('y', -1).attr('fill', '#667085').attr('font-size', 12).attr('font-weight', 780).text('蓝线：合作占比变化');
+      });
+
+    svg.property('ksjXScale', x).property('ksjYScale', y);
+    highlightMacroYear(last.year);
   }
 
-  /* ─── 同步地图高度到条形图高度 ─── */
-  function syncMapHeight() {
-    const rankSvg = document.getElementById('cee4-rank-svg');
-    const mapSvg  = document.getElementById('cee4-map-svg');
-    if (!rankSvg || !mapSvg) return;
+  function renderMacroCard(d) {
+    const el = d3.select('#ksj-macro-card');
+    if (el.empty()) return;
+    const data = state.data.yearly;
+    const first = data[0] || d;
+    const last = data[data.length - 1] || d;
+    const maxShare = d3.max(data, x => x.proportion);
+    const maxD = data.find(x => x.proportion === maxShare) || last;
+    const minShare = d3.min(data, x => x.proportion);
+    const minD = data.find(x => x.proportion === minShare) || first;
 
-    const rankH = +rankSvg.getAttribute('height') || 500;
-    const footerH = 27; // "悬停查看各国数据" 行高
-    const mapContentH = rankH - footerH;
-    if (mapContentH < 100) return;
+    if (!d) {
+      el.html(`
+        <div class="ksj-mini-title">年度指标</div>
+        <div class="ksj-card-big-value">${fmt.pct(last.proportion)}%</div>
+        <div class="ksj-muted">
+          合作占比用于衡量中东欧合作在中国国际合作中的相对权重。公式为：<b>中东欧合作量 ÷ 中国国际合作总量 × 100%</b>。
+        </div>
 
-    const W = mapSvg.parentElement.clientWidth || 300;
-    redrawMapAtSize(W, mapContentH);
-  }
+        <div class="ksj-explain-box">
+          <div class="ksj-explain-title">指标说明</div>
+          <p>占比越高，说明中东欧合作在中国国际合作中的相对权重越高。</p>
+          <p>该指标是相对比例，需要与年度合作量一起解读。</p>
+        </div>
 
-  /* ─── 渲染地图 ─── */
-  async function drawMap() {
-    if (!worldGeoData) {
-      await loadTopojson();
-      const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-      worldGeoData = topojson.feature(world, world.objects.countries);
+        <div class="ksj-country-grid">
+          ${countryStatHTML('基期占比', `${fmt.pct(first.proportion)}%`)}
+          ${countryStatHTML('末期占比', `${fmt.pct(last.proportion)}%`)}
+          ${countryStatHTML('最高年份', `${maxD.year}年`)}
+          ${countryStatHTML('最低年份', `${minD.year}年`)}
+        </div>
+      `);
+      return;
     }
-    const wrap = document.getElementById('cee4-map-svg');
-    if (!wrap) return;
-    const W = wrap.parentElement.clientWidth || 300;
-    const H = Math.round(W * 1.25);
-    redrawMapAtSize(W, H);
-    // 地图加载完后同步到条形图高度
-    setTimeout(syncMapHeight, 100);
+
+    const firstGrowth = first.cee ? (d.cee / first.cee - 1) : 0;
+    const calcShare = d.china ? d.cee / d.china * 100 : d.proportion;
+    const shareChange = d.proportion - first.proportion;
+    const approxPer100 = d.proportion;
+
+    el.html(`
+      <div class="ksj-mini-title">${d.year} 年度指标</div>
+      <div class="ksj-card-big-value">${fmt.pct(d.proportion)}%</div>
+
+      <div class="ksj-explain-box">
+        <div class="ksj-explain-title">合作占比</div>
+        <p>
+          合作占比表示中东欧合作量占中国国际合作总量的比例。
+        </p>
+      </div>
+
+      <div class="ksj-formula-steps">
+        <div class="ksj-formula-row">
+          <span>计算公式</span>
+          <b>合作占比=中东欧合作量÷中国国际合作总量×100%</b>
+        </div>
+        <div class="ksj-formula-row">
+          <span>${d.year}年数据</span>
+          <b>${fmt.int(d.cee)} ÷ ${fmt.int(d.china)} × 100% = ${fmt.pct2(calcShare)}%</b>
+        </div>
+      </div>
+
+      <div class="ksj-country-grid">
+        ${countryStatHTML('中东欧合作量', `${fmt.int(d.cee)} 篇`)}
+        ${countryStatHTML('中国国际合作总量', `${fmt.int(d.china)} 篇`)}
+        ${countryStatHTML('合作占比', `${fmt.pct(d.proportion)}%`)}
+        ${countryStatHTML('较基期变化', `${d3.format('+.2f')(shareChange)} 个百分点`)}
+      </div>
+
+      <div class="ksj-explain-box">
+        <div class="ksj-explain-title">结果说明</div>
+        <p>
+          ${d.year} 年，中国每 100 篇国际合作论文中，约有 <b>${fmt.pct2(approxPer100)} 篇</b>
+          为中国—中东欧合作论文。
+        </p>
+        <p>
+          较基期，该年度合作占比${shareChange >= 0 ? '提升' : '回落'}；
+          中东欧合作量较基期${firstGrowth >= 0 ? '增长' : '下降'}了
+          <b>${fmt.pct(Math.abs(firstGrowth))}%</b>。
+        </p>
+      </div>
+    `);
   }
 
-  function redrawMapAtSize(W, H) {
-    if (!worldGeoData) return;
-    const svg = d3.select('#cee4-map-svg')
-      .attr('viewBox', `0 0 ${W} ${H}`)
-      .style('height', H + 'px');
-    svg.selectAll('*').remove();
 
-    const ceeFeatures = worldGeoData.features.filter(f=>ceeByNum[f.id]);
-    const proj = d3.geoMercator();
-    proj.fitExtent([[14,14],[W-14,H-14]],
-      {type:'FeatureCollection', features:ceeFeatures});
-    const path = d3.geoPath().projection(proj);
+  function showYearTooltip(event, d) {
+    const calcShare = d.china ? d.cee / d.china * 100 : d.proportion;
+    const html = `
+      <div class="ksj-tooltip-title">${d.year}</div>
+      <div class="ksj-tooltip-row"><span>中东欧合作量</span><b>${fmt.int(d.cee)}</b></div>
+      <div class="ksj-tooltip-row"><span>中国国际合作总量</span><b>${fmt.int(d.china)}</b></div>
+      <div class="ksj-tooltip-row"><span>合作占比</span><b>${fmt.pct(d.proportion)}%</b></div>
+      <div style="margin-top:6px;color:#cbd5e1;font-size:12px;line-height:1.45;">占比 = ${fmt.int(d.cee)} ÷ ${fmt.int(d.china)} × 100 = ${fmt.pct2(calcShare)}%。</div>
+    `;
+    moveTooltip(event, html);
+  }
 
-    svg.append('rect').attr('width',W).attr('height',H).attr('fill','#dceefa');
-    svg.append('path').datum(d3.geoGraticule().step([5,5])())
-      .attr('d',path).attr('fill','none').attr('stroke','#c5d8eb').attr('stroke-width',0.4);
 
-    svg.append('g').selectAll('path')
-      .data(worldGeoData.features.filter(f=>!ceeByNum[f.id]))
-      .join('path').attr('d',path)
-      .attr('fill','#e4edf5').attr('stroke','#c8d6e4').attr('stroke-width',0.3);
+  function highlightMacroYear(year) {
+    d3.selectAll('.ksj-share-point')
+      .classed('active-year', d => +d.year === +year)
+      .attr('stroke-width', d => +d.year === +year ? 5.8 : 2.8)
+      .attr('fill', d => +d.year === +year ? '#fff7ed' : '#ffffff')
+      .attr('r', function(d) {
+        const base = +d3.select(this).attr('data-base-r') || 8;
+        return +d.year === +year ? base + 3.2 : base;
+      });
+    d3.selectAll('.ksj-heat-cell').classed('active', function() {
+      return +this.dataset.year === +year;
+    });
+    const svg = d3.select('#ksj-macro-chart svg');
+    const focus = svg.select('.ksj-macro-focus');
+    const point = state.data.yearly.find(d => +d.year === +year);
+    if (!focus.empty() && point) {
+      const xScale = svg.property('ksjXScale');
+      const yScale = svg.property('ksjYScale');
+      if (xScale && yScale) {
+        focus.style('opacity', 1)
+          .attr('transform', `translate(${xScale(point.year)},0)`);
+        focus.select('.ksj-focus-ring')
+          .attr('cy', yScale(point.proportion));
+      }
+    }
+  }
 
-    const colorScale = d3.scaleSequentialLog(d3.interpolateOranges)
-      .domain([Math.max(d3.min(CEE_DATA,d=>d.p16),1), d3.max(CEE_DATA,d=>d.p16)]);
+  function renderProportionStrip() {
+    const data = state.data.yearly;
+    const extent = d3.extent(data, d => d.proportion);
+    const color = d3.scaleSequential(t => d3.interpolateRgbBasis(['#eef7ff', '#c7e4ff', '#7dbdff', '#236ed0'])(t)).domain(extent);
+    const min = d3.min(data, d => d.proportion);
+    const max = d3.max(data, d => d.proportion);
+    d3.select('#ksj-proportion-strip').html(`
+      <div class="ksj-mini-title">年度占比分布</div>
+      <div class="ksj-muted" style="margin-bottom:8px;">悬停年份后，主图圆点同步高亮；色阶越深，合作占比越高。</div>
+      <div class="ksj-heat-grid">
+        ${data.map(d => `
+          <div class="ksj-heat-cell" data-year="${d.year}" style="background:${color(d.proportion)};border-color:${color(d.proportion)};">
+            <div class="ksj-heat-year" style="color:${d.proportion > (min + max) / 2 ? 'rgba(255,255,255,.9)' : 'rgba(23,32,51,.68)'};">${d.year}</div>
+            <div class="ksj-heat-value" style="color:${d.proportion > (min + max) / 2 ? '#fff' : '#172033'};">${fmt.pct(d.proportion)}%</div>
+            <div class="ksj-muted" style="font-size:11px;line-height:1.2;color:${d.proportion > (min + max) / 2 ? 'rgba(255,255,255,.82)' : '#667085'};">${d.proportion === max ? '最高' : d.proportion === min ? '最低' : '占比'}</div>
+          </div>
+        `).join('')}
+      </div>
+    `);
 
-    svg.append('g').attr('class','cee4-map-cee')
-      .selectAll('path').data(ceeFeatures).join('path')
-      .attr('d',path)
-      .attr('fill', f=>{ const d=ceeByNum[f.id]; return d?colorScale(d.p16):'#e8eef3'; })
-      .attr('stroke','#b45309').attr('stroke-width',1.2).attr('cursor','pointer')
-      .on('mouseover', function(e,f){
-        const d=ceeByNum[f.id]; if(!d) return;
-        window.cee4ShowTip(e,d);
-        applyHighlight(d.cn);
+    d3.selectAll('.ksj-heat-cell')
+      .on('mouseenter', (event) => {
+        const year = +event.currentTarget.dataset.year;
+        const d = data.find(x => x.year === year);
+        if (d) { highlightMacroYear(year); renderMacroCard(d); showYearTooltip(event, d); }
       })
-      .on('mousemove', window.cee4MoveTip)
-      .on('mouseout', function(){
-        window.cee4HideTip();
-        clearHighlight();
+      .on('mousemove', (event) => {
+        const year = +event.currentTarget.dataset.year;
+        const d = data.find(x => x.year === year);
+        if (d) { highlightMacroYear(year); renderMacroCard(d); showYearTooltip(event, d); }
+      })
+      .on('mouseleave', hideTooltip)
+      .on('click', (event) => {
+        const year = +event.currentTarget.dataset.year;
+        const d = data.find(x => x.year === year);
+        if (d) { highlightMacroYear(year); renderMacroCard(d); }
       });
 
-    const abbr = {
-      '北马其顿':'北马','波黑':'波黑','黑山':'黑山',
-      '阿尔巴尼亚':'阿尔巴','斯洛文尼亚':'斯洛文','斯洛伐克':'斯洛伐'
-    };
-    svg.append('g').selectAll('text').data(ceeFeatures).join('text')
-      .attr('x', f=>path.centroid(f)[0])
-      .attr('y', f=>path.centroid(f)[1]+4)
-      .attr('text-anchor','middle')
-      .attr('font-size', f=>{ const d=ceeByNum[f.id]; return d&&d.p16>3000?11:9; })
-      .attr('font-weight','600').attr('fill','#fff')
-      .attr('paint-order','stroke').attr('stroke','rgba(0,0,0,.3)').attr('stroke-width',2.5)
-      .attr('pointer-events','none')
-      .text(f=>{
-        const d=ceeByNum[f.id]; if(!d) return '';
-        const [cx]=path.centroid(f); if(isNaN(cx)) return '';
-        return abbr[d.cn]||d.cn;
+    const last = data[data.length - 1];
+    if (last) highlightMacroYear(last.year);
+  }
+
+  function renderRankToolbar() {
+    d3.select('#ksj-rank-toolbar').selectAll('[data-focus]')
+      .on('click', function () {
+        state.view.highlightMode = this.dataset.focus;
+        state.view.hoveredCountry = null;
+        state.view.selectedCountry = null;
+        hideTooltip();
+        hideLorenzFocus();
+        d3.select('#ksj-rank-toolbar').selectAll('[data-focus]')
+          .classed('active', false).classed('is-link', false).classed('is-light', true);
+        d3.select(this).classed('active', true).classed('is-link', true).classed('is-light', false);
+        renderSelectedCard(null);
+        applyHighlighting();
       });
   }
 
-  /* ─── 渲染右侧排名条形图 ─── */
-  function renderRankBars() {
-    const el = document.getElementById('cee4-rank-svg');
+  function sortedCountries() {
+    return state.data.countries.slice().sort((a, b) => d3.descending(a.p2, b.p2));
+  }
+
+  function safeRate(rate) {
+    return Number.isFinite(rate) ? rate : 999;
+  }
+
+  function renderRankFlow() {
+    const el = document.getElementById('ksj-rank-flow');
     if (!el) return;
-    const W  = el.parentElement.clientWidth || 420;
-    const mL = 72;   // 国家名列宽
-    const mR = 60;   // 增速列宽（默认透明，hover 时显示）
-    const mT = 2;
-    const iW = W - mL - mR;
+    const rows = sortedCountries();
+    const width = Math.max(1120, el.clientWidth || 1160);
+    const rowH = 48;
+    const height = Math.max(840, rows.length * rowH + 170);
+    const margin = { top: 92, right: 210, bottom: 82, left: 146 };
+    const innerH = height - margin.top - margin.bottom;
+    const leftX = margin.left;
+    const rightX = width - margin.right;
+    const growthX = rightX + 70;
 
-    const data = RANK_DATA;
-    const H    = data.length * ROW + mT + 10;
-    const maxVal = d3.max(data, d=>Math.max(d.p11,d.p16));
-    const x = d3.scaleLinear().domain([0, maxVal*1.05]).range([0, iW]);
+    const finiteRates = rows.map(d => d.growthRate).filter(Number.isFinite);
+    const rateExtent = d3.extent(finiteRates);
+    const rateP90 = finiteRates.length ? d3.quantile(finiteRates.slice().sort(d3.ascending), .90) : (rateExtent[1] ?? 1);
+    const rateColor = d3.scaleSequential(t => d3.interpolateRgbBasis(['#d7ecff', '#83c5ff', '#2f80ed', '#1557bd', '#0b2f73'])(t))
+      .domain([rateExtent[0] ?? 0, rateP90 || (rateExtent[1] ?? 1)])
+      .clamp(true);
 
-    const svg = d3.select('#cee4-rank-svg').attr('width',W).attr('height',H);
-    svg.selectAll('*').remove();
-    const g = svg.append('g').attr('transform',`translate(${mL},${mT})`);
+    const diffExtent = d3.extent(rows, d => Math.max(0, d.diff));
+    const widthScale = d3.scaleSqrt().domain(diffExtent).range([6.5, 28]);
+    const nodeRadius = d3.scaleSqrt().domain(d3.extent(rows, d => d.p2)).range([5.5, 11.5]);
 
-    data.forEach((d,i)=>{
-      const y   = i * ROW;
-      const gr  = d.p11>0 ? ((d.p16-d.p11)/d.p11*100).toFixed(0) : '—';
-      const grV = +gr;
-      const grColor = grV>=500?'#7c3aed':grV>=100?'#059669':'#64748b';
+    const svg = d3.select(el).html('').append('svg')
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('role', 'img')
+      .attr('aria-label', 'Rank flow chart for CEE countries with numeric growth badges');
 
-      // 斑马背景
-      g.append('rect')
-        .attr('x',-mL).attr('y',y).attr('width',W).attr('height',ROW)
-        .attr('fill', i%2===0?'#fafbfc':'#fff');
+    svg.append('text')
+      .attr('x', leftX)
+      .attr('y', 30)
+      .attr('fill', '#172033')
+      .attr('class', 'ksj-rank-main-title')
+      .text('2011—2015排名');
 
-      // 2011–2015 条（上）
-      g.append('rect')
-        .attr('class',`cee4-b11 cee4-bc-${i}`)
-        .attr('x',0).attr('y', y+4).attr('rx',2)
-        .attr('height',BAR).attr('width',0)
-        .attr('fill','#94a3b8').attr('fill-opacity',.65)
-        .transition().duration(500).delay(i*22)
-        .attr('width', x(d.p11));
+    svg.append('text')
+      .attr('x', rightX)
+      .attr('y', 30)
+      .attr('text-anchor', 'end')
+      .attr('fill', '#172033')
+      .attr('class', 'ksj-rank-main-title')
+      .text('2016—2020排名');
 
-      // 2016–2020 条（下）
-      g.append('rect')
-        .attr('class',`cee4-b16 cee4-bc-${i}`)
-        .attr('x',0).attr('y', y+4+BAR+GAP).attr('rx',2)
-        .attr('height',BAR).attr('width',0)
-        .attr('fill','#d97706').attr('fill-opacity',1)
-        .transition().duration(500).delay(i*22)
-        .attr('width', x(d.p16));
+    svg.append('text')
+      .attr('x', width / 2)
+      .attr('y', 30)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#667085')
+      .attr('class', 'ksj-rank-subtitle')
+      .text('颜色表示增长率，线宽表示新增合作量，排名依据阶段合作量。');
 
-      // 国家名
-      g.append('text')
-        .attr('class',`cee4-lbl cee4-lbl-${i}`)
-        .attr('x',-6).attr('y', y+ROW/2+5)
-        .attr('text-anchor','end').attr('font-size',11.5)
-        .attr('fill','#374151').attr('font-weight','400')
-        .text(d.cn);
+    svg.append('text')
+      .attr('x', growthX)
+      .attr('y', 30)
+      .attr('fill', '#172033')
+      .attr('class', 'ksj-rank-main-title')
+      .text('增长率');
 
-      // 2016-2020 数值标注
-      g.append('text')
-        .attr('class',`cee4-val cee4-val-${i}`)
-        .attr('x', x(d.p16)+4).attr('y', y+4+BAR+GAP+BAR-1.5)
-        .attr('font-size',9).attr('fill','#b45309')
-        .text(d.p16>=1000 ? d3.format('.1s')(d.p16) : fmt(d.p16));
+    const y1 = d3.scaleLinear().domain([1, rows.length]).range([margin.top, margin.top + innerH]);
+    const y2 = d3.scaleLinear().domain([1, rows.length]).range([margin.top, margin.top + innerH]);
 
-      // 增速标注（默认透明，hover 时显示）
-      g.append('text')
-        .attr('class',`cee4-gr cee4-gr-${i}`)
-        .attr('x', iW + mR - 4).attr('y', y+ROW/2+5)
-        .attr('text-anchor','end').attr('font-size',10.5).attr('font-weight','700')
-        .attr('fill', grColor).attr('opacity', 0)
-        .text(gr!=='—' ? `+${gr}%` : '—');
-
-      // 热区
-      g.append('rect')
-        .attr('x',-mL).attr('y',y).attr('width',W).attr('height',ROW)
-        .attr('fill','transparent').attr('cursor','default')
-        .on('mouseover', e=>{
-          window.cee4ShowTip(e,d);
-          applyHighlight(d.cn);
-        })
-        .on('mousemove', window.cee4MoveTip)
-        .on('mouseout', ()=>{
-          window.cee4HideTip();
-          clearHighlight();
-        });
+    [leftX, rightX].forEach(xPos => {
+      svg.append('line')
+        .attr('x1', xPos).attr('x2', xPos)
+        .attr('y1', margin.top - 16).attr('y2', height - margin.bottom + 6)
+        .attr('stroke', '#d9e4ef')
+        .attr('stroke-width', 2);
     });
 
-    // 条形图完成后同步地图高度
-    setTimeout(syncMapHeight, 550);
+    const orderedByRank1 = rows.slice().sort((a, b) => d3.ascending(a.rank1, b.rank1));
+    const orderedByRank2 = rows.slice().sort((a, b) => d3.ascending(a.rank2, b.rank2));
+    drawRankLabels(svg, orderedByRank1, leftX, y1, 'left');
+    drawRankLabels(svg, orderedByRank2, rightX, y2, 'right');
+
+    const ribbonLayer = svg.append('g').attr('class', 'ksj-ribbon-layer');
+    ribbonLayer.selectAll('.ksj-ribbon')
+      .data(rows, d => d.country)
+      .join('path')
+      .attr('class', d => `ksj-ribbon country-${slug(d.country)} type-${d.type}`)
+      .attr('data-country', d => d.country)
+      .attr('fill', 'none')
+      .attr('stroke', d => Number.isFinite(d.growthRate) ? rateColor(d.growthRate) : '#f2a65a')
+      .attr('stroke-width', d => widthScale(Math.max(0, d.diff)))
+      .attr('stroke-linecap', 'round')
+      .attr('stroke-opacity', .94)
+      .attr('d', d => ribbonPath(leftX + 13, y1(d.rank1), rightX - 13, y2(d.rank2)))
+      .on('mouseenter', (event, d) => setCountryHover(event, d))
+      .on('mousemove', (event, d) => showCountryTooltip(event, d))
+      .on('mouseleave', clearCountryHover)
+      .on('click', (event, d) => selectCountry(d));
+
+    const nodes = svg.append('g').selectAll('.ksj-country-node')
+      .data(rows, d => d.country)
+      .join('g')
+      .attr('class', d => `ksj-country-node country-${slug(d.country)}`)
+      .attr('data-country', d => d.country)
+      .on('mouseenter', (event, d) => setCountryHover(event, d))
+      .on('mousemove', (event, d) => showCountryTooltip(event, d))
+      .on('mouseleave', clearCountryHover)
+      .on('click', (event, d) => selectCountry(d));
+
+    nodes.append('circle')
+      .attr('cx', leftX)
+      .attr('cy', d => y1(d.rank1))
+      .attr('r', 5.8)
+      .attr('fill', d => typeColor(d.type))
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 2);
+
+    nodes.append('circle')
+      .attr('cx', rightX)
+      .attr('cy', d => y2(d.rank2))
+      .attr('r', d => nodeRadius(d.p2))
+      .attr('fill', d => typeColor(d.type))
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 2);
+
+    const badgeW = 88;
+    const badgeH = 30;
+    const badge = svg.append('g').attr('class', 'ksj-growth-badge-layer')
+      .selectAll('.ksj-growth-badge')
+      .data(rows, d => d.country)
+      .join('g')
+      .attr('class', d => `ksj-growth-badge country-${slug(d.country)}`)
+      .attr('data-country', d => d.country)
+      .attr('transform', d => `translate(${growthX},${y2(d.rank2) - badgeH / 2})`)
+      .on('mouseenter', (event, d) => setCountryHover(event, d))
+      .on('mousemove', (event, d) => showCountryTooltip(event, d))
+      .on('mouseleave', clearCountryHover)
+      .on('click', (event, d) => selectCountry(d));
+
+    badge.append('rect')
+      .attr('width', badgeW)
+      .attr('height', badgeH)
+      .attr('rx', 13);
+
+    badge.append('text')
+      .attr('class', 'ksj-rank-growth-text')
+      .attr('x', badgeW / 2)
+      .attr('y', 20)
+      .attr('text-anchor', 'middle')
+      .text(d => formatGrowthRate(d.growthRate));
+
+    const legend = svg.append('g').attr('transform', `translate(${margin.left},${height - 30})`);
+    const types = ['core', 'middle', 'chaser', 'tail'];
+    types.forEach((type, i) => {
+      const item = legend.append('g').attr('transform', `translate(${i * 130},0)`);
+      item.append('circle').attr('r', 6).attr('fill', typeColor(type));
+      item.append('text').attr('x', 12).attr('y', 4).attr('fill', '#667085').attr('font-size', 13).attr('font-weight', 850).text(typeLabel(type));
+    });
+    const colorLegend = legend.append('g').attr('transform', `translate(${types.length * 130 + 18},0)`);
+    colorLegend.append('line').attr('x1',0).attr('x2',30).attr('y1',0).attr('y2',0).attr('stroke','#d7ecff').attr('stroke-width',5).attr('stroke-linecap','round');
+    colorLegend.append('line').attr('x1',34).attr('x2',64).attr('y1',0).attr('y2',0).attr('stroke','#2f80ed').attr('stroke-width',5).attr('stroke-linecap','round');
+    colorLegend.append('line').attr('x1',68).attr('x2',98).attr('y1',0).attr('y2',0).attr('stroke','#0b2f73').attr('stroke-width',5).attr('stroke-linecap','round');
+    colorLegend.append('text').attr('x',108).attr('y',4).attr('fill','#667085').attr('font-size',13).attr('font-weight',850).text('增长率：低 → 高');
+
+    applyHighlighting();
   }
 
-  /* ─── 高亮（双向联动）─── */
-  function applyHighlight(cn) {
-    const idx = RANK_DATA.findIndex(d=>d.cn===cn);
-    const n = RANK_DATA.length;
+  function drawRankLabels(svg, rows, x, y, side) {
+    const anchor = side === 'left' ? 'end' : 'start';
+    const dx = side === 'left' ? -13 : 13;
+    const group = svg.append('g');
+    group.selectAll(`text.${side}-rank-label`)
+      .data(rows)
+      .join('text')
+      .attr('class', d => `ksj-small-label ${side}-rank-label country-${slug(d.country)}`)
+      .attr('data-country', d => d.country)
+      .attr('x', x + dx)
+      .attr('y', d => y(side === 'left' ? d.rank1 : d.rank2) + 4)
+      .attr('text-anchor', anchor)
+      .attr('font-size', 13)
+      .attr('font-weight', 900)
+      .text(d => `${side === 'left' ? d.rank1 : d.rank2}. ${d.countryCn}`);
+  }
 
-    for (let i=0; i<n; i++) {
-      const isActive = (i === idx);
-      d3.select(`rect.cee4-b11.cee4-bc-${i}`).attr('fill-opacity', isActive ? 0.65 : 0.07);
-      d3.select(`rect.cee4-b16.cee4-bc-${i}`).attr('fill-opacity', isActive ? 1 : 0.07);
-      d3.select(`.cee4-lbl-${i}`)
-        .attr('fill', isActive ? '#0f172a' : '#c8d0da')
-        .attr('font-weight', isActive ? '700' : '400');
-      d3.select(`.cee4-val-${i}`).attr('fill-opacity', isActive ? 1 : 0.1);
-      // 增速：只显示 active 行
-      d3.select(`.cee4-gr-${i}`).attr('opacity', isActive ? 1 : 0);
+  function ribbonPath(x1, y1, x2, y2) {
+    const mid = (x1 + x2) / 2;
+    return `M${x1},${y1} C${mid},${y1} ${mid},${y2} ${x2},${y2}`;
+  }
+
+  function makeGlow(defs, id, color) {
+    const filter = defs.append('filter').attr('id', id).attr('height', '180%').attr('width', '180%').attr('x', '-40%').attr('y', '-40%');
+    filter.append('feGaussianBlur').attr('stdDeviation', 4).attr('result', 'coloredBlur');
+    const merge = filter.append('feMerge');
+    merge.append('feMergeNode').attr('in', 'coloredBlur');
+    merge.append('feMergeNode').attr('in', 'SourceGraphic');
+  }
+
+  function renderBalanceToolbar() {
+    d3.select('#ksj-balance-toolbar').selectAll('[data-stage]')
+      .on('click', function () {
+        state.view.stage = this.dataset.stage;
+        state.view.hoveredCountry = null;
+        state.view.selectedCountry = null;
+        d3.select('#ksj-balance-toolbar').selectAll('[data-stage]')
+          .classed('active', false).classed('is-link', false).classed('is-light', true);
+        d3.select(this).classed('active', true).classed('is-link', true).classed('is-light', false);
+        renderBubbleMap();
+        renderLorenzChart();
+        renderConclusion();
+        renderBalanceLinkCard(null);
+        hideLorenzFocus();
+        applyHighlighting();
+      });
+
+    d3.select('#ksj-balance-toolbar').selectAll('[data-focus]')
+      .on('click', function () {
+        state.view.highlightMode = this.dataset.focus;
+        state.view.hoveredCountry = null;
+        state.view.selectedCountry = null;
+        hideTooltip();
+        hideLorenzFocus();
+        d3.select('#ksj-balance-toolbar').selectAll('[data-focus]')
+          .classed('active', false).classed('is-link', false).classed('is-light', true);
+        d3.select(this).classed('active', true).classed('is-link', true).classed('is-light', false);
+        renderBalanceLinkCard(null);
+        applyHighlighting();
+      });
+  }
+
+  function renderBalanceLinkCard(d) {
+    const el = d3.select('#ksj-balance-link-card');
+    if (el.empty()) return;
+    const stageKey = state.view.stage;
+    const stage = state.data.stages.find(s => s.key === stageKey) || state.data.stages[1];
+    const stageLabel = stageKey === 'p1' ? '2011–2015' : '2016–2020';
+    const totalCountries = state.data.countries.length;
+    const focus = state.view.highlightMode || 'all';
+    const focusMeta = {
+      all: { title: '全部国家', note: '显示全部国家，用于观察整体结构。' },
+      top3: { title: 'Top3 国家', note: '突出阶段排名前3的国家。' },
+      top5: { title: 'Top5 国家', note: '突出阶段排名前5的国家。' },
+      core: { title: '核心国家', note: '突出后期排名前3，或后期合作份额≥13%的国家。' },
+      chaser: { title: '追赶国家', note: '突出未进入核心或稳定范围，且增长率高于中位数、新增量为正的国家。' },
+      tail: { title: '长尾国家', note: '突出未满足核心、稳定、追赶条件，合作规模或增量较小的国家。' }
+    }[focus] || { title: '全部国家', note: '显示全部国家。' };
+    const focusCountries = state.data.countries
+      .filter(row => countryShouldShow(row, focus, null))
+      .sort((a, b) => d3.descending(a[stageKey], b[stageKey]));
+    const focusTotal = d3.sum(focusCountries, row => row[stageKey]);
+    const focusShare = stage.total ? focusTotal / stage.total : 0;
+    const focusNames = focusCountries.slice(0, 5).map(row => row.countryCn).join('、') || '全部国家';
+
+    if (!d) {
+      el.html(`
+        <p class="heading mb-2">联动解读</p>
+        <p class="has-text-grey is-size-7 mb-2">
+          本模块同时展示单个国家贡献和整体集中度。气泡越大，阶段合作量越高；Lorenz曲线越弯，集中度越高。
+        </p>
+        <div class="ksj-link-grid">
+          <div class="ksj-link-mini-stat"><span>当前阶段</span><b>${stageLabel}</b></div>
+          <div class="ksj-link-mini-stat"><span>高亮范围</span><b>${focusMeta.title}</b></div>
+          <div class="ksj-link-mini-stat"><span>国家数量</span><b>${focusCountries.length}</b></div>
+          <div class="ksj-link-mini-stat"><span>合计占比</span><b>${fmt.pct1(focusShare * 100)}%</b></div>
+          <div class="ksj-link-mini-stat"><span>Gini</span><b>${fmt.pct(stage.gini)}</b></div>
+          <div class="ksj-link-mini-stat"><span>HHI</span><b>${fmt.pct(stage.hhi)}</b></div>
+        </div>
+        <div class="ksj-bullet-panel ksj-link-bullets">
+          <div class="ksj-bullet-title">操作说明</div>
+          <ul class="ksj-bullet-list">
+            <li>${focusMeta.note}</li>
+            <li>当前范围：${focusNames}${focusCountries.length > 5 ? '等' : ''}。</li>
+            <li>点击 Top3、Top5 或全部，可同步更新气泡图、曲线节点和贡献条。</li>
+          </ul>
+        </div>
+      `);
+      return;
     }
-
-    // 地图
-    d3.select('#cee4-map-svg').select('g.cee4-map-cee').selectAll('path')
-      .attr('fill-opacity', f=> ceeByNum[f.id]?.cn===cn ? 1 : 0.15)
-      .attr('stroke', f=> ceeByNum[f.id]?.cn===cn ? '#0f172a' : '#b45309')
-      .attr('stroke-width', f=> ceeByNum[f.id]?.cn===cn ? 2.5 : 1.2);
+    const rows = state.data.countries.slice().sort((a, b) => d3.ascending(a[stageKey], b[stageKey]));
+    const total = d3.sum(rows, x => x[stageKey]);
+    let acc = 0;
+    let cumulative = 0;
+    let order = 0;
+    rows.forEach((row, i) => {
+      acc += row[stageKey];
+      if (row.country === d.country) {
+        cumulative = total ? acc / total : 0;
+        order = i + 1;
+      }
+    });
+    const share = total ? d[stageKey] / total : 0;
+    const countryRatio = totalCountries ? order / totalCountries : 0;
+    el.html(`
+      <p class="heading mb-2">联动解读：${d.countryCn}</p>
+      <p class="has-text-grey is-size-7 mb-2">
+        当前高亮国家为 <b>${d.countryCn}</b>。气泡显示阶段合作量，Lorenz曲线节点显示其在累计分布中的位置。
+      </p>
+      <div class="ksj-link-grid">
+        <div class="ksj-link-mini-stat"><span>阶段合作量</span><b>${fmt.int(d[stageKey])}</b></div>
+        <div class="ksj-link-mini-stat"><span>阶段份额</span><b>${fmt.pct1(share * 100)}%</b></div>
+        <div class="ksj-link-mini-stat"><span>累计顺序</span><b>第 ${order} 个</b></div>
+        <div class="ksj-link-mini-stat"><span>累计国家比例</span><b>${fmt.pct1(countryRatio * 100)}%</b></div>
+        <div class="ksj-link-mini-stat"><span>累计合作比例</span><b>${fmt.pct1(cumulative * 100)}%</b></div>
+        <div class="ksj-link-mini-stat"><span>国家类型</span><b>${d.typeLabel}</b></div>
+      </div>
+      <div class="ksj-bullet-panel ksj-link-bullets">
+        <div class="ksj-bullet-title">国家解读</div>
+        <ul class="ksj-bullet-list">
+          <li>${d.countryCn}阶段贡献 ${fmt.int(d[stageKey])} 篇，占阶段总量约 ${fmt.pct1(share * 100)}%，属于${d.typeLabel}。</li>
+          <li>累计至第 ${order} 个国家时，国家比例为 ${fmt.pct1(countryRatio * 100)}%，合作量比例为 ${fmt.pct1(cumulative * 100)}%。</li>
+          <li>如果累计国家比例较高、累计合作比例较低，说明合作贡献集中在少数国家。</li>
+        </ul>
+      </div>
+    `);
   }
 
-  function clearHighlight() {
-    const n = RANK_DATA.length;
-    for (let i=0; i<n; i++) {
-      d3.select(`rect.cee4-b11.cee4-bc-${i}`).attr('fill-opacity', 0.65);
-      d3.select(`rect.cee4-b16.cee4-bc-${i}`).attr('fill-opacity', 1);
-      d3.select(`.cee4-lbl-${i}`).attr('fill','#374151').attr('font-weight','400');
-      d3.select(`.cee4-val-${i}`).attr('fill-opacity',1);
-      d3.select(`.cee4-gr-${i}`).attr('opacity', 0);
-    }
-    d3.select('#cee4-map-svg').select('g.cee4-map-cee').selectAll('path')
-      .attr('fill-opacity',1)
-      .attr('stroke','#b45309').attr('stroke-width',1.2);
-  }
-
-  /* ─── 底部区域增速对比表 ─── */
-  function renderTable() {
-    const el = document.getElementById('cee4-table');
+  function renderBubbleMap() {
+    const el = document.getElementById('ksj-bubble-map');
     if (!el) return;
-    const maxGrowth = d3.max([...REGION_GROWTH, GLOBAL], d=>d.growth);
+    const stageKey = state.view.stage;
+    const rows = state.data.countries.map(d => ({ ...d, value: d[stageKey], share: stageKey === 'p1' ? d.share1 : d.share2 }));
+    const width = Math.max(760, el.clientWidth || 940);
+    const height = 680;
 
-    el.innerHTML = `
-      <table style="width:100%;border-collapse:collapse;font-size:12px;">
-        <thead>
-          <tr style="border-bottom:2px solid #e2e8f0;">
-            <th style="text-align:left;padding:8px 10px;color:#64748b;font-weight:600;font-size:11px;white-space:nowrap;">地区</th>
-            <th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:600;font-size:11px;white-space:nowrap;">2011–2015</th>
-            <th style="text-align:right;padding:8px 10px;color:#64748b;font-weight:600;font-size:11px;white-space:nowrap;">2016–2020</th>
-            <th style="text-align:left;padding:8px 14px;color:#64748b;font-weight:600;font-size:11px;min-width:200px;">增速（增幅条）</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${REGION_GROWTH.map((d,i)=>{
-            const barW = (d.growth/maxGrowth*100).toFixed(1);
-            const grColor = d.growth>=200?'#7c3aed':d.growth>=100?'#059669':'#64748b';
-            const bg = d.isCEE?'#fef3c7':i%2===0?'#fafbfc':'#fff';
-            return `
-              <tr style="border-bottom:1px solid #f1f5f9;background:${bg};">
-                <td style="padding:8px 10px;font-weight:${d.isCEE?'700':'400'};
-                  color:${d.isCEE?'#92400e':'#374151'};white-space:nowrap;">
-                  ${d.isCEE?'★ ':''}${d.r}
-                </td>
-                <td style="padding:8px 10px;text-align:right;color:#94a3b8;">
-                  ${d.p11>=10000?d3.format('.0s')(d.p11):fmt(d.p11)}
-                </td>
-                <td style="padding:8px 10px;text-align:right;font-weight:${d.isCEE?'700':'500'};
-                  color:${d.isCEE?'#b45309':'#374151'};">
-                  ${d.p16>=10000?d3.format('.0s')(d.p16):fmt(d.p16)}
-                </td>
-                <td style="padding:8px 14px;">
-                  <div style="display:flex;align-items:center;gap:8px;">
-                    <div style="flex:1;height:10px;background:#f1f5f9;border-radius:3px;overflow:hidden;">
-                      <div style="height:100%;width:${barW}%;
-                        background:${d.isCEE?'#d97706':grColor};border-radius:3px;"></div>
-                    </div>
-                    <span style="font-weight:700;font-size:11px;min-width:52px;text-align:right;
-                      color:${d.isCEE?'#b45309':grColor};">+${d.growth}%</span>
-                  </div>
-                </td>
-              </tr>`;
-          }).join('')}
-          <tr style="border-top:2px solid #e2e8f0;background:#f0f7ff;">
-            <td style="padding:8px 10px;font-weight:700;color:#1e40af;">全球平均</td>
-            <td style="padding:8px 10px;text-align:right;color:#94a3b8;">${d3.format('.0s')(GLOBAL.p11)}</td>
-            <td style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">${d3.format('.0s')(GLOBAL.p16)}</td>
-            <td style="padding:8px 14px;">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div style="flex:1;height:10px;background:#f1f5f9;border-radius:3px;overflow:hidden;">
-                  <div style="height:100%;width:${(GLOBAL.growth/maxGrowth*100).toFixed(1)}%;
-                    background:#2563eb;border-radius:3px;"></div>
-                </div>
-                <span style="font-weight:700;font-size:11px;min-width:52px;text-align:right;color:#1e40af;">+${GLOBAL.growth}%</span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>`;
+    const svg = d3.select(el).html('').append('svg')
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('role', 'img')
+      .attr('aria-label', 'Packed bubble chart of CEE country shares');
+
+    svg.append('text')
+      .attr('x', 24).attr('y', 29)
+      .attr('fill', '#172033')
+      .attr('font-weight', 900)
+      .attr('font-size', 15)
+      .text(`国家合作量气泡图：${stageKey === 'p1' ? '2011–2015' : '2016–2020'}`);
+
+    svg.append('text')
+      .attr('x', 24).attr('y', 50)
+      .attr('fill', '#667085')
+      .attr('font-size', 12)
+      .attr('font-weight', 700)
+.text('气泡面积表示国家合作量；悬停国家后，Lorenz曲线会同步定位。');
+
+    const root = d3.hierarchy({ children: rows }).sum(d => d.value);
+    d3.pack().size([width - 44, height - 116]).padding(8)(root);
+    const nodes = root.leaves();
+
+    const g = svg.append('g').attr('transform', 'translate(22,76)');
+    g.append('circle')
+      .attr('cx', (width - 52) / 2)
+      .attr('cy', (height - 112) / 2)
+      .attr('r', Math.min(width - 44, height - 116) / 2 - 2)
+      .attr('fill', 'none')
+      .attr('stroke', '#d9e4ef')
+      .attr('stroke-dasharray', '5 7');
+
+    const node = g.selectAll('.ksj-bubble-node')
+      .data(nodes, d => d.data.country)
+      .join('g')
+      .attr('class', d => `ksj-bubble-node country-${slug(d.data.country)} type-${d.data.type}`)
+      .attr('data-country', d => d.data.country)
+      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .on('mouseenter', (event, d) => setCountryHover(event, d.data))
+      .on('mousemove', (event, d) => showCountryTooltip(event, d.data))
+      .on('mouseleave', clearCountryHover)
+      .on('click', (event, d) => selectCountry(d.data));
+
+    node.append('circle')
+      .attr('class', 'ksj-bubble')
+      .attr('r', d => d.r)
+      .attr('fill', d => typeColor(d.data.type))
+      .attr('fill-opacity', .96)
+      .attr('stroke', 'rgba(255,255,255,.96)')
+      .attr('stroke-width', 2.6);
+
+    node.filter(d => d.r > 21).append('text')
+      .attr('class', 'ksj-label')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '-.05em')
+      .attr('font-size', d => Math.min(15, Math.max(11, d.r / 3)))
+      .text(d => d.data.countryCn);
+
+    node.filter(d => d.r > 28).append('text')
+      .attr('class', 'ksj-small-label')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '1.25em')
+      .attr('font-size', 13)
+      .attr('font-weight', 900)
+      .text(d => `${fmt.pct1(d.data.share * 100)}%`);
   }
 
-  /* ─── 初始化 ─── */
-  function init() {
-    initTooltip();
-    injectHTML();
 
-    function tryDraw(n) {
-      const el = document.getElementById('ranking-chart');
-      if (el && el.parentElement && el.parentElement.clientWidth > 0) {
-        renderRankBars();
-        renderTable();
-        drawMap().catch(console.error);
-      } else if (n<20) { setTimeout(()=>tryDraw(n+1), 100); }
+  function getLorenzPointForCountry(country) {
+    if (!country) return null;
+    const stageKey = state.view.stage;
+    const rows = state.data.countries.slice().sort((a, b) => d3.ascending(a[stageKey], b[stageKey]));
+    const total = d3.sum(rows, d => d[stageKey]);
+    let acc = 0;
+    for (let i = 0; i < rows.length; i += 1) {
+      const d = rows[i];
+      acc += d[stageKey];
+      if (d.country === country) {
+        return {
+          x: (i + 1) / rows.length,
+          y: total ? acc / total : 0,
+          countryCn: d.countryCn,
+          value: d[stageKey],
+          cumulative: acc,
+          data: d,
+          order: i + 1
+        };
+      }
     }
-    setTimeout(()=>tryDraw(0), 80);
+    return null;
+  }
 
-    window.addEventListener('resize', ()=>{
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(()=>{
-        renderRankBars();
-        if (worldGeoData) syncMapHeight();
-      }, 200);
+  function showLorenzFocus(point) {
+    const host = d3.select('#ksj-lorenz-chart');
+    const x = host.property('ksjLorenzXScale');
+    const y = host.property('ksjLorenzYScale');
+    const innerH = host.property('ksjLorenzInnerH');
+    const innerW = host.property('ksjLorenzInnerW');
+    const focus = host.select('.ksj-lorenz-focus-guide');
+    if (!point || !x || !y || focus.empty()) return;
+    const px = x(point.x);
+    const py = y(point.y);
+    focus.style('opacity', 1);
+    focus.select('.ksj-focus-x').attr('x1', px).attr('x2', px).attr('y1', py).attr('y2', innerH);
+    focus.select('.ksj-focus-y').attr('x1', 0).attr('x2', px).attr('y1', py).attr('y2', py);
+    focus.select('.ksj-focus-ring').attr('cx', px).attr('cy', py);
+    focus.select('.ksj-focus-label')
+      .attr('x', Math.min(innerW - 120, Math.max(8, px + 10)))
+      .attr('y', Math.max(18, py - 12))
+      .text(`${point.countryCn}：累计 ${fmt.pct1(point.y * 100)}%`);
+  }
+
+  function hideLorenzFocus() {
+    d3.select('#ksj-lorenz-chart').select('.ksj-lorenz-focus-guide').style('opacity', 0);
+  }
+
+  function syncLorenzFromCountry(country) {
+    const point = getLorenzPointForCountry(country);
+    if (point) {
+      renderLorenzCard(point);
+      showLorenzFocus(point);
+    }
+  }
+
+  function renderLorenzChart() {
+    const el = document.getElementById('ksj-lorenz-chart');
+    if (!el) return;
+    const stageKey = state.view.stage;
+    const stage = state.data.stages.find(s => s.key === stageKey);
+    const rows = state.data.countries.slice().sort((a, b) => d3.ascending(a[stageKey], b[stageKey]));
+    const total = d3.sum(rows, d => d[stageKey]);
+    const points = [{ x: 0, y: 0, countryCn: '起点', value: 0, cumulative: 0, data: null }];
+    let acc = 0;
+    rows.forEach((d, i) => {
+      acc += d[stageKey];
+      points.push({
+        x: (i + 1) / rows.length,
+        y: total ? acc / total : 0,
+        countryCn: d.countryCn,
+        value: d[stageKey],
+        cumulative: acc,
+        data: d,
+        order: i + 1
+      });
     });
 
-    function applyResp() {
-      const main = document.getElementById('cee4-main');
-      if (main) main.style.gridTemplateColumns =
-        window.innerWidth < 900 ? '1fr' : '300px 1fr';
-    }
-    applyResp();
-    window.addEventListener('resize', applyResp);
+    const width = Math.max(860, el.clientWidth || 1000);
+    const height = 720;
+    const margin = { top: 96, right: 78, bottom: 190, left: 84 };
+    const innerW = width - margin.left - margin.right;
+    const innerH = height - margin.top - margin.bottom;
+
+    const svg = d3.select(el).html('').append('svg')
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('role', 'img')
+      .attr('aria-label', 'Interactive Lorenz curve with country accumulation bars');
+
+    const defs = svg.append('defs');
+    const gapGrad = defs.append('linearGradient')
+      .attr('id', `ksj-lorenz-gap-grad-${width}`)
+      .attr('x1', '0%').attr('x2', '0%').attr('y1', '0%').attr('y2', '100%');
+    gapGrad.append('stop').attr('offset', '0%').attr('stop-color', '#6aa9ff').attr('stop-opacity', .20);
+    gapGrad.append('stop').attr('offset', '100%').attr('stop-color', '#d8ebff').attr('stop-opacity', .06);
+
+    svg.append('text')
+      .attr('x', 26).attr('y', 32)
+      .attr('fill', '#172033')
+      .attr('font-weight', 950)
+      .attr('font-size', 16.5)
+      .text(`Lorenz曲线：${stage.label}`);
+
+    svg.append('text')
+      .attr('x', 26).attr('y', 56)
+      .attr('fill', '#667085')
+      .attr('font-size', 12)
+      .attr('font-weight', 760)
+.text('蓝线表示合作量累计分布；越偏离均衡线，集中度越高。');
+
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+    const x = d3.scaleLinear().domain([0, 1]).range([0, innerW]);
+    const y = d3.scaleLinear().domain([0, 1]).range([innerH, 0]);
+    d3.select(el)
+      .property('ksjLorenzXScale', x)
+      .property('ksjLorenzYScale', y)
+      .property('ksjLorenzInnerH', innerH)
+      .property('ksjLorenzInnerW', innerW);
+
+    g.append('g')
+      .attr('class', 'ksj-grid')
+      .attr('transform', `translate(0,${innerH})`)
+      .call(d3.axisBottom(x).ticks(5).tickSize(-innerH).tickFormat(''));
+    g.append('g')
+      .attr('class', 'ksj-grid')
+      .call(d3.axisLeft(y).ticks(5).tickSize(-innerW).tickFormat(''));
+
+    const equality = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
+    const polygon = equality.concat(points.slice().reverse());
+    const lineGen = d3.line().x(d => x(d.x)).y(d => y(d.y)).curve(d3.curveMonotoneX);
+
+    g.append('path')
+      .datum(polygon)
+      .attr('fill', `url(#ksj-lorenz-gap-grad-${width})`)
+      .attr('d', d3.line().x(d => x(d.x)).y(d => y(d.y)).curve(d3.curveLinear) + 'Z');
+
+    g.append('path')
+      .datum(equality)
+      .attr('fill', 'none')
+      .attr('stroke', '#94acc8')
+      .attr('stroke-width', 2.6)
+      .attr('stroke-dasharray', '7 7')
+      .attr('d', d3.line().x(d => x(d.x)).y(d => y(d.y)));
+
+    g.append('path')
+      .datum(points)
+      .attr('fill', 'none')
+      .attr('stroke', '#236ed0')
+      .attr('stroke-width', 5)
+      .attr('stroke-linecap', 'round')
+      .attr('d', lineGen);
+
+    const focusGuide = g.append('g')
+      .attr('class', 'ksj-lorenz-focus-guide')
+      .style('opacity', 0);
+    focusGuide.append('line').attr('class', 'ksj-focus-x');
+    focusGuide.append('line').attr('class', 'ksj-focus-y');
+    focusGuide.append('circle').attr('class', 'ksj-focus-ring').attr('r', 9);
+    focusGuide.append('text').attr('class', 'ksj-focus-label');
+
+    g.append('text')
+      .attr('x', x(.66))
+      .attr('y', y(.73))
+      .attr('fill', '#6d82a0')
+      .attr('font-size', 12)
+      .attr('font-weight', 900)
+      .text('完全均衡线：各国贡献相同时，蓝线会接近该线');
+
+    g.append('text')
+      .attr('x', x(.34))
+      .attr('y', y(.09))
+      .attr('fill', '#315cba')
+      .attr('font-size', 12)
+      .attr('font-weight', 900)
+      .text('蓝色阴影越大，合作越集中');
+
+    const dot = g.selectAll('.ksj-lorenz-country-dot')
+      .data(points.slice(1))
+      .join('circle')
+      .attr('class', d => `ksj-lorenz-country-dot country-${slug(d.data.country)} type-${d.data.type}`)
+      .attr('data-country', d => d.data.country)
+      .attr('cx', d => x(d.x))
+      .attr('cy', d => y(d.y))
+      .attr('r', d => d.data.rank2 <= 5 ? 6.6 : 4.9)
+      .attr('fill', d => typeColor(d.data.type))
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 2.2)
+      .on('mouseenter', (event, d) => { setCountryHover(event, d.data); renderLorenzCard(d); showLorenzFocus(d); })
+      .on('mousemove', (event, d) => { showLorenzTooltip(event, d); renderLorenzCard(d); showLorenzFocus(d); })
+      .on('mouseleave', () => { clearCountryHover(); })
+      .on('click', (event, d) => { selectCountry(d.data); renderLorenzCard(d); showLorenzFocus(d); });
+
+    g.append('g')
+      .attr('class', 'ksj-axis')
+      .attr('transform', `translate(0,${innerH})`)
+      .call(d3.axisBottom(x).ticks(5).tickFormat(d => `${Math.round(d * 100)}%`));
+    g.append('g')
+      .attr('class', 'ksj-axis')
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => `${Math.round(d * 100)}%`));
+
+    g.append('text')
+      .attr('x', innerW / 2)
+      .attr('y', innerH + 43)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#667085')
+      .attr('font-size', 12)
+      .attr('font-weight', 850)
+      .text('累计国家比例');
+    g.append('text')
+      .attr('x', -innerH / 2)
+      .attr('y', -52)
+      .attr('transform', 'rotate(-90)')
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#667085')
+      .attr('font-size', 12)
+      .attr('font-weight', 850)
+      .text('累计合作量比例');
+
+    const stripY = innerH + 84;
+    const strip = g.append('g').attr('transform', `translate(0,${stripY})`);
+    strip.append('text')
+      .attr('x', 0).attr('y', -18)
+      .attr('fill', '#172033')
+      .attr('font-size', 12.5)
+      .attr('font-weight', 930)
+      .text('国家贡献条：每段代表一个国家，宽度表示该国贡献份额');
+
+    let segX = 0;
+    strip.selectAll('.ksj-lorenz-segment')
+      .data(rows)
+      .join('rect')
+      .attr('class', d => `ksj-lorenz-segment country-${slug(d.country)} type-${d.type}`)
+      .attr('data-country', d => d.country)
+      .attr('x', d => {
+        const x0 = segX;
+        segX += total ? (d[stageKey] / total) * innerW : 0;
+        return x0;
+      })
+      .attr('y', 0)
+      .attr('width', d => Math.max(4, total ? (d[stageKey] / total) * innerW : 0))
+      .attr('height', 24)
+      .attr('rx', 7)
+      .attr('fill', d => typeColor(d.type))
+      .attr('fill-opacity', .94)
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.2)
+      .on('mouseenter', (event, d) => {
+        const point = points.find(p => p.data && p.data.country === d.country);
+        setCountryHover(event, d);
+        renderLorenzCard(point);
+        showLorenzFocus(point);
+      })
+      .on('mousemove', (event, d) => {
+        const point = points.find(p => p.data && p.data.country === d.country);
+        showLorenzTooltip(event, point);
+        renderLorenzCard(point);
+        showLorenzFocus(point);
+      })
+      .on('mouseleave', () => { clearCountryHover(); })
+      .on('click', (event, d) => {
+        const point = points.find(p => p.data && p.data.country === d.country);
+        selectCountry(d);
+        renderLorenzCard(point);
+        showLorenzFocus(point);
+      });
+
+    // 在贡献条下面放几个关键国家名，避免它看起来只是装饰条。
+    strip.selectAll('.ksj-strip-label')
+      .data(rows.filter(d => d.rank2 <= 5 || d[stageKey] / total > .06))
+      .join('text')
+      .attr('class', 'ksj-strip-label')
+      .attr('x', d => {
+        let before = 0;
+        rows.forEach(r => { if (rows.indexOf(r) < rows.indexOf(d)) before += total ? (r[stageKey] / total) * innerW : 0; });
+        return before + Math.max(4, total ? (d[stageKey] / total) * innerW : 0) / 2;
+      })
+      .attr('y', 44)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#4f5f73')
+      .attr('font-size', 10.5)
+      .attr('font-weight', 850)
+      .text(d => d.countryCn);
+
+    // 指标说明已移至下方“指标说明与综合结论”卡片，避免图内文字重复。
   }
 
-  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  function showLorenzTooltip(event, d) {
+    if (!d) return;
+    const html = `
+      <div class="ksj-tooltip-title">累加至：${d.countryCn}</div>
+      <div class="ksj-tooltip-row"><span>该国合作量</span><b>${fmt.int(d.value)}</b></div>
+      <div class="ksj-tooltip-row"><span>累计国家比例</span><b>${fmt.pct1(d.x * 100)}%</b></div>
+      <div class="ksj-tooltip-row"><span>累计合作量比例</span><b>${fmt.pct1(d.y * 100)}%</b></div>
+      <div class="ksj-tooltip-row"><span>国家类型</span><b>${d.data.typeLabel}</b></div>
+    `;
+    moveTooltip(event, html);
+  }
+
+  function renderLorenzCard(point) {
+    const el = d3.select('#ksj-lorenz-card');
+    if (el.empty()) return;
+    const stageKey = state.view.stage;
+    const stage = state.data.stages.find(s => s.key === stageKey) || state.data.stages[1];
+    const stageLabel = stageKey === 'p1' ? '2011–2015' : '2016–2020';
+    if (!point || !point.data) {
+      el.html(`
+        <div class="ksj-mini-title">集中度指标</div>
+        <div class="ksj-card-big-value">Gini ${fmt.pct(stage.gini)}</div>
+        <div class="ksj-muted">Lorenz曲线按各国合作量从小到大累加。蓝线越接近对角线，分布越均衡；越向右下弯，集中度越高。</div>
+        <div class="ksj-country-grid">
+          ${countryStatHTML('Gini', fmt.pct(stage.gini))}
+          ${countryStatHTML('HHI', fmt.pct(stage.hhi))}
+          ${countryStatHTML('Top3占比', `${fmt.pct1(stage.top3Share * 100)}%`)}
+          ${countryStatHTML('Top5占比', `${fmt.pct1(stage.top5Share * 100)}%`)}
+        </div>
+        <div class="ksj-bullet-panel">
+          <div class="ksj-bullet-title">指标说明</div>
+          <ul class="ksj-bullet-list">
+            <li>灰色对角线表示完全均衡，蓝线越接近对角线，分布越均衡。</li>
+            <li>蓝线越向右下方弯曲，说明合作越集中于少数国家。</li>
+            <li>Gini衡量分布差异，HHI衡量头部集中度；数值越高，合作越集中。</li>
+          </ul>
+        </div>
+      `);
+      return;
+    }
+    const d = point.data;
+    const share = stage.total ? d[stageKey] / stage.total : 0;
+    el.html(`
+      <div class="ksj-mini-title">Lorenz累计点</div>
+      <div class="ksj-country-name">${d.countryCn}</div>
+      <div class="ksj-country-type">${d.typeLabel}</div>
+      <div class="ksj-muted">按合作量从小到大累加至 ${d.countryCn} 时，国家比例为 ${fmt.pct1(point.x * 100)}%，合作量比例为 ${fmt.pct1(point.y * 100)}%。两者差距越大，集中度越高。</div>
+      <div class="ksj-country-grid">
+        ${countryStatHTML('该国合作量', fmt.int(point.value))}
+        ${countryStatHTML('该国份额', `${fmt.pct1(share * 100)}%`)}
+        ${countryStatHTML('累计国家比例', `${fmt.pct1(point.x * 100)}%`)}
+        ${countryStatHTML('累计合作比例', `${fmt.pct1(point.y * 100)}%`)}
+      </div>
+      <div class="ksj-bullet-panel">
+        <div class="ksj-bullet-title">累计点说明</div>
+        <ul class="ksj-bullet-list">
+          <li>累计国家比例表示已纳入国家数占样本国家总数的比例，此处为 ${fmt.pct1(point.x * 100)}%。</li>
+          <li>累计合作比例表示已纳入国家合作量占阶段总量的比例，此处为 ${fmt.pct1(point.y * 100)}%。</li>
+          <li>若国家比例较高但合作比例较低，说明贡献集中于少数高贡献国家。</li>
+        </ul>
+      </div>
+    `);
+  }
+
+
+  function renderConclusion() {
+    const s1 = state.data.stages[0];
+    const s2 = state.data.stages[1];
+    const totalGrowth = s1.total ? s2.total / s1.total - 1 : 0;
+    const giniChange = s2.gini - s1.gini;
+    const top3Change = s2.top3Share - s1.top3Share;
+    const top5Change = s2.top5Share - s1.top5Share;
+    const hhiChange = s2.hhi - s1.hhi;
+    const moreEven = giniChange < 0 && top5Change < 0 && hhiChange < 0;
+
+    const sentence = moreEven
+      ? '合作规模扩大，同时集中度有所下降，分布更均衡。'
+      : '合作规模扩大，但合作贡献仍主要集中在头部国家。';
+
+    d3.select('#ksj-conclusion').html(`
+      <div class="ksj-conclusion-line">
+        <b>指标说明：</b>Top3 / Top5占比表示前3 / 前5个国家的合计份额；Gini和HHI用于衡量集中度，数值越高，说明合作越集中。
+      </div>
+      <div class="ksj-conclusion-line mt-2">
+        <b>综合结论：</b>2016—2020阶段合作总量较2011—2015阶段增长 <b>${fmt.growth(totalGrowth)}</b>。
+        后期Top3占比为 <b>${fmt.pct1(s2.top3Share * 100)}%</b>，Top5占比为 <b>${fmt.pct1(s2.top5Share * 100)}%</b>。
+        与前期相比，Top3占比变化 <b>${fmt.signedInt(top3Change * 100)} 个百分点</b>，Top5占比变化 <b>${fmt.signedInt(top5Change * 100)} 个百分点</b>，
+        Gini由 <b>${fmt.pct(s1.gini)}</b> 变为 <b>${fmt.pct(s2.gini)}</b>，HHI由 <b>${fmt.pct(s1.hhi)}</b> 变为 <b>${fmt.pct(s2.hhi)}</b>。
+        ${sentence} 后期第一名为 <b>${s2.top1.countryCn}</b>，说明头部国家仍是主要贡献来源。
+      </div>
+    `);
+  }
+
+  function setCountryHover(event, d) {
+    state.view.hoveredCountry = d.country;
+    applyHighlighting();
+    showCountryTooltip(event, d);
+    renderSelectedCard(d, true);
+    renderBalanceCard(d, true);
+    renderBalanceLinkCard(d);
+    syncLorenzFromCountry(d.country);
+  }
+
+  function clearCountryHover() {
+    state.view.hoveredCountry = null;
+    hideTooltip();
+    applyHighlighting();
+    if (state.view.selectedCountry) {
+      const selected = state.data.countries.find(d => d.country === state.view.selectedCountry);
+      renderSelectedCard(selected);
+      renderBalanceCard(selected);
+      renderBalanceLinkCard(selected);
+      syncLorenzFromCountry(selected.country);
+    } else {
+      renderSelectedCard(null);
+      renderBalanceCard(null);
+      renderBalanceLinkCard(null);
+      renderLorenzCard(null);
+      hideLorenzFocus();
+    }
+  }
+
+  function selectCountry(d) {
+    state.view.selectedCountry = state.view.selectedCountry === d.country ? null : d.country;
+    const active = state.view.selectedCountry ? d : null;
+    renderSelectedCard(active);
+    renderBalanceCard(active);
+    renderBalanceLinkCard(active);
+    if (active) syncLorenzFromCountry(active.country);
+    else { renderLorenzCard(null); hideLorenzFocus(); }
+    applyHighlighting();
+  }
+
+  function renderSelectedCard(d, temporary = false) {
+    const el = d3.select('#ksj-selected-card');
+    if (el.empty()) return;
+    if (!d) {
+      el.html(`
+        <div class="ksj-mini-title">国家结构</div>
+        <div class="ksj-muted">该图比较各国在两个阶段的排名变化。左侧为2011—2015，右侧为2016—2020；连线越粗，新增合作量越大。</div>
+        <div class="ksj-bullet-panel">
+          <div class="ksj-bullet-title">国家类型定义</div>
+          <ul class="ksj-bullet-list">
+            <li><b>核心国家：</b>后期排名前3，或后期合作份额≥13%，代表主要合作支撑。</li>
+            <li><b>稳定国家：</b>未进入核心，但后期排名前8，或后期合作份额≥7%，是稳定贡献主体。</li>
+            <li><b>追赶国家：</b>未进入核心或稳定范围，但增长率高于各国中位数，且新增合作量为正。</li>
+            <li><b>长尾国家：</b>不满足以上条件，未满足核心、稳定、追赶条件，合作规模或增量较小。</li>
+          </ul>
+        </div>
+      `);
+      return;
+    }
+    const rankText = d.rankChange > 0 ? `上升 ${d.rankChange} 位` : d.rankChange < 0 ? `下降 ${Math.abs(d.rankChange)} 位` : '排名不变';
+    el.html(`
+      <div class="ksj-mini-title">${temporary ? '悬停国家' : '选中国家'}</div>
+      <div class="ksj-country-name">${d.countryCn}</div>
+      <div class="ksj-country-type">${d.typeLabel}</div>
+      <div class="ksj-muted">${d.countryCn} 在后期排第 ${d.rank2}，较前期${rankText}。${countryNarrative(d)}</div>
+      <div class="ksj-country-grid">
+        ${countryStatHTML('2011–2015', fmt.int(d.p1))}
+        ${countryStatHTML('2016–2020', fmt.int(d.p2))}
+        ${countryStatHTML('增长率', formatGrowthRate(d.growthRate))}
+        ${countryStatHTML('后期份额', `${fmt.pct1(d.share2 * 100)}%`)}
+        ${countryStatHTML('新增合作量', `+${fmt.int(Math.max(0, d.diff))}`)}
+        ${countryStatHTML('排名变化', rankText)}
+      </div>
+      <div class="ksj-bullet-panel">
+        <div class="ksj-bullet-title">国家指标说明</div>
+        <ul class="ksj-bullet-list">
+          <li>${d.countryCn} 后期合作量为 ${fmt.int(d.p2)} 篇，结构类型为${d.typeLabel}。</li>
+          <li>${typeDefinition(d.type)}</li>
+          <li>排名变化反映相对位置，增长率反映扩张速度；连线越粗，新增合作量越大。</li>
+        </ul>
+      </div>
+    `);
+  }
+
+  function renderBalanceCard(d, temporary = false) {
+    const el = d3.select('#ksj-balance-card');
+    if (el.empty()) return;
+    const stageKey = state.view.stage;
+    const stage = state.data.stages.find(s => s.key === stageKey) || state.data.stages[1];
+    const stageLabel = stageKey === 'p1' ? '2011–2015' : '2016–2020';
+    if (!d) {
+      el.html(`
+        <div class="ksj-mini-title">结构总览</div>
+        <div class="ksj-card-big-value">Top5 ${fmt.pct1(stage.top5Share * 100)}%</div>
+        <div class="ksj-muted">Top5占比表示前五个国家的合计份额。数值越高，头部集中度越高。</div>
+        <div class="ksj-country-grid">
+          ${countryStatHTML('Top3占比', `${fmt.pct1(stage.top3Share * 100)}%`)}
+          ${countryStatHTML('Top5占比', `${fmt.pct1(stage.top5Share * 100)}%`)}
+          ${countryStatHTML('第一名国家', stage.top1.countryCn)}
+          ${countryStatHTML('阶段总量', fmt.int(stage.total))}
+        </div>
+        <div class="ksj-bullet-panel">
+          <div class="ksj-bullet-title">指标说明</div>
+          <ul class="ksj-bullet-list">
+            <li>气泡面积表示国家阶段合作量。气泡越大，贡献越高。</li>
+            <li>如果大气泡集中在少数国家，说明头部集中度较高。</li>
+            <li>可结合 Top3 和 Top5 占比判断头部集中程度。</li>
+          </ul>
+        </div>
+      `);
+      return;
+    }
+    const rows = state.data.countries.slice().sort((a, b) => d3.ascending(a[stageKey], b[stageKey]));
+    const total = d3.sum(rows, x => x[stageKey]);
+    let acc = 0;
+    let cumulative = 0;
+    let order = 0;
+    rows.forEach((row, i) => {
+      acc += row[stageKey];
+      if (row.country === d.country) {
+        cumulative = total ? acc / total : 0;
+        order = i + 1;
+      }
+    });
+    const value = d[stageKey];
+    const share = total ? value / total : 0;
+    el.html(`
+      <div class="ksj-mini-title">${temporary ? '悬停国家' : '选中国家'}：气泡解读</div>
+      <div class="ksj-country-name">${d.countryCn}</div>
+      <div class="ksj-country-type">${d.typeLabel}</div>
+      <div class="ksj-muted">在 ${stageLabel}，${d.countryCn}贡献 ${fmt.int(value)} 篇，占样本国家总量的 ${fmt.pct1(share * 100)}%。气泡越大，阶段贡献越高。</div>
+      <div class="ksj-country-grid">
+        ${countryStatHTML('阶段合作量', fmt.int(value))}
+        ${countryStatHTML('阶段份额', `${fmt.pct1(share * 100)}%`)}
+        ${countryStatHTML('累计顺序', `第 ${order} 个`)}
+        ${countryStatHTML('累计合作比例', `${fmt.pct1(cumulative * 100)}%`)}
+      </div>
+      <div class="ksj-bullet-panel">
+        <div class="ksj-bullet-title">结构说明</div>
+        <ul class="ksj-bullet-list">
+          <li>阶段份额 = 该国阶段合作量 ÷ 样本国家阶段总量，用于衡量贡献权重。</li>
+          <li>份额较高的国家会明显影响 Lorenz 曲线后段走势。</li>
+          <li>因此，该国对集中度判断具有较高解释价值。</li>
+        </ul>
+      </div>
+    `);
+  }
+
+  function countryStatHTML(label, value) {
+    return `<div class="ksj-country-stat"><span>${label}</span><b>${value}</b></div>`;
+  }
+
+  function typeDefinition(type) {
+    return {
+      core: '核心国家指后期排名前3，或后期合作份额≥13%的国家。',
+      middle: '稳定国家：未进入核心，但后期排名前8，或后期合作份额≥7%。',
+      chaser: '追赶国家：未进入核心或稳定范围，但增长率高于各国中位数，且新增合作量为正。',
+      tail: '长尾国家指不满足以上条件，未满足核心、稳定、追赶条件，合作规模或增量较小的国家。'
+    }[type] || '该类型用于说明国家在合作结构中的相对位置。';
+  }
+
+  function countryNarrative(d) {
+    if (d.type === 'core') return '该国是主要合作支撑。';
+    if (d.type === 'middle') return '该国是稳定贡献主体。';
+    if (d.type === 'chaser') return '该国后期增长较快，具有追赶特征。';
+    return '该国合作规模或新增贡献相对较小，属于长尾结构。';
+  }
+
+  function showCountryTooltip(event, d) {
+    const html = `
+      <div class="ksj-tooltip-title">${d.countryCn} · ${d.typeLabel}</div>
+      <div class="ksj-tooltip-row"><span>2011–2015</span><b>${fmt.int(d.p1)}</b></div>
+      <div class="ksj-tooltip-row"><span>2016–2020</span><b>${fmt.int(d.p2)}</b></div>
+      <div class="ksj-tooltip-row"><span>增长率</span><b>${formatGrowthRate(d.growthRate)}</b></div>
+      <div class="ksj-tooltip-row"><span>后期份额</span><b>${fmt.pct1(d.share2 * 100)}%</b></div>
+      <div class="ksj-tooltip-row"><span>排名变化</span><b>${d.rankChange > 0 ? '+' : ''}${d.rankChange}</b></div>
+    `;
+    moveTooltip(event, html);
+  }
+
+  function formatGrowthRate(rate) {
+    if (!Number.isFinite(rate)) return '新增';
+    return fmt.growth(rate);
+  }
+
+  function moveTooltip(event, html) {
+    state.tooltip
+      .html(html)
+      .style('left', `${event.clientX}px`)
+      .style('top', `${event.clientY}px`)
+      .style('opacity', 1);
+  }
+
+  function hideTooltip() {
+    if (state.tooltip) state.tooltip.style('opacity', 0);
+  }
+
+  function applyHighlighting() {
+    const selected = state.view.selectedCountry;
+    const hovered = state.view.hoveredCountry;
+    const focus = state.view.highlightMode;
+    const activeCountry = hovered || selected;
+    const hasFilter = focus && focus !== 'all';
+
+    d3.selectAll('[data-country]').each(function () {
+      const country = this.getAttribute('data-country');
+      const d = state.data.countries.find(x => x.country === country);
+      const shouldShow = countryShouldShow(d, focus, activeCountry);
+      d3.select(this)
+        .classed('ksj-dim', !shouldShow)
+        .classed('ksj-emphasis', !!activeCountry && country === activeCountry)
+        .classed('ksj-focus-hit', !activeCountry && hasFilter && shouldShow);
+    });
+  }
+
+  function countryShouldShow(d, focus, activeCountry) {
+    if (!d) return true;
+    if (activeCountry) return d.country === activeCountry;
+    if (focus === 'all') return true;
+    if (focus === 'core') return d.type === 'core';
+    if (focus === 'chaser') return d.type === 'chaser';
+    if (focus === 'tail') return d.type === 'tail';
+    if (focus === 'top3') return d.rank2 <= 3;
+    if (focus === 'top5') return d.rank2 <= 5;
+    return true;
+  }
+
+  function typeColor(type) {
+    return {
+      core: '#1f6ed4',
+      middle: '#5aa7f3',
+      chaser: '#22b8a9',
+      tail: '#9bbce0'
+    }[type] || '#8aa6a3';
+  }
+
+  function slug(value) {
+    return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  function setupResize() {
+    if (state.ro) state.ro.disconnect();
+    const target = document.getElementById(TARGET_ID);
+    state.ro = new ResizeObserver(() => {
+      clearTimeout(state.resizeTimer);
+      state.resizeTimer = setTimeout(() => {
+        renderMacroChart();
+        renderRankFlow();
+        const active = state.view.selectedCountry ? state.data.countries.find(d => d.country === state.view.selectedCountry) : null;
+        renderBubbleMap();
+        renderLorenzChart();
+        renderLorenzCard(active ? getLorenzPointForCountry(active.country) : null);
+        renderBalanceLinkCard(active);
+        applyHighlighting();
+      }, 150);
+    });
+    if (target) state.ro.observe(target);
+  }
+
+  function showLoadError(error) {
+    console.error(error);
+    state.root.html(`
+      <div class="ksj-empty">
+        <h3>数据加载失败</h3>
+        <p>${escapeHtml(error.message || String(error))}</p>
+        <p>请确认已正确放置 <b>area.csv</b> 和 <b>country.csv</b>，并通过 Live Server 或 GitHub Pages 访问页面。</p>
+      </div>
+    `);
+  }
+
+  function escapeHtml(text) {
+    return String(text).replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\'': '&#39;', '"': '&quot;' }[c]));
+  }
 })();
