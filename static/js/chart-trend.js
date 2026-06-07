@@ -3052,6 +3052,7 @@
           ${countryStatHTML('线条', '新增量')}
           ${countryStatHTML('点击', '锁定国家')}
         </div>
+        ${countryTypeDefinitionHTML()}
       `);
       return;
     }
@@ -3067,6 +3068,7 @@
         ${countryStatHTML('新增合作量', `${d.diff >= 0 ? '+' : ''}${fmt.int(d.diff)} 篇`)}
         ${countryStatHTML('排名变化', rankText)}
       </div>
+      ${countryTypeDefinitionHTML(d.type)}
     `);
   }
 
@@ -3133,6 +3135,25 @@
         </ul>
       </div>
     `);
+  }
+
+  function countryTypeDefinitionHTML(activeType = null) {
+    const rows = [
+      ['core', '核心国家', '后期排名前3，或后期合作份额较高，是合作结构中的主要支撑。'],
+      ['middle', '稳定国家', '后期排名或份额保持在中上水平，构成相对稳定的合作主体。'],
+      ['chaser', '追赶国家', '增长率较高且新增合作量为正，说明后期合作扩张较快。'],
+      ['tail', '长尾国家', '合作规模或新增贡献相对较小，主要位于合作结构的外围。']
+    ];
+    const visibleRows = activeType ? rows.filter(([type]) => type === activeType) : rows;
+    const title = activeType ? '当前类型定义' : '国家类型定义';
+    return `
+      <div class="ksj-bullet-panel ksj-type-definition-panel">
+        <div class="ksj-bullet-title">${title}</div>
+        <ul class="ksj-bullet-list">
+          ${visibleRows.map(([type, label, desc]) => `<li><b>${label}</b>：${desc}</li>`).join('')}
+        </ul>
+      </div>
+    `;
   }
 
   function countryStatHTML(label, value) {
