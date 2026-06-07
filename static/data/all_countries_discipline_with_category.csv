@@ -1,0 +1,939 @@
+discipline,discipline_cn,paper_n,country_cn,discipline_code,discipline_category
+0702 Physics,物理学,1033,保加利亚,07,理学
+0704 Astronomy,天文学,341,保加利亚,07,理学
+1002 Clinical Medicine,临床医学,126,保加利亚,10,医学
+0804 Instrumentation Science and Technology,仪器科学与技术,116,保加利亚,08,工学
+0710 Biology,生物学,84,保加利亚,07,理学
+0827 Nuclear Science and Technology,核科学与技术,82,保加利亚,08,工学
+1001 Basic Medicine,基础医学,55,保加利亚,10,医学
+0703 Chemistry,化学,53,保加利亚,07,理学
+0830 Environmental Science and Engineering,环境科学与工程,45,保加利亚,08,工学
+0701 Mathematics,数学,44,保加利亚,07,理学
+0805 Materials Science and Engineering,材料科学与工程,37,保加利亚,08,工学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,37,保加利亚,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,37,保加利亚,10,医学
+0812 Computer Science and Technology,计算机科学与技术,35,保加利亚,08,工学
+0402 Psychology,心理学,31,保加利亚,04,教育学
+1400 Cross-field,,30,保加利亚,14,跨学科
+0708 Geophysics,地球物理学,29,保加利亚,07,理学
+0803 Optical Engineering,光学工程,28,保加利亚,08,工学
+0814 Civil Engineering,土木工程,26,保加利亚,08,工学
+0706 Atmospheric Science,大气科学,25,保加利亚,07,理学
+0801 Mechanics,力学,25,保加利亚,08,工学
+0802 Mechanical Engineering,机械工程,25,保加利亚,08,工学
+1010 Medical Technology,医学技术,24,保加利亚,10,医学
+0401 Education,教育学,23,保加利亚,04,教育学
+0810 Information and Communication Engineering,信息与通信工程,23,保加利亚,08,工学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,22,保加利亚,08,工学
+0835 Software Engineering,软件工程,22,保加利亚,08,工学
+1009 Special Medicine,特种医学,22,保加利亚,10,医学
+0811 Control Science and Engineering,控制科学与工程,21,保加利亚,08,工学
+1201 Management Science and Engineering,管理科学与工程,21,保加利亚,12,管理学
+0713 Ecology,生态学,20,保加利亚,07,理学
+0714 Statistics,统计学,20,保加利亚,07,理学
+0806 Metallurgical Engineering,冶金工程,20,保加利亚,08,工学
+0831 Biomedical Engineering,生物医学工程,19,保加利亚,08,工学
+0836 Biotechnology and Bioengineering,生物工程,19,保加利亚,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,18,保加利亚,08,工学
+1007 Pharmaceutical Science,药学,17,保加利亚,10,医学
+0832 Food Science and Engineering,食品科学与工程,16,保加利亚,08,工学
+0825 Aerospace Science and Technology,航空宇航科学与技术,15,保加利亚,08,工学
+0816 Surveying and Mapping,测绘科学与技术,14,保加利亚,08,工学
+0712 History of Science and Technology,科学技术史,13,保加利亚,07,理学
+0705 Geography,地理学,12,保加利亚,07,理学
+0815 Hydraulic Engineering,水利工程,12,保加利亚,08,工学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,12,保加利亚,08,工学
+0823 Transportation Engineering,交通运输工程,11,保加利亚,08,工学
+1003 Stomatology,口腔医学,11,保加利亚,10,医学
+0303 Sociology,社会学,10,保加利亚,03,法学
+0809 Electronic Science and Technology,电子科学与技术,9,保加利亚,08,工学
+0828 Agricultural Engineering,农业工程,9,保加利亚,08,工学
+0905 Animal Science,畜牧学,9,保加利亚,09,农学
+1204 Public Administration,公共管理,9,保加利亚,12,管理学
+0707 Marine Science,海洋科学,8,保加利亚,07,理学
+0709 Geology,地质学,8,保加利亚,07,理学
+0819 Mining Engineering,矿业工程,8,保加利亚,08,工学
+1202 Business Administration,工商管理,8,保加利亚,12,管理学
+0833 Urban and Rural Planning,城乡规划学,7,保加利亚,08,工学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,6,保加利亚,08,工学
+0837 Safety Science and Engineering,安全科学与工程,6,保加利亚,08,工学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,6,保加利亚,09,农学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,6,保加利亚,12,管理学
+0101 Philosophy,哲学,5,保加利亚,01,哲学
+0301 Law,法学,5,保加利亚,03,法学
+0711 Systems Science,系统科学,5,保加利亚,07,理学
+0808 Electrical Engineering,电气工程,5,保加利亚,08,工学
+0901 Crop Science,作物学,5,保加利亚,09,农学
+0907 Forestry,林学,5,保加利亚,09,农学
+0302 Political Science,政治学,4,保加利亚,03,法学
+0813 Architecture,建筑学,4,保加利亚,08,工学
+1008 Chinese Materia Medica,中药学,4,保加利亚,10,医学
+0826 Armament Science and Technology,兵器科学与技术,3,保加利亚,08,工学
+1302 Music and Dance,音乐与舞蹈学,3,保加利亚,13,艺术学
+0601 Archaeology,考古学,2,保加利亚,06,历史学
+0603 World History,世界史,2,保加利亚,06,历史学
+0821 Textile Science and Engineering,纺织科学与工程,2,保加利亚,08,工学
+0822 Light Industry Technology and Engineering,轻工技术与工程,2,保加利亚,08,工学
+0906 Veterinary Medicine,兽医学,2,保加利亚,09,农学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,2,保加利亚,12,管理学
+0503 Journalism and Communication,新闻传播学,1,保加利亚,05,文学
+0829 Forestry Engineering,林业工程,1,保加利亚,08,工学
+0902 Horticulture,园艺学,1,保加利亚,09,农学
+0904 Plant Protection,植物保护,1,保加利亚,09,农学
+0908 Fisheries,水产,1,保加利亚,09,农学
+0909 Grassland Science,草学,1,保加利亚,09,农学
+0702 Physics,物理学,960,克罗地亚,07,理学
+0704 Astronomy,天文学,317,克罗地亚,07,理学
+1002 Clinical Medicine,临床医学,169,克罗地亚,10,医学
+0710 Biology,生物学,127,克罗地亚,07,理学
+0703 Chemistry,化学,81,克罗地亚,07,理学
+1001 Basic Medicine,基础医学,79,克罗地亚,10,医学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,70,克罗地亚,08,工学
+0805 Materials Science and Engineering,材料科学与工程,67,克罗地亚,08,工学
+0830 Environmental Science and Engineering,环境科学与工程,67,克罗地亚,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,60,克罗地亚,10,医学
+0701 Mathematics,数学,47,克罗地亚,07,理学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,46,克罗地亚,08,工学
+0804 Instrumentation Science and Technology,仪器科学与技术,42,克罗地亚,08,工学
+0812 Computer Science and Technology,计算机科学与技术,40,克罗地亚,08,工学
+0801 Mechanics,力学,35,克罗地亚,08,工学
+0708 Geophysics,地球物理学,33,克罗地亚,07,理学
+1400 Cross-field,,32,克罗地亚,14,跨学科
+0402 Psychology,心理学,23,克罗地亚,04,教育学
+0814 Civil Engineering,土木工程,23,克罗地亚,08,工学
+1010 Medical Technology,医学技术,23,克罗地亚,10,医学
+0802 Mechanical Engineering,机械工程,21,克罗地亚,08,工学
+1009 Special Medicine,特种医学,21,克罗地亚,10,医学
+0401 Education,教育学,20,克罗地亚,04,教育学
+0806 Metallurgical Engineering,冶金工程,19,克罗地亚,08,工学
+0827 Nuclear Science and Technology,核科学与技术,19,克罗地亚,08,工学
+0706 Atmospheric Science,大气科学,17,克罗地亚,07,理学
+0810 Information and Communication Engineering,信息与通信工程,17,克罗地亚,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,17,克罗地亚,08,工学
+0832 Food Science and Engineering,食品科学与工程,15,克罗地亚,08,工学
+0713 Ecology,生态学,14,克罗地亚,07,理学
+0836 Biotechnology and Bioengineering,生物工程,14,克罗地亚,08,工学
+1007 Pharmaceutical Science,药学,14,克罗地亚,10,医学
+0831 Biomedical Engineering,生物医学工程,13,克罗地亚,08,工学
+0835 Software Engineering,软件工程,13,克罗地亚,08,工学
+0714 Statistics,统计学,12,克罗地亚,07,理学
+0808 Electrical Engineering,电气工程,12,克罗地亚,08,工学
+0811 Control Science and Engineering,控制科学与工程,12,克罗地亚,08,工学
+0803 Optical Engineering,光学工程,11,克罗地亚,08,工学
+0823 Transportation Engineering,交通运输工程,11,克罗地亚,08,工学
+1202 Business Administration,工商管理,11,克罗地亚,12,管理学
+0816 Surveying and Mapping,测绘科学与技术,10,克罗地亚,08,工学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,10,克罗地亚,08,工学
+1003 Stomatology,口腔医学,10,克罗地亚,10,医学
+0303 Sociology,社会学,9,克罗地亚,03,法学
+0403 Physical Education and Sport Science,体育学,9,克罗地亚,04,教育学
+0705 Geography,地理学,9,克罗地亚,07,理学
+0709 Geology,地质学,9,克罗地亚,07,理学
+0901 Crop Science,作物学,9,克罗地亚,09,农学
+1201 Management Science and Engineering,管理科学与工程,9,克罗地亚,12,管理学
+0815 Hydraulic Engineering,水利工程,8,克罗地亚,08,工学
+0825 Aerospace Science and Technology,航空宇航科学与技术,7,克罗地亚,08,工学
+0908 Fisheries,水产,7,克罗地亚,09,农学
+0707 Marine Science,海洋科学,6,克罗地亚,07,理学
+0907 Forestry,林学,6,克罗地亚,09,农学
+0202 Applied Economics,应用经济学,5,克罗地亚,02,经济学
+0711 Systems Science,系统科学,5,克罗地亚,07,理学
+0833 Urban and Rural Planning,城乡规划学,5,克罗地亚,08,工学
+0301 Law,法学,4,克罗地亚,03,法学
+0712 History of Science and Technology,科学技术史,4,克罗地亚,07,理学
+0809 Electronic Science and Technology,电子科学与技术,4,克罗地亚,08,工学
+0819 Mining Engineering,矿业工程,4,克罗地亚,08,工学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,4,克罗地亚,09,农学
+0905 Animal Science,畜牧学,4,克罗地亚,09,农学
+0201 Theoretical Economics,理论经济学,3,克罗地亚,02,经济学
+0601 Archaeology,考古学,3,克罗地亚,06,历史学
+0813 Architecture,建筑学,3,克罗地亚,08,工学
+0822 Light Industry Technology and Engineering,轻工技术与工程,3,克罗地亚,08,工学
+0828 Agricultural Engineering,农业工程,3,克罗地亚,08,工学
+0837 Safety Science and Engineering,安全科学与工程,3,克罗地亚,08,工学
+0906 Veterinary Medicine,兽医学,3,克罗地亚,09,农学
+0302 Political Science,政治学,2,克罗地亚,03,法学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,2,克罗地亚,08,工学
+0904 Plant Protection,植物保护,2,克罗地亚,09,农学
+1204 Public Administration,公共管理,2,克罗地亚,12,管理学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,2,克罗地亚,12,管理学
+0826 Armament Science and Technology,兵器科学与技术,1,克罗地亚,08,工学
+0902 Horticulture,园艺学,1,克罗地亚,09,农学
+0909 Grassland Science,草学,1,克罗地亚,09,农学
+1008 Chinese Materia Medica,中药学,1,克罗地亚,10,医学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,1,克罗地亚,12,管理学
+0702 Physics,物理学,2007,匈牙利,07,理学
+0704 Astronomy,天文学,733,匈牙利,07,理学
+0710 Biology,生物学,303,匈牙利,07,理学
+1002 Clinical Medicine,临床医学,283,匈牙利,10,医学
+0703 Chemistry,化学,266,匈牙利,07,理学
+0805 Materials Science and Engineering,材料科学与工程,204,匈牙利,08,工学
+0827 Nuclear Science and Technology,核科学与技术,179,匈牙利,08,工学
+0804 Instrumentation Science and Technology,仪器科学与技术,156,匈牙利,08,工学
+1001 Basic Medicine,基础医学,151,匈牙利,10,医学
+0830 Environmental Science and Engineering,环境科学与工程,139,匈牙利,08,工学
+0701 Mathematics,数学,113,匈牙利,07,理学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,97,匈牙利,08,工学
+0812 Computer Science and Technology,计算机科学与技术,96,匈牙利,08,工学
+0708 Geophysics,地球物理学,89,匈牙利,07,理学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,83,匈牙利,10,医学
+0806 Metallurgical Engineering,冶金工程,76,匈牙利,08,工学
+0706 Atmospheric Science,大气科学,73,匈牙利,07,理学
+1400 Cross-field,,72,匈牙利,14,跨学科
+0801 Mechanics,力学,63,匈牙利,08,工学
+0802 Mechanical Engineering,机械工程,63,匈牙利,08,工学
+1009 Special Medicine,特种医学,57,匈牙利,10,医学
+1010 Medical Technology,医学技术,57,匈牙利,10,医学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,53,匈牙利,08,工学
+0814 Civil Engineering,土木工程,53,匈牙利,08,工学
+0803 Optical Engineering,光学工程,52,匈牙利,08,工学
+0835 Software Engineering,软件工程,52,匈牙利,08,工学
+0401 Education,教育学,51,匈牙利,04,教育学
+1201 Management Science and Engineering,管理科学与工程,51,匈牙利,12,管理学
+0714 Statistics,统计学,45,匈牙利,07,理学
+1007 Pharmaceutical Science,药学,45,匈牙利,10,医学
+0810 Information and Communication Engineering,信息与通信工程,44,匈牙利,08,工学
+0402 Psychology,心理学,42,匈牙利,04,教育学
+0713 Ecology,生态学,40,匈牙利,07,理学
+0811 Control Science and Engineering,控制科学与工程,40,匈牙利,08,工学
+0831 Biomedical Engineering,生物医学工程,39,匈牙利,08,工学
+0816 Surveying and Mapping,测绘科学与技术,37,匈牙利,08,工学
+0825 Aerospace Science and Technology,航空宇航科学与技术,35,匈牙利,08,工学
+0705 Geography,地理学,29,匈牙利,07,理学
+1003 Stomatology,口腔医学,28,匈牙利,10,医学
+0712 History of Science and Technology,科学技术史,27,匈牙利,07,理学
+0817 Chemical Engineering and Technology,化学工程与技术,25,匈牙利,08,工学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,25,匈牙利,08,工学
+0815 Hydraulic Engineering,水利工程,24,匈牙利,08,工学
+0303 Sociology,社会学,23,匈牙利,03,法学
+0832 Food Science and Engineering,食品科学与工程,22,匈牙利,08,工学
+0836 Biotechnology and Bioengineering,生物工程,21,匈牙利,08,工学
+1008 Chinese Materia Medica,中药学,21,匈牙利,10,医学
+0809 Electronic Science and Technology,电子科学与技术,20,匈牙利,08,工学
+0711 Systems Science,系统科学,18,匈牙利,07,理学
+0901 Crop Science,作物学,16,匈牙利,09,农学
+1202 Business Administration,工商管理,15,匈牙利,12,管理学
+0709 Geology,地质学,14,匈牙利,07,理学
+0906 Veterinary Medicine,兽医学,14,匈牙利,09,农学
+0823 Transportation Engineering,交通运输工程,13,匈牙利,08,工学
+0837 Safety Science and Engineering,安全科学与工程,13,匈牙利,08,工学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,13,匈牙利,12,管理学
+0707 Marine Science,海洋科学,11,匈牙利,07,理学
+0828 Agricultural Engineering,农业工程,11,匈牙利,08,工学
+1204 Public Administration,公共管理,11,匈牙利,12,管理学
+0302 Political Science,政治学,10,匈牙利,03,法学
+0833 Urban and Rural Planning,城乡规划学,10,匈牙利,08,工学
+0503 Journalism and Communication,新闻传播学,9,匈牙利,05,文学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,9,匈牙利,09,农学
+0101 Philosophy,哲学,8,匈牙利,01,哲学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,8,匈牙利,08,工学
+0819 Mining Engineering,矿业工程,8,匈牙利,08,工学
+0908 Fisheries,水产,8,匈牙利,09,农学
+0808 Electrical Engineering,电气工程,7,匈牙利,08,工学
+0907 Forestry,林学,7,匈牙利,09,农学
+0301 Law,法学,6,匈牙利,03,法学
+0904 Plant Protection,植物保护,6,匈牙利,09,农学
+0603 World History,世界史,5,匈牙利,06,历史学
+0905 Animal Science,畜牧学,5,匈牙利,09,农学
+0821 Textile Science and Engineering,纺织科学与工程,4,匈牙利,08,工学
+0902 Horticulture,园艺学,4,匈牙利,09,农学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,4,匈牙利,12,管理学
+0202 Applied Economics,应用经济学,3,匈牙利,02,经济学
+0304 Ethnology,民族学,3,匈牙利,03,法学
+0403 Physical Education and Sport Science,体育学,3,匈牙利,04,教育学
+0813 Architecture,建筑学,3,匈牙利,08,工学
+0826 Armament Science and Technology,兵器科学与技术,3,匈牙利,08,工学
+0909 Grassland Science,草学,3,匈牙利,09,农学
+1011 Nursing,护理学,3,匈牙利,10,医学
+0201 Theoretical Economics,理论经济学,2,匈牙利,02,经济学
+0834 Landscape Architecture,风景园林学,1,匈牙利,08,工学
+1005 Chinese Medicine,中医学,1,匈牙利,10,医学
+1303 Drama Film and Television,戏剧与影视学,1,匈牙利,13,艺术学
+1305 Design,设计学,1,匈牙利,13,艺术学
+0702 Physics,物理学,1161,塞尔维亚,07,理学
+0704 Astronomy,天文学,393,塞尔维亚,07,理学
+1002 Clinical Medicine,临床医学,187,塞尔维亚,10,医学
+0701 Mathematics,数学,148,塞尔维亚,07,理学
+0703 Chemistry,化学,86,塞尔维亚,07,理学
+0805 Materials Science and Engineering,材料科学与工程,74,塞尔维亚,08,工学
+0710 Biology,生物学,72,塞尔维亚,07,理学
+1001 Basic Medicine,基础医学,69,塞尔维亚,10,医学
+0812 Computer Science and Technology,计算机科学与技术,60,塞尔维亚,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,58,塞尔维亚,10,医学
+0804 Instrumentation Science and Technology,仪器科学与技术,52,塞尔维亚,08,工学
+0830 Environmental Science and Engineering,环境科学与工程,44,塞尔维亚,08,工学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,29,塞尔维亚,08,工学
+0711 Systems Science,系统科学,28,塞尔维亚,07,理学
+1201 Management Science and Engineering,管理科学与工程,28,塞尔维亚,12,管理学
+1007 Pharmaceutical Science,药学,27,塞尔维亚,10,医学
+0803 Optical Engineering,光学工程,25,塞尔维亚,08,工学
+0801 Mechanics,力学,23,塞尔维亚,08,工学
+0802 Mechanical Engineering,机械工程,23,塞尔维亚,08,工学
+0402 Psychology,心理学,21,塞尔维亚,04,教育学
+0806 Metallurgical Engineering,冶金工程,21,塞尔维亚,08,工学
+0811 Control Science and Engineering,控制科学与工程,21,塞尔维亚,08,工学
+0708 Geophysics,地球物理学,19,塞尔维亚,07,理学
+0809 Electronic Science and Technology,电子科学与技术,19,塞尔维亚,08,工学
+0810 Information and Communication Engineering,信息与通信工程,17,塞尔维亚,08,工学
+0814 Civil Engineering,土木工程,17,塞尔维亚,08,工学
+0836 Biotechnology and Bioengineering,生物工程,17,塞尔维亚,08,工学
+1202 Business Administration,工商管理,17,塞尔维亚,12,管理学
+0713 Ecology,生态学,16,塞尔维亚,07,理学
+0817 Chemical Engineering and Technology,化学工程与技术,16,塞尔维亚,08,工学
+0832 Food Science and Engineering,食品科学与工程,16,塞尔维亚,08,工学
+0831 Biomedical Engineering,生物医学工程,15,塞尔维亚,08,工学
+0835 Software Engineering,软件工程,15,塞尔维亚,08,工学
+0705 Geography,地理学,14,塞尔维亚,07,理学
+0815 Hydraulic Engineering,水利工程,13,塞尔维亚,08,工学
+1400 Cross-field,,13,塞尔维亚,14,跨学科
+0303 Sociology,社会学,12,塞尔维亚,03,法学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,12,塞尔维亚,08,工学
+0823 Transportation Engineering,交通运输工程,12,塞尔维亚,08,工学
+0401 Education,教育学,11,塞尔维亚,04,教育学
+0706 Atmospheric Science,大气科学,11,塞尔维亚,07,理学
+0825 Aerospace Science and Technology,航空宇航科学与技术,10,塞尔维亚,08,工学
+0901 Crop Science,作物学,10,塞尔维亚,09,农学
+0808 Electrical Engineering,电气工程,9,塞尔维亚,08,工学
+0833 Urban and Rural Planning,城乡规划学,9,塞尔维亚,08,工学
+0816 Surveying and Mapping,测绘科学与技术,8,塞尔维亚,08,工学
+0828 Agricultural Engineering,农业工程,8,塞尔维亚,08,工学
+0709 Geology,地质学,7,塞尔维亚,07,理学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,7,塞尔维亚,08,工学
+0819 Mining Engineering,矿业工程,7,塞尔维亚,08,工学
+1009 Special Medicine,特种医学,7,塞尔维亚,10,医学
+1010 Medical Technology,医学技术,7,塞尔维亚,10,医学
+0302 Political Science,政治学,6,塞尔维亚,03,法学
+0403 Physical Education and Sport Science,体育学,6,塞尔维亚,04,教育学
+0813 Architecture,建筑学,6,塞尔维亚,08,工学
+0827 Nuclear Science and Technology,核科学与技术,6,塞尔维亚,08,工学
+0837 Safety Science and Engineering,安全科学与工程,6,塞尔维亚,08,工学
+0905 Animal Science,畜牧学,6,塞尔维亚,09,农学
+0907 Forestry,林学,6,塞尔维亚,09,农学
+1204 Public Administration,公共管理,6,塞尔维亚,12,管理学
+0714 Statistics,统计学,5,塞尔维亚,07,理学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,5,塞尔维亚,08,工学
+1008 Chinese Materia Medica,中药学,5,塞尔维亚,10,医学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,5,塞尔维亚,12,管理学
+0301 Law,法学,4,塞尔维亚,03,法学
+0503 Journalism and Communication,新闻传播学,4,塞尔维亚,05,文学
+0826 Armament Science and Technology,兵器科学与技术,4,塞尔维亚,08,工学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,4,塞尔维亚,09,农学
+1003 Stomatology,口腔医学,4,塞尔维亚,10,医学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,4,塞尔维亚,12,管理学
+1302 Music and Dance,音乐与舞蹈学,4,塞尔维亚,13,艺术学
+0101 Philosophy,哲学,3,塞尔维亚,01,哲学
+0603 World History,世界史,3,塞尔维亚,06,历史学
+0712 History of Science and Technology,科学技术史,3,塞尔维亚,07,理学
+0202 Applied Economics,应用经济学,2,塞尔维亚,02,经济学
+0707 Marine Science,海洋科学,2,塞尔维亚,07,理学
+0902 Horticulture,园艺学,2,塞尔维亚,09,农学
+0908 Fisheries,水产,2,塞尔维亚,09,农学
+0201 Theoretical Economics,理论经济学,1,塞尔维亚,02,经济学
+0821 Textile Science and Engineering,纺织科学与工程,1,塞尔维亚,08,工学
+0829 Forestry Engineering,林业工程,1,塞尔维亚,08,工学
+0909 Grassland Science,草学,1,塞尔维亚,09,农学
+0702 Physics,物理学,1828,希腊,07,理学
+0704 Astronomy,天文学,628,希腊,07,理学
+1002 Clinical Medicine,临床医学,550,希腊,10,医学
+0703 Chemistry,化学,329,希腊,07,理学
+0812 Computer Science and Technology,计算机科学与技术,255,希腊,08,工学
+0710 Biology,生物学,241,希腊,07,理学
+0810 Information and Communication Engineering,信息与通信工程,232,希腊,08,工学
+0830 Environmental Science and Engineering,环境科学与工程,232,希腊,08,工学
+0805 Materials Science and Engineering,材料科学与工程,226,希腊,08,工学
+1001 Basic Medicine,基础医学,209,希腊,10,医学
+0701 Mathematics,数学,205,希腊,07,理学
+0827 Nuclear Science and Technology,核科学与技术,147,希腊,08,工学
+0804 Instrumentation Science and Technology,仪器科学与技术,144,希腊,08,工学
+0708 Geophysics,地球物理学,136,希腊,07,理学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,109,希腊,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,102,希腊,10,医学
+0809 Electronic Science and Technology,电子科学与技术,100,希腊,08,工学
+1201 Management Science and Engineering,管理科学与工程,91,希腊,12,管理学
+0706 Atmospheric Science,大气科学,86,希腊,07,理学
+0803 Optical Engineering,光学工程,86,希腊,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,85,希腊,08,工学
+0814 Civil Engineering,土木工程,79,希腊,08,工学
+0823 Transportation Engineering,交通运输工程,72,希腊,08,工学
+0835 Software Engineering,软件工程,70,希腊,08,工学
+0816 Surveying and Mapping,测绘科学与技术,67,希腊,08,工学
+0811 Control Science and Engineering,控制科学与工程,64,希腊,08,工学
+0808 Electrical Engineering,电气工程,63,希腊,08,工学
+0801 Mechanics,力学,62,希腊,08,工学
+1010 Medical Technology,医学技术,62,希腊,10,医学
+0806 Metallurgical Engineering,冶金工程,61,希腊,08,工学
+0802 Mechanical Engineering,机械工程,59,希腊,08,工学
+1009 Special Medicine,特种医学,59,希腊,10,医学
+0402 Psychology,心理学,54,希腊,04,教育学
+0815 Hydraulic Engineering,水利工程,52,希腊,08,工学
+0401 Education,教育学,51,希腊,04,教育学
+0831 Biomedical Engineering,生物医学工程,50,希腊,08,工学
+0832 Food Science and Engineering,食品科学与工程,50,希腊,08,工学
+0714 Statistics,统计学,48,希腊,07,理学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,46,希腊,08,工学
+1400 Cross-field,,46,希腊,14,跨学科
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,45,希腊,08,工学
+0836 Biotechnology and Bioengineering,生物工程,44,希腊,08,工学
+0705 Geography,地理学,41,希腊,07,理学
+1007 Pharmaceutical Science,药学,41,希腊,10,医学
+0711 Systems Science,系统科学,38,希腊,07,理学
+0713 Ecology,生态学,37,希腊,07,理学
+0825 Aerospace Science and Technology,航空宇航科学与技术,36,希腊,08,工学
+1202 Business Administration,工商管理,34,希腊,12,管理学
+0303 Sociology,社会学,33,希腊,03,法学
+0709 Geology,地质学,33,希腊,07,理学
+1204 Public Administration,公共管理,33,希腊,12,管理学
+0712 History of Science and Technology,科学技术史,29,希腊,07,理学
+0828 Agricultural Engineering,农业工程,28,希腊,08,工学
+1003 Stomatology,口腔医学,26,希腊,10,医学
+0707 Marine Science,海洋科学,25,希腊,07,理学
+0302 Political Science,政治学,23,希腊,03,法学
+0819 Mining Engineering,矿业工程,23,希腊,08,工学
+0833 Urban and Rural Planning,城乡规划学,23,希腊,08,工学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,22,希腊,12,管理学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,20,希腊,08,工学
+0301 Law,法学,18,希腊,03,法学
+0837 Safety Science and Engineering,安全科学与工程,18,希腊,08,工学
+0901 Crop Science,作物学,17,希腊,09,农学
+0503 Journalism and Communication,新闻传播学,16,希腊,05,文学
+0601 Archaeology,考古学,16,希腊,06,历史学
+0813 Architecture,建筑学,16,希腊,08,工学
+0101 Philosophy,哲学,13,希腊,01,哲学
+0826 Armament Science and Technology,兵器科学与技术,13,希腊,08,工学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,13,希腊,09,农学
+0202 Applied Economics,应用经济学,10,希腊,02,经济学
+0603 World History,世界史,10,希腊,06,历史学
+1302 Music and Dance,音乐与舞蹈学,9,希腊,13,艺术学
+0905 Animal Science,畜牧学,7,希腊,09,农学
+0907 Forestry,林学,7,希腊,09,农学
+0822 Light Industry Technology and Engineering,轻工技术与工程,6,希腊,08,工学
+0906 Veterinary Medicine,兽医学,6,希腊,09,农学
+0201 Theoretical Economics,理论经济学,5,希腊,02,经济学
+0403 Physical Education and Sport Science,体育学,5,希腊,04,教育学
+0904 Plant Protection,植物保护,5,希腊,09,农学
+0821 Textile Science and Engineering,纺织科学与工程,4,希腊,08,工学
+1301 Art Theory,艺术学理论,4,希腊,13,艺术学
+0839 Cyberspace Security,网络空间安全,3,希腊,08,工学
+0908 Fisheries,水产,3,希腊,09,农学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,3,希腊,12,管理学
+0829 Forestry Engineering,林业工程,2,希腊,08,工学
+0902 Horticulture,园艺学,2,希腊,09,农学
+1303 Drama Film and Television,戏剧与影视学,2,希腊,13,艺术学
+0909 Grassland Science,草学,1,希腊,09,农学
+1008 Chinese Materia Medica,中药学,1,希腊,10,医学
+1011 Nursing,护理学,1,希腊,10,医学
+0702 Physics,物理学,2299,捷克,07,理学
+0704 Astronomy,天文学,721,捷克,07,理学
+0710 Biology,生物学,540,捷克,07,理学
+0703 Chemistry,化学,471,捷克,07,理学
+0805 Materials Science and Engineering,材料科学与工程,440,捷克,08,工学
+1002 Clinical Medicine,临床医学,358,捷克,10,医学
+0830 Environmental Science and Engineering,环境科学与工程,325,捷克,08,工学
+1001 Basic Medicine,基础医学,257,捷克,10,医学
+0804 Instrumentation Science and Technology,仪器科学与技术,211,捷克,08,工学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,202,捷克,08,工学
+0812 Computer Science and Technology,计算机科学与技术,197,捷克,08,工学
+0708 Geophysics,地球物理学,183,捷克,07,理学
+0827 Nuclear Science and Technology,核科学与技术,179,捷克,08,工学
+0701 Mathematics,数学,171,捷克,07,理学
+0713 Ecology,生态学,157,捷克,07,理学
+0803 Optical Engineering,光学工程,116,捷克,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,108,捷克,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,104,捷克,10,医学
+0814 Civil Engineering,土木工程,100,捷克,08,工学
+1400 Cross-field,,95,捷克,14,跨学科
+0802 Mechanical Engineering,机械工程,92,捷克,08,工学
+0810 Information and Communication Engineering,信息与通信工程,87,捷克,08,工学
+0836 Biotechnology and Bioengineering,生物工程,87,捷克,08,工学
+1007 Pharmaceutical Science,药学,87,捷克,10,医学
+0806 Metallurgical Engineering,冶金工程,85,捷克,08,工学
+1201 Management Science and Engineering,管理科学与工程,83,捷克,12,管理学
+0705 Geography,地理学,82,捷克,07,理学
+0401 Education,教育学,81,捷克,04,教育学
+0709 Geology,地质学,79,捷克,07,理学
+0832 Food Science and Engineering,食品科学与工程,78,捷克,08,工学
+0835 Software Engineering,软件工程,76,捷克,08,工学
+0811 Control Science and Engineering,控制科学与工程,75,捷克,08,工学
+0801 Mechanics,力学,74,捷克,08,工学
+0816 Surveying and Mapping,测绘科学与技术,74,捷克,08,工学
+0831 Biomedical Engineering,生物医学工程,73,捷克,08,工学
+0825 Aerospace Science and Technology,航空宇航科学与技术,69,捷克,08,工学
+0706 Atmospheric Science,大气科学,68,捷克,07,理学
+0815 Hydraulic Engineering,水利工程,66,捷克,08,工学
+1010 Medical Technology,医学技术,65,捷克,10,医学
+0714 Statistics,统计学,59,捷克,07,理学
+0901 Crop Science,作物学,59,捷克,09,农学
+1009 Special Medicine,特种医学,58,捷克,10,医学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,57,捷克,08,工学
+0833 Urban and Rural Planning,城乡规划学,56,捷克,08,工学
+0823 Transportation Engineering,交通运输工程,55,捷克,08,工学
+1202 Business Administration,工商管理,55,捷克,12,管理学
+0402 Psychology,心理学,51,捷克,04,教育学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,50,捷克,08,工学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,48,捷克,09,农学
+0303 Sociology,社会学,45,捷克,03,法学
+0828 Agricultural Engineering,农业工程,45,捷克,08,工学
+0907 Forestry,林学,45,捷克,09,农学
+0819 Mining Engineering,矿业工程,44,捷克,08,工学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,43,捷克,08,工学
+0813 Architecture,建筑学,41,捷克,08,工学
+0905 Animal Science,畜牧学,41,捷克,09,农学
+0707 Marine Science,海洋科学,36,捷克,07,理学
+0809 Electronic Science and Technology,电子科学与技术,34,捷克,08,工学
+0908 Fisheries,水产,33,捷克,09,农学
+1204 Public Administration,公共管理,32,捷克,12,管理学
+1003 Stomatology,口腔医学,29,捷克,10,医学
+0906 Veterinary Medicine,兽医学,27,捷克,09,农学
+0712 History of Science and Technology,科学技术史,26,捷克,07,理学
+0904 Plant Protection,植物保护,24,捷克,09,农学
+0821 Textile Science and Engineering,纺织科学与工程,22,捷克,08,工学
+0826 Armament Science and Technology,兵器科学与技术,22,捷克,08,工学
+0301 Law,法学,21,捷克,03,法学
+0822 Light Industry Technology and Engineering,轻工技术与工程,21,捷克,08,工学
+0601 Archaeology,考古学,20,捷克,06,历史学
+0711 Systems Science,系统科学,20,捷克,07,理学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,20,捷克,12,管理学
+0202 Applied Economics,应用经济学,18,捷克,02,经济学
+0808 Electrical Engineering,电气工程,18,捷克,08,工学
+0302 Political Science,政治学,16,捷克,03,法学
+0902 Horticulture,园艺学,15,捷克,09,农学
+1008 Chinese Materia Medica,中药学,14,捷克,10,医学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,14,捷克,12,管理学
+0201 Theoretical Economics,理论经济学,12,捷克,02,经济学
+0403 Physical Education and Sport Science,体育学,12,捷克,04,教育学
+0503 Journalism and Communication,新闻传播学,12,捷克,05,文学
+0837 Safety Science and Engineering,安全科学与工程,12,捷克,08,工学
+0603 World History,世界史,10,捷克,06,历史学
+0101 Philosophy,哲学,9,捷克,01,哲学
+1302 Music and Dance,音乐与舞蹈学,9,捷克,13,艺术学
+0834 Landscape Architecture,风景园林学,5,捷克,08,工学
+0829 Forestry Engineering,林业工程,3,捷克,08,工学
+0909 Grassland Science,草学,3,捷克,09,农学
+0304 Ethnology,民族学,1,捷克,03,法学
+1305 Design,设计学,1,捷克,13,艺术学
+0702 Physics,物理学,1047,斯洛伐克,07,理学
+0704 Astronomy,天文学,255,斯洛伐克,07,理学
+0827 Nuclear Science and Technology,核科学与技术,130,斯洛伐克,08,工学
+0710 Biology,生物学,107,斯洛伐克,07,理学
+0805 Materials Science and Engineering,材料科学与工程,106,斯洛伐克,08,工学
+0701 Mathematics,数学,103,斯洛伐克,07,理学
+1002 Clinical Medicine,临床医学,103,斯洛伐克,10,医学
+0804 Instrumentation Science and Technology,仪器科学与技术,86,斯洛伐克,08,工学
+0703 Chemistry,化学,85,斯洛伐克,07,理学
+0812 Computer Science and Technology,计算机科学与技术,68,斯洛伐克,08,工学
+0830 Environmental Science and Engineering,环境科学与工程,61,斯洛伐克,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,48,斯洛伐克,10,医学
+1001 Basic Medicine,基础医学,43,斯洛伐克,10,医学
+0708 Geophysics,地球物理学,38,斯洛伐克,07,理学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,36,斯洛伐克,08,工学
+0803 Optical Engineering,光学工程,34,斯洛伐克,08,工学
+0814 Civil Engineering,土木工程,30,斯洛伐克,08,工学
+0709 Geology,地质学,25,斯洛伐克,07,理学
+0713 Ecology,生态学,25,斯洛伐克,07,理学
+1201 Management Science and Engineering,管理科学与工程,25,斯洛伐克,12,管理学
+0801 Mechanics,力学,24,斯洛伐克,08,工学
+0802 Mechanical Engineering,机械工程,24,斯洛伐克,08,工学
+0806 Metallurgical Engineering,冶金工程,24,斯洛伐克,08,工学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,23,斯洛伐克,08,工学
+0402 Psychology,心理学,22,斯洛伐克,04,教育学
+0811 Control Science and Engineering,控制科学与工程,22,斯洛伐克,08,工学
+0706 Atmospheric Science,大气科学,20,斯洛伐克,07,理学
+0714 Statistics,统计学,19,斯洛伐克,07,理学
+0401 Education,教育学,18,斯洛伐克,04,教育学
+0810 Information and Communication Engineering,信息与通信工程,18,斯洛伐克,08,工学
+1010 Medical Technology,医学技术,18,斯洛伐克,10,医学
+0835 Software Engineering,软件工程,16,斯洛伐克,08,工学
+1400 Cross-field,,16,斯洛伐克,14,跨学科
+1009 Special Medicine,特种医学,15,斯洛伐克,10,医学
+0712 History of Science and Technology,科学技术史,14,斯洛伐克,07,理学
+0831 Biomedical Engineering,生物医学工程,12,斯洛伐克,08,工学
+0816 Surveying and Mapping,测绘科学与技术,11,斯洛伐克,08,工学
+0823 Transportation Engineering,交通运输工程,11,斯洛伐克,08,工学
+0832 Food Science and Engineering,食品科学与工程,11,斯洛伐克,08,工学
+0808 Electrical Engineering,电气工程,10,斯洛伐克,08,工学
+0833 Urban and Rural Planning,城乡规划学,10,斯洛伐克,08,工学
+0836 Biotechnology and Bioengineering,生物工程,10,斯洛伐克,08,工学
+0303 Sociology,社会学,9,斯洛伐克,03,法学
+0815 Hydraulic Engineering,水利工程,9,斯洛伐克,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,9,斯洛伐克,08,工学
+0825 Aerospace Science and Technology,航空宇航科学与技术,9,斯洛伐克,08,工学
+1007 Pharmaceutical Science,药学,9,斯洛伐克,10,医学
+0711 Systems Science,系统科学,8,斯洛伐克,07,理学
+0819 Mining Engineering,矿业工程,8,斯洛伐克,08,工学
+1003 Stomatology,口腔医学,8,斯洛伐克,10,医学
+0705 Geography,地理学,7,斯洛伐克,07,理学
+0813 Architecture,建筑学,7,斯洛伐克,08,工学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,7,斯洛伐克,08,工学
+0809 Electronic Science and Technology,电子科学与技术,6,斯洛伐克,08,工学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,6,斯洛伐克,08,工学
+1202 Business Administration,工商管理,6,斯洛伐克,12,管理学
+0202 Applied Economics,应用经济学,5,斯洛伐克,02,经济学
+0828 Agricultural Engineering,农业工程,5,斯洛伐克,08,工学
+1204 Public Administration,公共管理,5,斯洛伐克,12,管理学
+0101 Philosophy,哲学,4,斯洛伐克,01,哲学
+0837 Safety Science and Engineering,安全科学与工程,4,斯洛伐克,08,工学
+0201 Theoretical Economics,理论经济学,3,斯洛伐克,02,经济学
+0302 Political Science,政治学,3,斯洛伐克,03,法学
+0503 Journalism and Communication,新闻传播学,3,斯洛伐克,05,文学
+0826 Armament Science and Technology,兵器科学与技术,3,斯洛伐克,08,工学
+0901 Crop Science,作物学,3,斯洛伐克,09,农学
+0301 Law,法学,2,斯洛伐克,03,法学
+0707 Marine Science,海洋科学,2,斯洛伐克,07,理学
+0904 Plant Protection,植物保护,2,斯洛伐克,09,农学
+0907 Forestry,林学,2,斯洛伐克,09,农学
+0908 Fisheries,水产,2,斯洛伐克,09,农学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,2,斯洛伐克,12,管理学
+1302 Music and Dance,音乐与舞蹈学,2,斯洛伐克,13,艺术学
+0403 Physical Education and Sport Science,体育学,1,斯洛伐克,04,教育学
+0822 Light Industry Technology and Engineering,轻工技术与工程,1,斯洛伐克,08,工学
+0829 Forestry Engineering,林业工程,1,斯洛伐克,08,工学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,1,斯洛伐克,09,农学
+0909 Grassland Science,草学,1,斯洛伐克,09,农学
+1008 Chinese Materia Medica,中药学,1,斯洛伐克,10,医学
+0702 Physics,物理学,1051,斯洛文尼亚,07,理学
+0704 Astronomy,天文学,285,斯洛文尼亚,07,理学
+0703 Chemistry,化学,152,斯洛文尼亚,07,理学
+0701 Mathematics,数学,129,斯洛文尼亚,07,理学
+0827 Nuclear Science and Technology,核科学与技术,128,斯洛文尼亚,08,工学
+1002 Clinical Medicine,临床医学,122,斯洛文尼亚,10,医学
+0805 Materials Science and Engineering,材料科学与工程,117,斯洛文尼亚,08,工学
+0710 Biology,生物学,109,斯洛文尼亚,07,理学
+0804 Instrumentation Science and Technology,仪器科学与技术,97,斯洛文尼亚,08,工学
+0812 Computer Science and Technology,计算机科学与技术,92,斯洛文尼亚,08,工学
+1001 Basic Medicine,基础医学,79,斯洛文尼亚,10,医学
+0803 Optical Engineering,光学工程,53,斯洛文尼亚,08,工学
+0830 Environmental Science and Engineering,环境科学与工程,49,斯洛文尼亚,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,49,斯洛文尼亚,10,医学
+0810 Information and Communication Engineering,信息与通信工程,39,斯洛文尼亚,08,工学
+0708 Geophysics,地球物理学,30,斯洛文尼亚,07,理学
+1400 Cross-field,,30,斯洛文尼亚,14,跨学科
+0711 Systems Science,系统科学,27,斯洛文尼亚,07,理学
+0802 Mechanical Engineering,机械工程,27,斯洛文尼亚,08,工学
+0814 Civil Engineering,土木工程,26,斯洛文尼亚,08,工学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,25,斯洛文尼亚,08,工学
+1010 Medical Technology,医学技术,25,斯洛文尼亚,10,医学
+1009 Special Medicine,特种医学,24,斯洛文尼亚,10,医学
+0401 Education,教育学,22,斯洛文尼亚,04,教育学
+0713 Ecology,生态学,22,斯洛文尼亚,07,理学
+0811 Control Science and Engineering,控制科学与工程,22,斯洛文尼亚,08,工学
+1202 Business Administration,工商管理,22,斯洛文尼亚,12,管理学
+0706 Atmospheric Science,大气科学,21,斯洛文尼亚,07,理学
+0801 Mechanics,力学,21,斯洛文尼亚,08,工学
+0835 Software Engineering,软件工程,21,斯洛文尼亚,08,工学
+1201 Management Science and Engineering,管理科学与工程,21,斯洛文尼亚,12,管理学
+0402 Psychology,心理学,19,斯洛文尼亚,04,教育学
+0808 Electrical Engineering,电气工程,18,斯洛文尼亚,08,工学
+0806 Metallurgical Engineering,冶金工程,16,斯洛文尼亚,08,工学
+0714 Statistics,统计学,15,斯洛文尼亚,07,理学
+0831 Biomedical Engineering,生物医学工程,15,斯洛文尼亚,08,工学
+0836 Biotechnology and Bioengineering,生物工程,15,斯洛文尼亚,08,工学
+0809 Electronic Science and Technology,电子科学与技术,14,斯洛文尼亚,08,工学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,13,斯洛文尼亚,08,工学
+0815 Hydraulic Engineering,水利工程,12,斯洛文尼亚,08,工学
+0823 Transportation Engineering,交通运输工程,12,斯洛文尼亚,08,工学
+0816 Surveying and Mapping,测绘科学与技术,11,斯洛文尼亚,08,工学
+0705 Geography,地理学,10,斯洛文尼亚,07,理学
+0832 Food Science and Engineering,食品科学与工程,10,斯洛文尼亚,08,工学
+0303 Sociology,社会学,9,斯洛文尼亚,03,法学
+0825 Aerospace Science and Technology,航空宇航科学与技术,9,斯洛文尼亚,08,工学
+1204 Public Administration,公共管理,9,斯洛文尼亚,12,管理学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,9,斯洛文尼亚,12,管理学
+0302 Political Science,政治学,8,斯洛文尼亚,03,法学
+0503 Journalism and Communication,新闻传播学,8,斯洛文尼亚,05,文学
+1007 Pharmaceutical Science,药学,8,斯洛文尼亚,10,医学
+0101 Philosophy,哲学,7,斯洛文尼亚,01,哲学
+0301 Law,法学,7,斯洛文尼亚,03,法学
+0709 Geology,地质学,7,斯洛文尼亚,07,理学
+0712 History of Science and Technology,科学技术史,7,斯洛文尼亚,07,理学
+0817 Chemical Engineering and Technology,化学工程与技术,7,斯洛文尼亚,08,工学
+0901 Crop Science,作物学,7,斯洛文尼亚,09,农学
+0813 Architecture,建筑学,6,斯洛文尼亚,08,工学
+0839 Cyberspace Security,网络空间安全,6,斯洛文尼亚,08,工学
+0907 Forestry,林学,6,斯洛文尼亚,09,农学
+0603 World History,世界史,5,斯洛文尼亚,06,历史学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,5,斯洛文尼亚,08,工学
+0833 Urban and Rural Planning,城乡规划学,5,斯洛文尼亚,08,工学
+0905 Animal Science,畜牧学,5,斯洛文尼亚,09,农学
+1003 Stomatology,口腔医学,5,斯洛文尼亚,10,医学
+1302 Music and Dance,音乐与舞蹈学,5,斯洛文尼亚,13,艺术学
+0403 Physical Education and Sport Science,体育学,4,斯洛文尼亚,04,教育学
+0202 Applied Economics,应用经济学,3,斯洛文尼亚,02,经济学
+0826 Armament Science and Technology,兵器科学与技术,3,斯洛文尼亚,08,工学
+0904 Plant Protection,植物保护,3,斯洛文尼亚,09,农学
+0822 Light Industry Technology and Engineering,轻工技术与工程,2,斯洛文尼亚,08,工学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,2,斯洛文尼亚,08,工学
+0837 Safety Science and Engineering,安全科学与工程,2,斯洛文尼亚,08,工学
+0906 Veterinary Medicine,兽医学,2,斯洛文尼亚,09,农学
+0908 Fisheries,水产,2,斯洛文尼亚,09,农学
+0707 Marine Science,海洋科学,1,斯洛文尼亚,07,理学
+0819 Mining Engineering,矿业工程,1,斯洛文尼亚,08,工学
+0821 Textile Science and Engineering,纺织科学与工程,1,斯洛文尼亚,08,工学
+0829 Forestry Engineering,林业工程,1,斯洛文尼亚,08,工学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,1,斯洛文尼亚,09,农学
+0909 Grassland Science,草学,1,斯洛文尼亚,09,农学
+1011 Nursing,护理学,1,斯洛文尼亚,10,医学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,1,斯洛文尼亚,12,管理学
+1305 Design,设计学,1,斯洛文尼亚,13,艺术学
+0702 Physics,物理学,2899,波兰,07,理学
+0704 Astronomy,天文学,1138,波兰,07,理学
+1002 Clinical Medicine,临床医学,696,波兰,10,医学
+0703 Chemistry,化学,657,波兰,07,理学
+0805 Materials Science and Engineering,材料科学与工程,626,波兰,08,工学
+0710 Biology,生物学,509,波兰,07,理学
+0812 Computer Science and Technology,计算机科学与技术,424,波兰,08,工学
+1001 Basic Medicine,基础医学,342,波兰,10,医学
+0701 Mathematics,数学,334,波兰,07,理学
+0830 Environmental Science and Engineering,环境科学与工程,334,波兰,08,工学
+0804 Instrumentation Science and Technology,仪器科学与技术,282,波兰,08,工学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,270,波兰,08,工学
+0827 Nuclear Science and Technology,核科学与技术,206,波兰,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,204,波兰,10,医学
+0708 Geophysics,地球物理学,170,波兰,07,理学
+1201 Management Science and Engineering,管理科学与工程,151,波兰,12,管理学
+0811 Control Science and Engineering,控制科学与工程,143,波兰,08,工学
+0814 Civil Engineering,土木工程,138,波兰,08,工学
+0803 Optical Engineering,光学工程,133,波兰,08,工学
+0802 Mechanical Engineering,机械工程,131,波兰,08,工学
+0801 Mechanics,力学,123,波兰,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,119,波兰,08,工学
+0810 Information and Communication Engineering,信息与通信工程,118,波兰,08,工学
+0402 Psychology,心理学,113,波兰,04,教育学
+0806 Metallurgical Engineering,冶金工程,111,波兰,08,工学
+0709 Geology,地质学,110,波兰,07,理学
+0836 Biotechnology and Bioengineering,生物工程,107,波兰,08,工学
+0831 Biomedical Engineering,生物医学工程,100,波兰,08,工学
+0835 Software Engineering,软件工程,99,波兰,08,工学
+1010 Medical Technology,医学技术,99,波兰,10,医学
+0714 Statistics,统计学,98,波兰,07,理学
+1400 Cross-field,,98,波兰,14,跨学科
+0713 Ecology,生态学,96,波兰,07,理学
+0832 Food Science and Engineering,食品科学与工程,95,波兰,08,工学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,94,波兰,08,工学
+0401 Education,教育学,91,波兰,04,教育学
+0706 Atmospheric Science,大气科学,90,波兰,07,理学
+1007 Pharmaceutical Science,药学,88,波兰,10,医学
+0711 Systems Science,系统科学,86,波兰,07,理学
+0809 Electronic Science and Technology,电子科学与技术,85,波兰,08,工学
+1009 Special Medicine,特种医学,83,波兰,10,医学
+0808 Electrical Engineering,电气工程,81,波兰,08,工学
+0816 Surveying and Mapping,测绘科学与技术,81,波兰,08,工学
+0705 Geography,地理学,80,波兰,07,理学
+1202 Business Administration,工商管理,78,波兰,12,管理学
+0815 Hydraulic Engineering,水利工程,74,波兰,08,工学
+0825 Aerospace Science and Technology,航空宇航科学与技术,73,波兰,08,工学
+0833 Urban and Rural Planning,城乡规划学,66,波兰,08,工学
+0823 Transportation Engineering,交通运输工程,60,波兰,08,工学
+1204 Public Administration,公共管理,58,波兰,12,管理学
+0303 Sociology,社会学,54,波兰,03,法学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,52,波兰,08,工学
+0813 Architecture,建筑学,49,波兰,08,工学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,48,波兰,12,管理学
+0819 Mining Engineering,矿业工程,45,波兰,08,工学
+0837 Safety Science and Engineering,安全科学与工程,39,波兰,08,工学
+1003 Stomatology,口腔医学,39,波兰,10,医学
+0901 Crop Science,作物学,37,波兰,09,农学
+0301 Law,法学,36,波兰,03,法学
+0712 History of Science and Technology,科学技术史,35,波兰,07,理学
+0828 Agricultural Engineering,农业工程,35,波兰,08,工学
+0907 Forestry,林学,34,波兰,09,农学
+0826 Armament Science and Technology,兵器科学与技术,33,波兰,08,工学
+0707 Marine Science,海洋科学,32,波兰,07,理学
+0503 Journalism and Communication,新闻传播学,30,波兰,05,文学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,28,波兰,09,农学
+0601 Archaeology,考古学,24,波兰,06,历史学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,24,波兰,08,工学
+0905 Animal Science,畜牧学,24,波兰,09,农学
+0101 Philosophy,哲学,23,波兰,01,哲学
+0906 Veterinary Medicine,兽医学,23,波兰,09,农学
+1008 Chinese Materia Medica,中药学,23,波兰,10,医学
+0302 Political Science,政治学,21,波兰,03,法学
+0403 Physical Education and Sport Science,体育学,20,波兰,04,教育学
+0822 Light Industry Technology and Engineering,轻工技术与工程,20,波兰,08,工学
+0202 Applied Economics,应用经济学,17,波兰,02,经济学
+0603 World History,世界史,17,波兰,06,历史学
+0904 Plant Protection,植物保护,15,波兰,09,农学
+1302 Music and Dance,音乐与舞蹈学,15,波兰,13,艺术学
+0201 Theoretical Economics,理论经济学,10,波兰,02,经济学
+0821 Textile Science and Engineering,纺织科学与工程,9,波兰,08,工学
+0908 Fisheries,水产,9,波兰,09,农学
+0839 Cyberspace Security,网络空间安全,7,波兰,08,工学
+0304 Ethnology,民族学,3,波兰,03,法学
+0902 Horticulture,园艺学,3,波兰,09,农学
+0909 Grassland Science,草学,3,波兰,09,农学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,3,波兰,12,管理学
+0834 Landscape Architecture,风景园林学,2,波兰,08,工学
+0829 Forestry Engineering,林业工程,1,波兰,08,工学
+1011 Nursing,护理学,1,波兰,10,医学
+1303 Drama Film and Television,戏剧与影视学,1,波兰,13,艺术学
+0702 Physics,物理学,756,爱沙尼亚,07,理学
+0704 Astronomy,天文学,213,爱沙尼亚,07,理学
+0710 Biology,生物学,127,爱沙尼亚,07,理学
+1002 Clinical Medicine,临床医学,125,爱沙尼亚,10,医学
+0805 Materials Science and Engineering,材料科学与工程,113,爱沙尼亚,08,工学
+1001 Basic Medicine,基础医学,87,爱沙尼亚,10,医学
+0703 Chemistry,化学,76,爱沙尼亚,07,理学
+0830 Environmental Science and Engineering,环境科学与工程,72,爱沙尼亚,08,工学
+0827 Nuclear Science and Technology,核科学与技术,57,爱沙尼亚,08,工学
+0804 Instrumentation Science and Technology,仪器科学与技术,54,爱沙尼亚,08,工学
+0713 Ecology,生态学,47,爱沙尼亚,07,理学
+0803 Optical Engineering,光学工程,45,爱沙尼亚,08,工学
+0402 Psychology,心理学,35,爱沙尼亚,04,教育学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,34,爱沙尼亚,10,医学
+0708 Geophysics,地球物理学,27,爱沙尼亚,07,理学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,26,爱沙尼亚,08,工学
+0812 Computer Science and Technology,计算机科学与技术,24,爱沙尼亚,08,工学
+1400 Cross-field,,24,爱沙尼亚,14,跨学科
+0806 Metallurgical Engineering,冶金工程,21,爱沙尼亚,08,工学
+0907 Forestry,林学,21,爱沙尼亚,09,农学
+0709 Geology,地质学,19,爱沙尼亚,07,理学
+0701 Mathematics,数学,17,爱沙尼亚,07,理学
+0808 Electrical Engineering,电气工程,15,爱沙尼亚,08,工学
+0823 Transportation Engineering,交通运输工程,15,爱沙尼亚,08,工学
+0705 Geography,地理学,14,爱沙尼亚,07,理学
+0706 Atmospheric Science,大气科学,14,爱沙尼亚,07,理学
+0101 Philosophy,哲学,12,爱沙尼亚,01,哲学
+0810 Information and Communication Engineering,信息与通信工程,12,爱沙尼亚,08,工学
+1201 Management Science and Engineering,管理科学与工程,11,爱沙尼亚,12,管理学
+0811 Control Science and Engineering,控制科学与工程,10,爱沙尼亚,08,工学
+0814 Civil Engineering,土木工程,9,爱沙尼亚,08,工学
+0816 Surveying and Mapping,测绘科学与技术,9,爱沙尼亚,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,9,爱沙尼亚,08,工学
+0303 Sociology,社会学,8,爱沙尼亚,03,法学
+0707 Marine Science,海洋科学,8,爱沙尼亚,07,理学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,8,爱沙尼亚,09,农学
+0401 Education,教育学,7,爱沙尼亚,04,教育学
+0809 Electronic Science and Technology,电子科学与技术,7,爱沙尼亚,08,工学
+1202 Business Administration,工商管理,7,爱沙尼亚,12,管理学
+0712 History of Science and Technology,科学技术史,6,爱沙尼亚,07,理学
+0826 Armament Science and Technology,兵器科学与技术,6,爱沙尼亚,08,工学
+0832 Food Science and Engineering,食品科学与工程,6,爱沙尼亚,08,工学
+0833 Urban and Rural Planning,城乡规划学,6,爱沙尼亚,08,工学
+0836 Biotechnology and Bioengineering,生物工程,6,爱沙尼亚,08,工学
+0201 Theoretical Economics,理论经济学,5,爱沙尼亚,02,经济学
+0301 Law,法学,5,爱沙尼亚,03,法学
+0711 Systems Science,系统科学,5,爱沙尼亚,07,理学
+0802 Mechanical Engineering,机械工程,5,爱沙尼亚,08,工学
+0815 Hydraulic Engineering,水利工程,5,爱沙尼亚,08,工学
+1010 Medical Technology,医学技术,5,爱沙尼亚,10,医学
+0202 Applied Economics,应用经济学,4,爱沙尼亚,02,经济学
+0831 Biomedical Engineering,生物医学工程,4,爱沙尼亚,08,工学
+0835 Software Engineering,软件工程,4,爱沙尼亚,08,工学
+0837 Safety Science and Engineering,安全科学与工程,4,爱沙尼亚,08,工学
+0901 Crop Science,作物学,4,爱沙尼亚,09,农学
+0909 Grassland Science,草学,4,爱沙尼亚,09,农学
+1007 Pharmaceutical Science,药学,4,爱沙尼亚,10,医学
+1204 Public Administration,公共管理,4,爱沙尼亚,12,管理学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,4,爱沙尼亚,12,管理学
+0302 Political Science,政治学,3,爱沙尼亚,03,法学
+0714 Statistics,统计学,3,爱沙尼亚,07,理学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,3,爱沙尼亚,08,工学
+0834 Landscape Architecture,风景园林学,3,爱沙尼亚,08,工学
+0905 Animal Science,畜牧学,3,爱沙尼亚,09,农学
+0801 Mechanics,力学,2,爱沙尼亚,08,工学
+0813 Architecture,建筑学,2,爱沙尼亚,08,工学
+0819 Mining Engineering,矿业工程,2,爱沙尼亚,08,工学
+0822 Light Industry Technology and Engineering,轻工技术与工程,2,爱沙尼亚,08,工学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,2,爱沙尼亚,08,工学
+0825 Aerospace Science and Technology,航空宇航科学与技术,2,爱沙尼亚,08,工学
+0828 Agricultural Engineering,农业工程,2,爱沙尼亚,08,工学
+0906 Veterinary Medicine,兽医学,2,爱沙尼亚,09,农学
+1009 Special Medicine,特种医学,2,爱沙尼亚,10,医学
+1302 Music and Dance,音乐与舞蹈学,2,爱沙尼亚,13,艺术学
+0403 Physical Education and Sport Science,体育学,1,爱沙尼亚,04,教育学
+0503 Journalism and Communication,新闻传播学,1,爱沙尼亚,05,文学
+0601 Archaeology,考古学,1,爱沙尼亚,06,历史学
+0603 World History,世界史,1,爱沙尼亚,06,历史学
+0821 Textile Science and Engineering,纺织科学与工程,1,爱沙尼亚,08,工学
+0829 Forestry Engineering,林业工程,1,爱沙尼亚,08,工学
+0902 Horticulture,园艺学,1,爱沙尼亚,09,农学
+1003 Stomatology,口腔医学,1,爱沙尼亚,10,医学
+1305 Design,设计学,1,爱沙尼亚,13,艺术学
+0702 Physics,物理学,1630,罗马尼亚,07,理学
+0704 Astronomy,天文学,367,罗马尼亚,07,理学
+1002 Clinical Medicine,临床医学,362,罗马尼亚,10,医学
+0701 Mathematics,数学,338,罗马尼亚,07,理学
+0703 Chemistry,化学,210,罗马尼亚,07,理学
+0805 Materials Science and Engineering,材料科学与工程,204,罗马尼亚,08,工学
+0827 Nuclear Science and Technology,核科学与技术,184,罗马尼亚,08,工学
+0804 Instrumentation Science and Technology,仪器科学与技术,168,罗马尼亚,08,工学
+0710 Biology,生物学,160,罗马尼亚,07,理学
+0812 Computer Science and Technology,计算机科学与技术,152,罗马尼亚,08,工学
+0830 Environmental Science and Engineering,环境科学与工程,144,罗马尼亚,08,工学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,126,罗马尼亚,08,工学
+1001 Basic Medicine,基础医学,120,罗马尼亚,10,医学
+0801 Mechanics,力学,108,罗马尼亚,08,工学
+0708 Geophysics,地球物理学,103,罗马尼亚,07,理学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,101,罗马尼亚,10,医学
+0802 Mechanical Engineering,机械工程,92,罗马尼亚,08,工学
+0811 Control Science and Engineering,控制科学与工程,91,罗马尼亚,08,工学
+1010 Medical Technology,医学技术,90,罗马尼亚,10,医学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,87,罗马尼亚,08,工学
+1009 Special Medicine,特种医学,86,罗马尼亚,10,医学
+0835 Software Engineering,软件工程,80,罗马尼亚,08,工学
+0401 Education,教育学,76,罗马尼亚,04,教育学
+1201 Management Science and Engineering,管理科学与工程,73,罗马尼亚,12,管理学
+0806 Metallurgical Engineering,冶金工程,71,罗马尼亚,08,工学
+0814 Civil Engineering,土木工程,71,罗马尼亚,08,工学
+0402 Psychology,心理学,69,罗马尼亚,04,教育学
+1400 Cross-field,,68,罗马尼亚,14,跨学科
+0810 Information and Communication Engineering,信息与通信工程,67,罗马尼亚,08,工学
+0831 Biomedical Engineering,生物医学工程,65,罗马尼亚,08,工学
+0714 Statistics,统计学,63,罗马尼亚,07,理学
+0706 Atmospheric Science,大气科学,57,罗马尼亚,07,理学
+0803 Optical Engineering,光学工程,55,罗马尼亚,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,52,罗马尼亚,08,工学
+1007 Pharmaceutical Science,药学,52,罗马尼亚,10,医学
+0825 Aerospace Science and Technology,航空宇航科学与技术,50,罗马尼亚,08,工学
+0832 Food Science and Engineering,食品科学与工程,48,罗马尼亚,08,工学
+0816 Surveying and Mapping,测绘科学与技术,47,罗马尼亚,08,工学
+1202 Business Administration,工商管理,46,罗马尼亚,12,管理学
+0836 Biotechnology and Bioengineering,生物工程,42,罗马尼亚,08,工学
+0711 Systems Science,系统科学,38,罗马尼亚,07,理学
+0713 Ecology,生态学,37,罗马尼亚,07,理学
+1003 Stomatology,口腔医学,37,罗马尼亚,10,医学
+0823 Transportation Engineering,交通运输工程,36,罗马尼亚,08,工学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,35,罗马尼亚,08,工学
+0202 Applied Economics,应用经济学,31,罗马尼亚,02,经济学
+0821 Textile Science and Engineering,纺织科学与工程,31,罗马尼亚,08,工学
+0709 Geology,地质学,30,罗马尼亚,07,理学
+0712 History of Science and Technology,科学技术史,30,罗马尼亚,07,理学
+0809 Electronic Science and Technology,电子科学与技术,30,罗马尼亚,08,工学
+0819 Mining Engineering,矿业工程,29,罗马尼亚,08,工学
+0705 Geography,地理学,27,罗马尼亚,07,理学
+0808 Electrical Engineering,电气工程,27,罗马尼亚,08,工学
+0828 Agricultural Engineering,农业工程,27,罗马尼亚,08,工学
+0833 Urban and Rural Planning,城乡规划学,27,罗马尼亚,08,工学
+0303 Sociology,社会学,24,罗马尼亚,03,法学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,24,罗马尼亚,08,工学
+1204 Public Administration,公共管理,24,罗马尼亚,12,管理学
+0403 Physical Education and Sport Science,体育学,23,罗马尼亚,04,教育学
+0813 Architecture,建筑学,21,罗马尼亚,08,工学
+0815 Hydraulic Engineering,水利工程,19,罗马尼亚,08,工学
+0822 Light Industry Technology and Engineering,轻工技术与工程,17,罗马尼亚,08,工学
+0201 Theoretical Economics,理论经济学,15,罗马尼亚,02,经济学
+0601 Archaeology,考古学,15,罗马尼亚,06,历史学
+0707 Marine Science,海洋科学,15,罗马尼亚,07,理学
+0302 Political Science,政治学,14,罗马尼亚,03,法学
+0901 Crop Science,作物学,12,罗马尼亚,09,农学
+0905 Animal Science,畜牧学,10,罗马尼亚,09,农学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,10,罗马尼亚,12,管理学
+0906 Veterinary Medicine,兽医学,9,罗马尼亚,09,农学
+0907 Forestry,林学,9,罗马尼亚,09,农学
+1008 Chinese Materia Medica,中药学,9,罗马尼亚,10,医学
+0301 Law,法学,8,罗马尼亚,03,法学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,8,罗马尼亚,09,农学
+0503 Journalism and Communication,新闻传播学,7,罗马尼亚,05,文学
+0826 Armament Science and Technology,兵器科学与技术,7,罗马尼亚,08,工学
+0101 Philosophy,哲学,6,罗马尼亚,01,哲学
+0837 Safety Science and Engineering,安全科学与工程,6,罗马尼亚,08,工学
+0904 Plant Protection,植物保护,5,罗马尼亚,09,农学
+0908 Fisheries,水产,4,罗马尼亚,09,农学
+0603 World History,世界史,3,罗马尼亚,06,历史学
+1302 Music and Dance,音乐与舞蹈学,3,罗马尼亚,13,艺术学
+0829 Forestry Engineering,林业工程,2,罗马尼亚,08,工学
+0902 Horticulture,园艺学,2,罗马尼亚,09,农学
+0909 Grassland Science,草学,2,罗马尼亚,09,农学
+1011 Nursing,护理学,2,罗马尼亚,10,医学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,2,罗马尼亚,12,管理学
+0304 Ethnology,民族学,1,罗马尼亚,03,法学
+1303 Drama Film and Television,戏剧与影视学,1,罗马尼亚,13,艺术学
