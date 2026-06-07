@@ -95,48 +95,43 @@
               <div class="content mb-0">
                 <h3 class="title is-4 mb-1">整体趋势：年度合作规模与占比</h3>
                 <p class="subtitle is-6 has-text-grey mt-2">
-                  展示2011—2020年中国—中东欧合作论文量，以及其在中国国际合作总量中的占比变化。
+                  展示2011—2020年中国—中东欧合作论文量及年度占比变化。
                 </p>
               </div>
             </div>
           </div>
 
-          <div class="columns is-desktop">
-            <div class="column is-three-quarters">
+          <div class="columns is-desktop ksj-macro-two-col">
+            <div class="column is-four-fifths">
               <div class="ksj-chart-surface macro-large" id="ksj-macro-chart"></div>
             </div>
             <div class="column">
               <div class="box ksj-zyl-side-card" id="ksj-macro-card">
                 <p class="heading mb-2">年度指标</p>
-                <p class="has-text-grey is-size-7">悬停年份可查看年度合作量、合作占比和较基期变化。</p>
+                <p class="has-text-grey is-size-7">悬停年份可查看年度合作量、占比水平和较基期变化。</p>
               </div>
             </div>
           </div>
-
-          <div id="ksj-proportion-strip"></div>
         </div>
 
         <div class="box mb-5 ksj-zyl-box">
-          <div class="level mb-4">
-            <div class="level-left">
-              <div class="content mb-0">
-                <h3 class="title is-4 mb-1">国家结构：阶段排名与新增合作量</h3>
-                <p class="subtitle is-6 has-text-grey mt-2">
-                  对比2011—2015与2016—2020两个阶段的国家排名、排名变化和新增合作量。
-                </p>
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="buttons has-addons mb-0 ksj-toolbar" id="ksj-rank-toolbar">
-                <button class="button is-small ksj-pill is-light" data-focus="core" title="后期排名前3，或后期合作份额≥13%">核心</button>
-                <button class="button is-small ksj-pill is-light" data-focus="chaser" title="未进入核心或稳定范围，且增长率高于中位数、新增量为正">追赶</button>
-                <button class="button is-small ksj-pill is-light" data-focus="tail" title="未满足核心、稳定、追赶条件，合作规模或增量较小">长尾</button>
-                <button class="button is-small ksj-pill is-link active" data-focus="all">全部</button>
-              </div>
+          <div class="content mb-3">
+            <h3 class="title is-4 mb-1">国家结构：阶段排名与新增合作量</h3>
+            <p class="subtitle is-6 has-text-grey mt-2">
+              对比2011—2015与2016—2020两个阶段的国家排名、排名变化和新增合作量。
+            </p>
+          </div>
+          <div class="ksj-control-row ksj-rank-control-row">
+            <div class="ksj-control-title">国家类型筛选</div>
+            <div class="buttons has-addons mb-4 ksj-toolbar ksj-toolbar-under" id="ksj-rank-toolbar">
+              <button class="button is-small ksj-pill is-light" data-focus="core" title="后期排名前3，或后期合作份额较高">核心</button>
+              <button class="button is-small ksj-pill is-light" data-focus="chaser" title="增长率较高且新增量为正">追赶</button>
+              <button class="button is-small ksj-pill is-light" data-focus="tail" title="合作规模或增量较小">长尾</button>
+              <button class="button is-small ksj-pill is-link active" data-focus="all">全部</button>
             </div>
           </div>
 
-          <div class="columns is-desktop">
+          <div class="columns is-desktop ksj-rank-two-col">
             <div class="column is-three-quarters">
               <div class="ksj-chart-surface tall" id="ksj-rank-flow"></div>
             </div>
@@ -150,30 +145,27 @@
         </div>
 
         <div class="box mb-5 ksj-zyl-box">
-          <div class="level mb-4">
-            <div class="level-left">
-              <div class="content mb-0">
-                <h3 class="title is-4 mb-1">国家均衡：国家份额与集中度</h3>
-                <p class="subtitle is-6 has-text-grey mt-2">
-                  气泡表示各国阶段合作量，Lorenz曲线用于判断合作是否集中于少数国家。
-                </p>
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="buttons has-addons mb-0 ksj-toolbar" id="ksj-balance-toolbar">
-                <button class="button is-small ksj-pill is-link active" data-stage="p2">2016–2020</button>
-                <button class="button is-small ksj-pill is-light" data-stage="p1">2011–2015</button>
-                <button class="button is-small ksj-pill is-light" data-focus="top3">Top3</button>
-                <button class="button is-small ksj-pill is-light" data-focus="top5">Top5</button>
-                <button class="button is-small ksj-pill is-light active" data-focus="all">全部</button>
-              </div>
+          <div class="content mb-3">
+            <h3 class="title is-4 mb-1">国家均衡：国家份额与集中度</h3>
+            <p class="subtitle is-6 has-text-grey mt-2">
+              气泡表示各国阶段合作量，Lorenz曲线用于判断国家间分布是否集中。
+            </p>
+          </div>
+          <div class="ksj-control-row">
+            <div class="ksj-control-title">阶段与范围筛选</div>
+            <div class="buttons has-addons mb-0 ksj-toolbar" id="ksj-balance-toolbar">
+              <button class="button is-small ksj-pill is-link active" data-stage="p2">2016–2020</button>
+              <button class="button is-small ksj-pill is-light" data-stage="p1">2011–2015</button>
+              <button class="button is-small ksj-pill is-light" data-focus="top3">Top3</button>
+              <button class="button is-small ksj-pill is-light" data-focus="top5">Top5</button>
+              <button class="button is-small ksj-pill is-light active" data-focus="all">全部</button>
             </div>
           </div>
 
           <div class="notification is-light ksj-link-bridge-card" id="ksj-balance-link-card">
-            <p class="heading mb-2">阶段与筛选</p>
+            <p class="heading mb-2">结构概览</p>
             <p class="has-text-grey is-size-7 mb-0">
-              选择阶段或高亮范围后，气泡图、Lorenz曲线和贡献条会同步更新。
+              选择阶段或高亮范围后，图3与图4同步更新，用于观察TOP3/TOP5合作国家的集中度变化。
             </p>
           </div>
 
@@ -1245,6 +1237,34 @@
       }
 
 
+      .ksj-control-row {
+        margin: 10px 0 18px;
+      }
+
+      .ksj-control-title {
+        margin-bottom: 8px;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .02em;
+      }
+
+      .ksj-card-lead {
+        margin: 8px 0 12px;
+      }
+
+      .ksj-clean-grid .ksj-country-stat {
+        min-height: 68px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .ksj-clean-grid .ksj-country-stat span {
+        margin-bottom: 5px;
+      }
+
+
 
       /* v10: make hover/selection and explanation cards more visible */
       .ksj-rank-layout {
@@ -1550,7 +1570,140 @@
         .ksj-link-bridge-card .ksj-link-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
+
+      .ksj-context-note {
+        margin-top: 12px;
+        border-left: 4px solid #94a3b8;
+        border-radius: 8px;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
       }
+
+      #ksj-rank-toolbar.ksj-toolbar-under,
+      #ksj-balance-toolbar {
+        justify-content: flex-start;
+        gap: 8px;
+      }
+
+      #ksj-rank-toolbar.ksj-toolbar-under {
+        margin-top: 8px;
+        margin-bottom: 18px;
+      }
+      }
+
+      /* feedback refinement: bigger charts, lower controls, concise cards */
+      .ksj-stat-positive { color: #15803d !important; }
+      .ksj-stat-negative { color: #b91c1c !important; }
+      .ksj-stat-neutral { color: #1e293b !important; }
+
+      .ksj-context-note {
+        margin-top: 14px;
+        border-left: 4px solid #94a3b8;
+        border-radius: 8px;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .ksj-chart-surface.macro-large {
+        min-height: 710px;
+      }
+
+      .ksj-chart-surface.tall {
+        min-height: 910px;
+      }
+
+      .ksj-chart-surface.balance-large,
+      .ksj-chart-surface.lorenz-large {
+        min-height: 820px;
+      }
+
+      .ksj-rank-control-row {
+        margin-top: 18px;
+        margin-bottom: 24px;
+        padding-top: 10px;
+        border-top: 1px solid #f1f5f9;
+      }
+
+      #ksj-selected-card {
+        margin-top: 74px !important;
+      }
+
+      .ksj-link-bridge-card {
+        margin-bottom: 16px;
+      }
+
+      .ksj-link-mini-stat b,
+      .ksj-country-stat b {
+        transition: color .16s ease;
+      }
+
+      /* refinement v2: remove duplicate background note and normalize 图2 card typography */
+      #ksj-selected-card .ksj-card-lead {
+        font-size: 13px;
+        line-height: 1.65;
+        margin-bottom: 14px;
+      }
+
+      #ksj-selected-card .ksj-country-grid.ksj-selected-grid {
+        gap: 10px;
+      }
+
+      #ksj-selected-card .ksj-country-grid.ksj-selected-grid .ksj-country-stat {
+        min-height: 72px;
+        padding: 11px 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      #ksj-selected-card .ksj-country-grid.ksj-selected-grid .ksj-country-stat span {
+        font-size: 12px;
+        line-height: 1.25;
+        margin-bottom: 7px;
+      }
+
+      #ksj-selected-card .ksj-country-grid.ksj-selected-grid .ksj-country-stat b {
+        font-size: 14px;
+        line-height: 1.35;
+        font-weight: 800;
+        letter-spacing: 0;
+        white-space: nowrap;
+      }
+
+      #ksj-rank-flow .ksj-rank-main-title {
+        font-size: 15px;
+        font-weight: 850;
+      }
+
+      #ksj-rank-flow .ksj-rank-subtitle,
+      #ksj-rank-flow .ksj-rank-growth-text,
+      #ksj-rank-flow .ksj-small-label {
+        font-size: 12.5px;
+        font-weight: 780;
+      }
+
+      @media screen and (min-width: 981px) {
+        .ksj-macro-two-col .column:first-child {
+          flex: 0 0 80%;
+          max-width: 80%;
+        }
+        .ksj-macro-two-col .column:last-child {
+          flex: 0 0 20%;
+          max-width: 20%;
+        }
+      }
+
+      @media screen and (max-width: 980px) {
+        #ksj-selected-card {
+          margin-top: 0 !important;
+        }
+      }
+
 
     `;
     d3.select('head').append('style').attr('id', 'ksj-trend-style').html(css);
@@ -1749,14 +1902,13 @@
     d3.select('#ksj-hero-metrics').html(`
       ${metricHTML('中东欧合作量增长', `${fmt.growth(ceeGrowth)}`, `${first.year}→${last.year}: ${fmt.int(first.cee)} 至 ${fmt.int(last.cee)}`)}
       ${metricHTML('中国国际合作总量增长', `${fmt.growth(chinaGrowth)}`, `${first.year}→${last.year}: ${fmt.int(first.china)} 至 ${fmt.int(last.china)}`)}
-      ${metricHTML('后期 Top3 占比', `${fmt.pct1(stage2.top3Share * 100)}%`, `前期为 ${fmt.pct1(stage1.top3Share * 100)}%`)}
+      ${metricHTML('后期 Top3 合作国家占比', `${fmt.pct1(stage2.top3Share * 100)}%`, `较前期 ${formatPP(stage2.top3Share - stage1.top3Share)}`)}
       ${metricHTML('新增合作量最高', topMover.countryCn, `+${fmt.int(topMover.diff)} 篇，${topMover.typeLabel}`)}
     `);
 
     d3.select('#ksj-macro-note').html(
       `中东欧合作量由 <b>${fmt.int(first.cee)}</b> 增至 <b>${fmt.int(last.cee)}</b>；` +
-      `占比从 <b>${fmt.pct(first.proportion)}%</b> 至 <b>${fmt.pct(last.proportion)}%</b>。` +
-      `合作占比 = 中东欧合作量 ÷ 中国国际合作总量 × 100%。`
+      `占比从 <b>${fmt.pct(first.proportion)}%</b> 至 <b>${fmt.pct(last.proportion)}%</b>，变化为 <b>${formatPP(last.proportion - first.proportion)}</b>。`
     );
   }
 
@@ -1774,13 +1926,13 @@
     const el = document.getElementById('ksj-macro-chart');
     if (!el) return;
     const data = state.data.yearly;
-    const width = Math.max(980, el.clientWidth || 1120);
-    const height = 620;
+    const width = Math.max(1120, el.clientWidth || 1240);
+    const height = 710;
     drawShareLensTimeline(d3.select(el).html(''), data, width, height);
   }
 
   function drawShareLensTimeline(box, data, width, height) {
-    const margin = { top: 96, right: 52, bottom: 76, left: 82 };
+    const margin = { top: 104, right: 58, bottom: 74, left: 86 };
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
     const first = data[0];
@@ -1808,14 +1960,14 @@
       .attr('fill', '#172033')
       .attr('font-size', 17)
       .attr('font-weight', 950)
-      .text('年度合作占比');
+      .text('图1 年度合作占比趋势（2011—2020）');
 
     svg.append('text')
       .attr('x', 26).attr('y', 57)
       .attr('fill', '#667085')
       .attr('font-size', 12)
       .attr('font-weight', 760)
-      .text('纵轴表示合作占比，圆点面积表示年度合作量。');
+      .text('蓝线表示合作占比变化，灰线为线性趋势线，圆点面积表示年度合作量。');
 
     const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
     const x = d3.scalePoint().domain(data.map(d => d.year)).range([0, innerW]).padding(.38);
@@ -1823,7 +1975,7 @@
       .domain([Math.max(0, minShare - .16), maxShare + .22])
       .nice()
       .range([innerH, 0]);
-    const r = d3.scaleSqrt().domain([0, maxCee]).range([7, 17]);
+    const r = d3.scaleSqrt().domain([0, maxCee]).range([8, 20]);
 
     g.append('g')
       .attr('class', 'ksj-grid')
@@ -1843,6 +1995,19 @@
       .datum(data)
       .attr('fill', `url(#ksj-share-lens-grad-${width})`)
       .attr('d', area);
+
+    const trend = computeLinearTrend(data, d => d.year, d => d.proportion);
+    if (trend) {
+      g.append('line')
+        .attr('x1', x(trend.x1))
+        .attr('y1', y(trend.y1))
+        .attr('x2', x(trend.x2))
+        .attr('y2', y(trend.y2))
+        .attr('stroke', '#94a3b8')
+        .attr('stroke-width', 2.4)
+        .attr('stroke-dasharray', '6 6')
+        .attr('stroke-linecap', 'round');
+    }
 
     g.append('path')
       .datum(data)
@@ -1905,7 +2070,11 @@
     g.append('g')
       .attr('class', 'ksj-axis')
       .attr('transform', `translate(0,${innerH})`)
-      .call(d3.axisBottom(x).tickSizeOuter(0));
+      .call(d3.axisBottom(x).tickSizeOuter(0))
+      .selectAll('text')
+      .attr('text-anchor', 'middle')
+      .attr('dx', 0)
+      .attr('dy', '.75em');
     g.append('g')
       .attr('class', 'ksj-axis')
       .call(d3.axisLeft(y).ticks(5).tickFormat(d => `${d}%`));
@@ -1922,7 +2091,7 @@
 
     g.append('text')
       .attr('x', innerW / 2)
-      .attr('y', innerH + 48)
+      .attr('y', innerH + 52)
       .attr('text-anchor', 'middle')
       .attr('fill', '#667085')
       .attr('font-size', 12)
@@ -1946,12 +2115,14 @@
 
     svg.append('g')
       .attr('class', 'ksj-mini-legend')
-      .attr('transform', `translate(${margin.left},${height - 20})`)
+      .attr('transform', `translate(${margin.left},${height - 2})` )
       .call(gLegend => {
         gLegend.append('circle').attr('cx', 0).attr('cy', -5).attr('r', 7).attr('fill', '#fff').attr('stroke', '#73a9ee').attr('stroke-width', 3);
         gLegend.append('text').attr('x', 14).attr('y', -1).attr('fill', '#667085').attr('font-size', 12).attr('font-weight', 780).text('圆点面积：年度合作量');
         gLegend.append('line').attr('x1', 230).attr('x2', 263).attr('y1', -5).attr('y2', -5).attr('stroke', '#73a9ee').attr('stroke-width', 4).attr('stroke-linecap', 'round');
         gLegend.append('text').attr('x', 274).attr('y', -1).attr('fill', '#667085').attr('font-size', 12).attr('font-weight', 780).text('蓝线：合作占比变化');
+        gLegend.append('line').attr('x1', 450).attr('x2', 485).attr('y1', -5).attr('y2', -5).attr('stroke', '#94a3b8').attr('stroke-width', 2.4).attr('stroke-dasharray', '6 6').attr('stroke-linecap', 'round');
+        gLegend.append('text').attr('x', 496).attr('y', -1).attr('fill', '#667085').attr('font-size', 12).attr('font-weight', 780).text('灰线：线性趋势');
       });
 
     svg.property('ksjXScale', x).property('ksjYScale', y);
@@ -1968,89 +2139,52 @@
     const maxD = data.find(x => x.proportion === maxShare) || last;
     const minShare = d3.min(data, x => x.proportion);
     const minD = data.find(x => x.proportion === minShare) || first;
+    const periodChange = last && first ? last.proportion - first.proportion : 0;
 
     if (!d) {
       el.html(`
         <div class="ksj-mini-title">年度指标</div>
         <div class="ksj-card-big-value">${fmt.pct(last.proportion)}%</div>
         <div class="ksj-muted">
-          合作占比用于衡量中东欧合作在中国国际合作中的相对权重。公式为：<b>中东欧合作量 ÷ 中国国际合作总量 × 100%</b>。
+          默认显示末期年份。悬停或点击折线图上的年份，可查看年度合作量、占比和较基准变化。
         </div>
-
-        <div class="ksj-explain-box">
-          <div class="ksj-explain-title">指标说明</div>
-          <p>占比越高，说明中东欧合作在中国国际合作中的相对权重越高。</p>
-          <p>该指标是相对比例，需要与年度合作量一起解读。</p>
-        </div>
-
         <div class="ksj-country-grid">
-          ${countryStatHTML('基期占比', `${fmt.pct(first.proportion)}%`)}
+          ${countryStatHTML('基准占比', `${fmt.pct(first.proportion)}%`)}
           ${countryStatHTML('末期占比', `${fmt.pct(last.proportion)}%`)}
+          ${countryStatHTML('较基准变化', formatPP(periodChange))}
           ${countryStatHTML('最高年份', `${maxD.year}年`)}
-          ${countryStatHTML('最低年份', `${minD.year}年`)}
         </div>
       `);
       return;
     }
 
     const firstGrowth = first.cee ? (d.cee / first.cee - 1) : 0;
-    const calcShare = d.china ? d.cee / d.china * 100 : d.proportion;
     const shareChange = d.proportion - first.proportion;
-    const approxPer100 = d.proportion;
 
     el.html(`
       <div class="ksj-mini-title">${d.year} 年度指标</div>
       <div class="ksj-card-big-value">${fmt.pct(d.proportion)}%</div>
-
-      <div class="ksj-explain-box">
-        <div class="ksj-explain-title">合作占比</div>
-        <p>
-          合作占比表示中东欧合作量占中国国际合作总量的比例。
-        </p>
+      <div class="ksj-muted">
+        当前年份较基准占比变化为 <b class="${statToneClass(formatPP(shareChange))}">${formatPP(shareChange)}</b>；合作量较基准${firstGrowth >= 0 ? '增长' : '下降'} <b class="${firstGrowth >= 0 ? 'ksj-stat-positive' : 'ksj-stat-negative'}">${fmt.pct(Math.abs(firstGrowth))}%</b>。
       </div>
-
-      <div class="ksj-formula-steps">
-        <div class="ksj-formula-row">
-          <span>计算公式</span>
-          <b>合作占比=中东欧合作量÷中国国际合作总量×100%</b>
-        </div>
-        <div class="ksj-formula-row">
-          <span>${d.year}年数据</span>
-          <b>${fmt.int(d.cee)} ÷ ${fmt.int(d.china)} × 100% = ${fmt.pct2(calcShare)}%</b>
-        </div>
-      </div>
-
       <div class="ksj-country-grid">
         ${countryStatHTML('中东欧合作量', `${fmt.int(d.cee)} 篇`)}
-        ${countryStatHTML('中国国际合作总量', `${fmt.int(d.china)} 篇`)}
+        ${countryStatHTML('国际合作总量', `${fmt.int(d.china)} 篇`)}
         ${countryStatHTML('合作占比', `${fmt.pct(d.proportion)}%`)}
-        ${countryStatHTML('较基期变化', `${d3.format('+.2f')(shareChange)} 个百分点`)}
-      </div>
-
-      <div class="ksj-explain-box">
-        <div class="ksj-explain-title">结果说明</div>
-        <p>
-          ${d.year} 年，中国每 100 篇国际合作论文中，约有 <b>${fmt.pct2(approxPer100)} 篇</b>
-          为中国—中东欧合作论文。
-        </p>
-        <p>
-          较基期，该年度合作占比${shareChange >= 0 ? '提升' : '回落'}；
-          中东欧合作量较基期${firstGrowth >= 0 ? '增长' : '下降'}了
-          <b>${fmt.pct(Math.abs(firstGrowth))}%</b>。
-        </p>
+        ${countryStatHTML('较基准变化', formatPP(shareChange))}
       </div>
     `);
   }
 
 
   function showYearTooltip(event, d) {
-    const calcShare = d.china ? d.cee / d.china * 100 : d.proportion;
+    const first = state.data.yearly[0] || d;
     const html = `
       <div class="ksj-tooltip-title">${d.year}</div>
       <div class="ksj-tooltip-row"><span>中东欧合作量</span><b>${fmt.int(d.cee)}</b></div>
       <div class="ksj-tooltip-row"><span>中国国际合作总量</span><b>${fmt.int(d.china)}</b></div>
       <div class="ksj-tooltip-row"><span>合作占比</span><b>${fmt.pct(d.proportion)}%</b></div>
-      <div style="margin-top:6px;color:#cbd5e1;font-size:12px;line-height:1.45;">占比 = ${fmt.int(d.cee)} ÷ ${fmt.int(d.china)} × 100 = ${fmt.pct2(calcShare)}%。</div>
+      <div class="ksj-tooltip-row"><span>较基准变化</span><b>${formatPP(d.proportion - first.proportion)}</b></div>
     `;
     moveTooltip(event, html);
   }
@@ -2084,46 +2218,9 @@
   }
 
   function renderProportionStrip() {
-    const data = state.data.yearly;
-    const extent = d3.extent(data, d => d.proportion);
-    const color = d3.scaleSequential(t => d3.interpolateRgbBasis(['#eef7ff', '#c7e4ff', '#7dbdff', '#236ed0'])(t)).domain(extent);
-    const min = d3.min(data, d => d.proportion);
-    const max = d3.max(data, d => d.proportion);
-    d3.select('#ksj-proportion-strip').html(`
-      <div class="ksj-mini-title">年度占比分布</div>
-      <div class="ksj-muted" style="margin-bottom:8px;">悬停年份后，主图圆点同步高亮；色阶越深，合作占比越高。</div>
-      <div class="ksj-heat-grid">
-        ${data.map(d => `
-          <div class="ksj-heat-cell" data-year="${d.year}" style="background:${color(d.proportion)};border-color:${color(d.proportion)};">
-            <div class="ksj-heat-year" style="color:${d.proportion > (min + max) / 2 ? 'rgba(255,255,255,.9)' : 'rgba(23,32,51,.68)'};">${d.year}</div>
-            <div class="ksj-heat-value" style="color:${d.proportion > (min + max) / 2 ? '#fff' : '#172033'};">${fmt.pct(d.proportion)}%</div>
-            <div class="ksj-muted" style="font-size:11px;line-height:1.2;color:${d.proportion > (min + max) / 2 ? 'rgba(255,255,255,.82)' : '#667085'};">${d.proportion === max ? '最高' : d.proportion === min ? '最低' : '占比'}</div>
-          </div>
-        `).join('')}
-      </div>
-    `);
-
-    d3.selectAll('.ksj-heat-cell')
-      .on('mouseenter', (event) => {
-        const year = +event.currentTarget.dataset.year;
-        const d = data.find(x => x.year === year);
-        if (d) { highlightMacroYear(year); renderMacroCard(d); showYearTooltip(event, d); }
-      })
-      .on('mousemove', (event) => {
-        const year = +event.currentTarget.dataset.year;
-        const d = data.find(x => x.year === year);
-        if (d) { highlightMacroYear(year); renderMacroCard(d); showYearTooltip(event, d); }
-      })
-      .on('mouseleave', hideTooltip)
-      .on('click', (event) => {
-        const year = +event.currentTarget.dataset.year;
-        const d = data.find(x => x.year === year);
-        if (d) { highlightMacroYear(year); renderMacroCard(d); }
-      });
-
-    const last = data[data.length - 1];
-    if (last) highlightMacroYear(last.year);
+    // 年度占比分布色块与主折线图信息重复，按反馈保留为空。
   }
+
 
   function renderRankToolbar() {
     d3.select('#ksj-rank-toolbar').selectAll('[data-focus]')
@@ -2153,10 +2250,10 @@
     const el = document.getElementById('ksj-rank-flow');
     if (!el) return;
     const rows = sortedCountries();
-    const width = Math.max(1120, el.clientWidth || 1160);
-    const rowH = 48;
-    const height = Math.max(840, rows.length * rowH + 170);
-    const margin = { top: 92, right: 210, bottom: 82, left: 146 };
+    const width = Math.max(1180, el.clientWidth || 1240);
+    const rowH = 50;
+    const height = Math.max(930, rows.length * rowH + 230);
+    const margin = { top: 130, right: 220, bottom: 86, left: 154 };
     const innerH = height - margin.top - margin.bottom;
     const leftX = margin.left;
     const rightX = width - margin.right;
@@ -2179,31 +2276,39 @@
       .attr('aria-label', 'Rank flow chart for CEE countries with numeric growth badges');
 
     svg.append('text')
-      .attr('x', leftX)
+      .attr('x', width / 2)
       .attr('y', 30)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#172033')
+      .attr('class', 'ksj-rank-main-title')
+      .text('图2 国家阶段排名变化与新增合作量');
+
+    svg.append('text')
+      .attr('x', width / 2)
+      .attr('y', 55)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#667085')
+      .attr('class', 'ksj-rank-subtitle')
+      .text('颜色表示增长率高低，线宽表示新增合作量，左右两侧分别为两个阶段排名。');
+
+    svg.append('text')
+      .attr('x', leftX)
+      .attr('y', 86)
       .attr('fill', '#172033')
       .attr('class', 'ksj-rank-main-title')
       .text('2011—2015排名');
 
     svg.append('text')
       .attr('x', rightX)
-      .attr('y', 30)
+      .attr('y', 86)
       .attr('text-anchor', 'end')
       .attr('fill', '#172033')
       .attr('class', 'ksj-rank-main-title')
       .text('2016—2020排名');
 
     svg.append('text')
-      .attr('x', width / 2)
-      .attr('y', 30)
-      .attr('text-anchor', 'middle')
-      .attr('fill', '#667085')
-      .attr('class', 'ksj-rank-subtitle')
-      .text('颜色表示增长率，线宽表示新增合作量，排名依据阶段合作量。');
-
-    svg.append('text')
       .attr('x', growthX)
-      .attr('y', 30)
+      .attr('y', 86)
       .attr('fill', '#172033')
       .attr('class', 'ksj-rank-main-title')
       .text('增长率');
@@ -2395,26 +2500,20 @@
     const focusNames = focusCountries.slice(0, 5).map(row => row.countryCn).join('、') || '全部国家';
 
     if (!d) {
+      const prevStage = state.data.stages.find(s => s.key === 'p1') || stage;
+      const top3Names = stage.values.slice(0, 3).map(row => row.countryCn).join('、');
+      const top3Change = stage.top3Share - prevStage.top3Share;
+      const top5Change = stage.top5Share - prevStage.top5Share;
       el.html(`
-        <p class="heading mb-2">联动解读</p>
+        <p class="heading mb-2">集中度变化</p>
         <p class="has-text-grey is-size-7 mb-2">
-          本模块同时展示单个国家贡献和整体集中度。气泡越大，阶段合作量越高；Lorenz曲线越弯，集中度越高。
+          后期TOP3合作国家为 <b>${top3Names}</b>，下方直接展示其占比和较前期变化。
         </p>
         <div class="ksj-link-grid">
-          <div class="ksj-link-mini-stat"><span>当前阶段</span><b>${stageLabel}</b></div>
-          <div class="ksj-link-mini-stat"><span>高亮范围</span><b>${focusMeta.title}</b></div>
-          <div class="ksj-link-mini-stat"><span>国家数量</span><b>${focusCountries.length}</b></div>
-          <div class="ksj-link-mini-stat"><span>合计占比</span><b>${fmt.pct1(focusShare * 100)}%</b></div>
-          <div class="ksj-link-mini-stat"><span>Gini</span><b>${fmt.pct(stage.gini)}</b></div>
-          <div class="ksj-link-mini-stat"><span>HHI</span><b>${fmt.pct(stage.hhi)}</b></div>
-        </div>
-        <div class="ksj-bullet-panel ksj-link-bullets">
-          <div class="ksj-bullet-title">操作说明</div>
-          <ul class="ksj-bullet-list">
-            <li>${focusMeta.note}</li>
-            <li>当前范围：${focusNames}${focusCountries.length > 5 ? '等' : ''}。</li>
-            <li>点击 Top3、Top5 或全部，可同步更新气泡图、曲线节点和贡献条。</li>
-          </ul>
+          ${miniStatHTML('当前阶段', stageLabel)}
+          ${miniStatHTML('Top3合作国家占比', `${fmt.pct1(stage.top3Share * 100)}%`)}
+          ${miniStatHTML('Top3较前期变化', formatPP(top3Change))}
+          ${miniStatHTML('Top5较前期变化', formatPP(top5Change))}
         </div>
       `);
       return;
@@ -2439,20 +2538,10 @@
         当前高亮国家为 <b>${d.countryCn}</b>。气泡显示阶段合作量，Lorenz曲线节点显示其在累计分布中的位置。
       </p>
       <div class="ksj-link-grid">
-        <div class="ksj-link-mini-stat"><span>阶段合作量</span><b>${fmt.int(d[stageKey])}</b></div>
-        <div class="ksj-link-mini-stat"><span>阶段份额</span><b>${fmt.pct1(share * 100)}%</b></div>
-        <div class="ksj-link-mini-stat"><span>累计顺序</span><b>第 ${order} 个</b></div>
-        <div class="ksj-link-mini-stat"><span>累计国家比例</span><b>${fmt.pct1(countryRatio * 100)}%</b></div>
-        <div class="ksj-link-mini-stat"><span>累计合作比例</span><b>${fmt.pct1(cumulative * 100)}%</b></div>
-        <div class="ksj-link-mini-stat"><span>国家类型</span><b>${d.typeLabel}</b></div>
-      </div>
-      <div class="ksj-bullet-panel ksj-link-bullets">
-        <div class="ksj-bullet-title">国家解读</div>
-        <ul class="ksj-bullet-list">
-          <li>${d.countryCn}阶段贡献 ${fmt.int(d[stageKey])} 篇，占阶段总量约 ${fmt.pct1(share * 100)}%，属于${d.typeLabel}。</li>
-          <li>累计至第 ${order} 个国家时，国家比例为 ${fmt.pct1(countryRatio * 100)}%，合作量比例为 ${fmt.pct1(cumulative * 100)}%。</li>
-          <li>如果累计国家比例较高、累计合作比例较低，说明合作贡献集中在少数国家。</li>
-        </ul>
+        ${miniStatHTML('阶段合作量', fmt.int(d[stageKey]))}
+        ${miniStatHTML('阶段份额', `${fmt.pct1(share * 100)}%`)}
+        ${miniStatHTML('国家类型', d.typeLabel)}
+        ${miniStatHTML('累计合作比例', `${fmt.pct1(cumulative * 100)}%`)}
       </div>
     `);
   }
@@ -2462,8 +2551,8 @@
     if (!el) return;
     const stageKey = state.view.stage;
     const rows = state.data.countries.map(d => ({ ...d, value: d[stageKey], share: stageKey === 'p1' ? d.share1 : d.share2 }));
-    const width = Math.max(760, el.clientWidth || 940);
-    const height = 680;
+    const width = Math.max(640, el.clientWidth || 720);
+    const height = 860;
 
     const svg = d3.select(el).html('').append('svg')
       .attr('viewBox', `0 0 ${width} ${height}`)
@@ -2475,24 +2564,24 @@
       .attr('fill', '#172033')
       .attr('font-weight', 900)
       .attr('font-size', 15)
-      .text(`国家合作量气泡图：${stageKey === 'p1' ? '2011–2015' : '2016–2020'}`);
+      .text(`图3 国家合作量气泡图：${stageKey === 'p1' ? '2011–2015' : '2016–2020'}`);
 
     svg.append('text')
       .attr('x', 24).attr('y', 50)
       .attr('fill', '#667085')
       .attr('font-size', 12)
       .attr('font-weight', 700)
-.text('气泡面积表示国家合作量；悬停国家后，Lorenz曲线会同步定位。');
+.text('气泡面积表示国家合作量；悬停或点击国家后，右侧Lorenz曲线会同步定位。');
 
     const root = d3.hierarchy({ children: rows }).sum(d => d.value);
-    d3.pack().size([width - 44, height - 116]).padding(8)(root);
+    d3.pack().size([width - 36, height - 120]).padding(9)(root);
     const nodes = root.leaves();
 
-    const g = svg.append('g').attr('transform', 'translate(22,76)');
+    const g = svg.append('g').attr('transform', 'translate(18,96)');
     g.append('circle')
-      .attr('cx', (width - 52) / 2)
-      .attr('cy', (height - 112) / 2)
-      .attr('r', Math.min(width - 44, height - 116) / 2 - 2)
+      .attr('cx', (width - 36) / 2)
+      .attr('cy', (height - 120) / 2)
+      .attr('r', Math.min(width - 36, height - 120) / 2 - 2)
       .attr('fill', 'none')
       .attr('stroke', '#d9e4ef')
       .attr('stroke-dasharray', '5 7');
@@ -2611,9 +2700,9 @@
       });
     });
 
-    const width = Math.max(860, el.clientWidth || 1000);
-    const height = 720;
-    const margin = { top: 96, right: 78, bottom: 190, left: 84 };
+    const width = Math.max(760, el.clientWidth || 840);
+    const height = 920;
+    const margin = { top: 102, right: 72, bottom: 186, left: 78 };
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
 
@@ -2634,7 +2723,7 @@
       .attr('fill', '#172033')
       .attr('font-weight', 950)
       .attr('font-size', 16.5)
-      .text(`Lorenz曲线：${stage.label}`);
+      .text(`图4 Lorenz曲线：${stage.label}`);
 
     svg.append('text')
       .attr('x', 26).attr('y', 56)
@@ -2735,7 +2824,7 @@
 
     g.append('text')
       .attr('x', innerW / 2)
-      .attr('y', innerH + 43)
+      .attr('y', innerH + 50)
       .attr('text-anchor', 'middle')
       .attr('fill', '#667085')
       .attr('font-size', 12)
@@ -2892,6 +2981,7 @@
     const top3Change = s2.top3Share - s1.top3Share;
     const top5Change = s2.top5Share - s1.top5Share;
     const hhiChange = s2.hhi - s1.hhi;
+    const top3Names = s2.values.slice(0, 3).map(row => row.countryCn).join('、');
     const moreEven = giniChange < 0 && top5Change < 0 && hhiChange < 0;
 
     const sentence = moreEven
@@ -2900,17 +2990,14 @@
 
     d3.select('#ksj-conclusion').html(`
       <div class="ksj-conclusion-line">
-        <b>指标说明：</b>Top3 / Top5占比表示前3 / 前5个国家的合计份额；Gini和HHI用于衡量集中度，数值越高，说明合作越集中。
-      </div>
-      <div class="ksj-conclusion-line mt-2">
-        <b>综合结论：</b>2016—2020阶段合作总量较2011—2015阶段增长 <b>${fmt.growth(totalGrowth)}</b>。
-        后期Top3占比为 <b>${fmt.pct1(s2.top3Share * 100)}%</b>，Top5占比为 <b>${fmt.pct1(s2.top5Share * 100)}%</b>。
-        与前期相比，Top3占比变化 <b>${fmt.signedInt(top3Change * 100)} 个百分点</b>，Top5占比变化 <b>${fmt.signedInt(top5Change * 100)} 个百分点</b>，
-        Gini由 <b>${fmt.pct(s1.gini)}</b> 变为 <b>${fmt.pct(s2.gini)}</b>，HHI由 <b>${fmt.pct(s1.hhi)}</b> 变为 <b>${fmt.pct(s2.hhi)}</b>。
-        ${sentence} 后期第一名为 <b>${s2.top1.countryCn}</b>，说明头部国家仍是主要贡献来源。
+        <b>集中度变化：</b>2016—2020阶段合作总量较2011—2015阶段增长 <b>${fmt.growth(totalGrowth)}</b>。
+        后期TOP3合作国家（${top3Names}）合计占比为 <b>${fmt.pct1(s2.top3Share * 100)}%</b>，较前期 <b class="${statToneClass(formatPP(top3Change))}">${formatPP(top3Change)}</b>；
+        TOP5合作国家占比较前期 <b class="${statToneClass(formatPP(top5Change))}">${formatPP(top5Change)}</b>。
+        ${sentence}
       </div>
     `);
   }
+
 
   function setCountryHover(event, d) {
     state.view.hoveredCountry = d.country;
@@ -2957,16 +3044,13 @@
     if (el.empty()) return;
     if (!d) {
       el.html(`
-        <div class="ksj-mini-title">国家结构</div>
-        <div class="ksj-muted">该图比较各国在两个阶段的排名变化。左侧为2011—2015，右侧为2016—2020；连线越粗，新增合作量越大。</div>
-        <div class="ksj-bullet-panel">
-          <div class="ksj-bullet-title">国家类型定义</div>
-          <ul class="ksj-bullet-list">
-            <li><b>核心国家：</b>后期排名前3，或后期合作份额≥13%，代表主要合作支撑。</li>
-            <li><b>稳定国家：</b>未进入核心，但后期排名前8，或后期合作份额≥7%，是稳定贡献主体。</li>
-            <li><b>追赶国家：</b>未进入核心或稳定范围，但增长率高于各国中位数，且新增合作量为正。</li>
-            <li><b>长尾国家：</b>不满足以上条件，未满足核心、稳定、追赶条件，合作规模或增量较小。</li>
-          </ul>
+        <div class="ksj-mini-title">国家结构卡片</div>
+        <div class="ksj-muted ksj-card-lead">悬停或点击图2中的国家后，右侧卡片会更新为对应国家。</div>
+        <div class="ksj-country-grid ksj-clean-grid ksj-selected-grid">
+          ${countryStatHTML('前期', '2011–2015')}
+          ${countryStatHTML('后期', '2016–2020')}
+          ${countryStatHTML('线条', '新增量')}
+          ${countryStatHTML('点击', '锁定国家')}
         </div>
       `);
       return;
@@ -2976,25 +3060,16 @@
       <div class="ksj-mini-title">${temporary ? '悬停国家' : '选中国家'}</div>
       <div class="ksj-country-name">${d.countryCn}</div>
       <div class="ksj-country-type">${d.typeLabel}</div>
-      <div class="ksj-muted">${d.countryCn} 在后期排第 ${d.rank2}，较前期${rankText}。${countryNarrative(d)}</div>
-      <div class="ksj-country-grid">
-        ${countryStatHTML('2011–2015', fmt.int(d.p1))}
-        ${countryStatHTML('2016–2020', fmt.int(d.p2))}
-        ${countryStatHTML('增长率', formatGrowthRate(d.growthRate))}
-        ${countryStatHTML('后期份额', `${fmt.pct1(d.share2 * 100)}%`)}
-        ${countryStatHTML('新增合作量', `+${fmt.int(Math.max(0, d.diff))}`)}
+      <div class="ksj-muted ksj-card-lead">后期排名第 ${d.rank2}，较前期${rankText}。</div>
+      <div class="ksj-country-grid ksj-clean-grid ksj-selected-grid">
+        ${countryStatHTML('2011–2015', `${fmt.int(d.p1)} 篇`)}
+        ${countryStatHTML('2016–2020', `${fmt.int(d.p2)} 篇`)}
+        ${countryStatHTML('新增合作量', `${d.diff >= 0 ? '+' : ''}${fmt.int(d.diff)} 篇`)}
         ${countryStatHTML('排名变化', rankText)}
-      </div>
-      <div class="ksj-bullet-panel">
-        <div class="ksj-bullet-title">国家指标说明</div>
-        <ul class="ksj-bullet-list">
-          <li>${d.countryCn} 后期合作量为 ${fmt.int(d.p2)} 篇，结构类型为${d.typeLabel}。</li>
-          <li>${typeDefinition(d.type)}</li>
-          <li>排名变化反映相对位置，增长率反映扩张速度；连线越粗，新增合作量越大。</li>
-        </ul>
       </div>
     `);
   }
+
 
   function renderBalanceCard(d, temporary = false) {
     const el = d3.select('#ksj-balance-card');
@@ -3061,7 +3136,18 @@
   }
 
   function countryStatHTML(label, value) {
-    return `<div class="ksj-country-stat"><span>${label}</span><b>${value}</b></div>`;
+    return `<div class="ksj-country-stat"><span>${label}</span><b class="${statToneClass(value)}">${value}</b></div>`;
+  }
+
+  function miniStatHTML(label, value) {
+    return `<div class="ksj-link-mini-stat"><span>${label}</span><b class="${statToneClass(value)}">${value}</b></div>`;
+  }
+
+  function statToneClass(value) {
+    const text = String(value ?? '').trim();
+    if (/^\+/.test(text) || text.includes('上升') || text.includes('增长')) return 'ksj-stat-positive';
+    if (/^-/.test(text) || text.includes('下降')) return 'ksj-stat-negative';
+    return 'ksj-stat-neutral';
   }
 
   function typeDefinition(type) {
@@ -3071,6 +3157,29 @@
       chaser: '追赶国家：未进入核心或稳定范围，但增长率高于各国中位数，且新增合作量为正。',
       tail: '长尾国家指不满足以上条件，未满足核心、稳定、追赶条件，合作规模或增量较小的国家。'
     }[type] || '该类型用于说明国家在合作结构中的相对位置。';
+  }
+
+
+  function formatPP(value) {
+    const scaled = value * 100;
+    return `${scaled >= 0 ? '+' : ''}${d3.format('.1f')(scaled)}pp`;
+  }
+
+  function computeLinearTrend(data, xAccessor, yAccessor) {
+    const rows = data
+      .map(d => ({ x: +xAccessor(d), y: +yAccessor(d) }))
+      .filter(d => Number.isFinite(d.x) && Number.isFinite(d.y));
+    const n = rows.length;
+    if (n < 2) return null;
+    const meanX = d3.mean(rows, d => d.x);
+    const meanY = d3.mean(rows, d => d.y);
+    const denominator = d3.sum(rows, d => Math.pow(d.x - meanX, 2));
+    if (!denominator) return null;
+    const slope = d3.sum(rows, d => (d.x - meanX) * (d.y - meanY)) / denominator;
+    const intercept = meanY - slope * meanX;
+    const x1 = d3.min(rows, d => d.x);
+    const x2 = d3.max(rows, d => d.x);
+    return { x1, y1: slope * x1 + intercept, x2, y2: slope * x2 + intercept };
   }
 
   function countryNarrative(d) {
