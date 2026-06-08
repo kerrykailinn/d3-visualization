@@ -159,6 +159,7 @@
     macroPeriod: "p20",
     macroRegion: "china",
     macroHoverTier: null,
+    macroHoverSeries: null,
     macroChartW: 320,
     macroViewsReady: false
   };
@@ -614,6 +615,8 @@
     label: `Top ${pct}%`
   }));
   const MACRO_KEY_TIERS = [5, 10, 20];
+  const MACRO_TIER_SNAP_R = 26;
+  let macroChartCtx = null;
   const MACRO_TIER_TRACK_MIN = 0.5;
 
   function macroDumbbellPanels() {
@@ -1551,12 +1554,17 @@
     ensureMacroSideStructure(side);
     renderMacroTierPanel(side.select(".macro-tier-panel-host"));
     syncMacroHighlight();
+    if (S.macroHoverTier) {
+      d3.select(".s1-macro .macro-insight-text").text(macroInsightText(S.macroHoverTier));
+      syncMacroParetoFocus(S.macroHoverTier, S.macroHoverSeries);
+    }
   }
 
   function setMacroMode(mode) {
     if (S.macroMode === mode) return;
     S.macroMode = mode;
     S.macroHoverTier = null;
+    S.macroHoverSeries = null;
     S.paretoSeries = null;
     hideTip();
     refreshMacroViews();
@@ -1566,6 +1574,7 @@
     if (S.macroRegion === region) return;
     S.macroRegion = region;
     S.macroHoverTier = null;
+    S.macroHoverSeries = null;
     S.paretoSeries = null;
     hideTip();
     refreshMacroViews();
@@ -1575,18 +1584,140 @@
     if (S.macroPeriod === period) return;
     S.macroPeriod = period;
     S.macroHoverTier = null;
+    S.macroHoverSeries = null;
     hideTip();
     refreshMacroViews();
   }
 
-  function setMacroHoverTier(tierPct) {
-    if (S.macroHoverTier === tierPct) return;
-    S.macroHoverTier = tierPct;
-    syncMacroHighlight();
-    const insight = d3.select(".s1-macro .macro-insight-text");
-    if (!insight.empty()) {
-      insight.text(tierPct ? macroInsightText(tierPct) : macroDefaultInsightText());
+  function setMacroHoverTier(tierPct, seriesId = null) {
+    if (!tierPct) {
+      clearMacroTierFocus();
+      return;
     }
+    focusMacroTier(null, tierPct, seriesId);
+  }
+
+  function clearMacroTierFocus(hideTipToo = true) {
+    S.macroHoverTier = null;
+    S.macroHoverSeries = null;
+    syncMacroHighlight();
+    syncMacroParetoFocus(null);
+    const insight = d3.select(".s1-macro .macro-insight-text");
+    if (!insight.empty()) insight.text(macroDefaultInsightText());
+    if (hideTipToo) hideTip();
+  }
+
+  function focusMacroTier(ev, tierPct, seriesId = null) {
+    S.macroHoverTier = tierPct;
+    S.macroHoverSeries = seriesId || null;
+    syncMacroHighlight();
+    syncMacroParetoFocus(tierPct, seriesId);
+    const insight = d3.select(".s1-macro .macro-insight-text");
+    if (!insight.empty()) insight.text(macroInsightText(tierPct));
+    if (ev) macroTierTip(ev, tierPct, seriesId);
+  }
+
+  function nearestMacroTierTarget(mx, my) {
+    if (!macroChartCtx) return null;
+    const { x, y, series, iw, ih } = macroChartCtx;
+    if (mx < 0 || my < 0 || mx > iw || my > ih) return null;
+    let best = null;
+    let bestDist = Infinity;
+    MACRO_KEY_TIERS.forEach((tierPct) => {
+      series.forEach((s) => {
+        const share = topInstPctShare(s.pareto, tierPct);
+        const cx = x(share);
+        const cy = y(tierPct);
+        const dist = Math.hypot(cx - mx, cy - my);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = { tierPct, seriesId: s.id, dist };
+        }
+      });
+    });
+    if (!best || best.dist > MACRO_TIER_SNAP_R) return null;
+    return best;
+  }
+
+  function syncMacroParetoFocus(tierPct, seriesId) {
+    if (!macroChartCtx?.focusG) return;
+    const { focusG, focusLine, x, y, series, iw } = macroChartCtx;
+    focusG.selectAll("circle.macro-pareto-curve-dot").remove();
+    if (!tierPct) {
+      focusG.style("display", "none");
+      return;
+    }
+    const accent = seriesId ? series.find((s) => s.id === seriesId)?.color : C.border;
+    focusG.style("display", null);
+    focusLine
+      .attr("x1", 0)
+      .attr("x2", iw)
+      .attr("y1", y(tierPct))
+      .attr("y2", y(tierPct))
+      .attr("stroke", accent || C.border)
+      .attr("stroke-opacity", seriesId ? 0.9 : 0.55);
+
+    focusG
+      .selectAll("circle.macro-pareto-focus-dot")
+      .data(series, (d) => d.id)
+      .join(
+        (enter) =>
+          enter
+            .append("circle")
+            .attr("class", "macro-pareto-focus-dot")
+            .attr("fill", "#fff")
+            .style("pointer-events", "none"),
+        (update) => update,
+        (exit) => exit.remove()
+      )
+      .each(function (s) {
+        const share = topInstPctShare(s.pareto, tierPct);
+        const active = !seriesId || s.id === seriesId;
+        d3.select(this)
+          .attr("cx", x(share))
+          .attr("cy", y(tierPct))
+          .attr("r", active ? (seriesId ? 6.5 : 5.5) : 4.5)
+          .attr("stroke", s.color)
+          .attr("stroke-width", active ? 2.5 : 1.5)
+          .attr("opacity", active ? 1 : 0.45);
+      });
+  }
+
+  function showMacroCurvePoint(ev, s, pt) {
+    if (!macroChartCtx?.focusG) return;
+    const { focusG, focusLine, x, y, iw } = macroChartCtx;
+    focusG.selectAll("circle.macro-pareto-focus-dot").remove();
+    focusG.style("display", null);
+    focusLine
+      .attr("x1", 0)
+      .attr("x2", iw)
+      .attr("y1", y(pt.x))
+      .attr("y2", y(pt.x))
+      .attr("stroke", s.color)
+      .attr("stroke-opacity", 0.85);
+    focusG
+      .selectAll("circle.macro-pareto-curve-dot")
+      .data([0])
+      .join(
+        (enter) =>
+          enter
+            .append("circle")
+            .attr("class", "macro-pareto-curve-dot")
+            .attr("fill", "#fff")
+            .style("pointer-events", "none"),
+        (update) => update,
+        (exit) => exit.remove()
+      )
+      .attr("cx", x(pt.y))
+      .attr("cy", y(pt.x))
+      .attr("r", 5)
+      .attr("stroke", s.color)
+      .attr("stroke-width", 2);
+    showTip(
+      ev,
+      tipTitleHtml(`${s.leg} · 前 ${d3.format(".0f")(pt.x)}% 机构`, s.color) +
+        tipRowHtml("累计合作份额", pct(pt.y), `font-weight:600;color:${TIP.hi};`)
+    );
   }
 
   function appendMacroToolbar(parent) {
@@ -1682,21 +1813,39 @@
 
   function syncMacroHighlight() {
     const tier = S.macroHoverTier;
+    const seriesId = S.macroHoverSeries;
     d3.select(".s1-macro .macro-tier-row").classed("macro-tier-row--hi", function () {
       return +this.getAttribute("data-tier") === tier;
     });
     d3.select(".s1-macro .macro-stat-card").classed("macro-stat-card--hi", function () {
       if (!tier) return false;
       const id = this.getAttribute("data-id") || "";
-      return id === "top15" || id === "cn-top15" || id === "ce-top15";
+      if (S.macroMode === "region") {
+        if (seriesId) {
+          const prefix = seriesId === "china" ? "cn-" : "ce-";
+          return id.startsWith(prefix);
+        }
+        return id.startsWith("cn-") || id.startsWith("ce-");
+      }
+      return true;
     });
     d3.select(".s1-macro .macro-tier-node").each(function () {
       const el = d3.select(this);
       const nodeTier = +el.attr("data-tier");
-      const active = tier && nodeTier === tier;
-      el.attr("r", active ? 6.5 : 4.5).attr("stroke-width", active ? 2.5 : 1.5);
+      const nodeSeries = el.attr("data-series");
+      const tierMatch = tier && nodeTier === tier;
+      const seriesMatch = !seriesId || nodeSeries === seriesId;
+      const active = tierMatch && seriesMatch;
+      const peer = tierMatch && !seriesMatch;
+      el
+        .attr("r", active ? 7 : peer ? 5.5 : 4.5)
+        .attr("stroke-width", active ? 2.5 : 1.5)
+        .attr("opacity", tierMatch ? 1 : 0.28);
     });
     d3.select(".s1-macro .macro-curve").attr("opacity", function () {
+      if (seriesId) {
+        return d3.select(this).attr("data-series") === seriesId ? 1 : 0.18;
+      }
       if (!S.paretoSeries) return 1;
       return d3.select(this).attr("data-series") === S.paretoSeries ? 1 : 0.15;
     });
@@ -1740,13 +1889,11 @@
         .attr("class", "macro-tier-row")
         .attr("data-tier", row.tierPct)
         .on("mouseenter", (ev) => {
-          setMacroHoverTier(row.tierPct);
-          macroTierTip(ev, row.tierPct);
+          focusMacroTier(ev, row.tierPct, null);
         })
         .on("mousemove", (ev) => moveTip(ev))
         .on("mouseleave", () => {
-          setMacroHoverTier(null);
-          hideTip();
+          clearMacroTierFocus();
         });
 
       rowEl.append("div").attr("class", "macro-tier-label").text(row.label);
@@ -1871,14 +2018,6 @@
         .style("pointer-events", "none");
     });
 
-    function macroCurveTip(ev, s, pt) {
-      showTip(
-        ev,
-        tipTitleHtml(`${s.leg} · 前 ${d3.format(".0f")(pt.x)}% 机构`, s.color) +
-          tipRowHtml("累计合作份额", pct(pt.y), `font-weight:600;color:${TIP.hi};`)
-      );
-    }
-
     const focusG = g.append("g").attr("class", "macro-pareto-focus").style("display", "none");
     const focusLine = focusG
       .append("line")
@@ -1887,18 +2026,6 @@
       .attr("stroke-dasharray", "3 3")
       .attr("x1", 0)
       .attr("x2", iw);
-    const focusDot = focusG
-      .append("circle")
-      .attr("r", 5)
-      .attr("fill", "#fff")
-      .attr("stroke-width", 2);
-
-    function showMacroCurvePoint(ev, s, pt) {
-      focusG.style("display", null);
-      focusLine.attr("y1", y(pt.x)).attr("y2", y(pt.x)).attr("stroke", s.color);
-      focusDot.attr("cx", x(pt.y)).attr("cy", y(pt.x)).attr("stroke", s.color);
-      macroCurveTip(ev, s, pt);
-    }
 
     g.append("rect")
       .attr("class", "macro-pareto-hit")
@@ -1908,6 +2035,12 @@
       .style("cursor", "crosshair")
       .on("mousemove", function (ev) {
         const [mx, my] = d3.pointer(ev, this);
+        const snap = nearestMacroTierTarget(mx, my);
+        if (snap) {
+          focusMacroTier(ev, snap.tierPct, snap.seriesId);
+          return;
+        }
+        if (S.macroHoverTier) clearMacroTierFocus(false);
         const shareVal = Math.max(0, Math.min(1, x.invert(mx)));
         let bestS = series[0];
         let bestPt = nearestParetoPoint(bestS.pareto.pts, shareVal, "y");
@@ -1927,14 +2060,12 @@
         showMacroCurvePoint(ev, bestS, bestPt);
       })
       .on("mouseleave", () => {
-        focusG.style("display", "none");
-        if (!S.macroHoverTier) hideTip();
+        clearMacroTierFocus();
       });
 
     MACRO_KEY_TIERS.forEach((tierPct) => {
       series.forEach((s) => {
         const share = topInstPctShare(s.pareto, tierPct);
-        const pt = { x: tierPct, y: share };
         g.append("circle")
           .attr("class", "macro-tier-node")
           .attr("data-series", s.id)
@@ -1948,21 +2079,22 @@
           .style("cursor", "pointer")
           .on("mouseenter", (ev) => {
             ev.stopPropagation();
-            setMacroHoverTier(tierPct);
-            showMacroCurvePoint(ev, s, pt);
-            macroTierTip(ev, tierPct, s.id);
+            focusMacroTier(ev, tierPct, s.id);
           })
           .on("mousemove", (ev) => moveTip(ev))
           .on("mouseleave", (ev) => {
             ev.stopPropagation();
-            setMacroHoverTier(null);
-            focusG.style("display", "none");
-            hideTip();
+            clearMacroTierFocus();
           });
       });
     });
 
+    focusG.style("pointer-events", "none");
     focusG.raise();
+    g.selectAll(".macro-tier-node").raise();
+
+    macroChartCtx = { x, y, iw, ih, series, focusG, focusLine };
+    if (S.macroHoverTier) syncMacroParetoFocus(S.macroHoverTier, S.macroHoverSeries);
 
     const xAxis = d3.axisBottom(x).tickValues(d3.range(0, 1.001, 0.1)).tickFormat(d3.format(".0%"));
     g.append("g")
@@ -2018,24 +2150,6 @@
     }
     legHtml += `<span class="macro-leg-note">虚线 = 完全均衡（无集中）</span>`;
     leg.html(legHtml);
-  }
-
-  function powerShiftLegendHtml() {
-    const cn = SANKEY_FLOW_DIR.china;
-    const ce = SANKEY_FLOW_DIR.cee;
-    return (
-      `<span><span class="meso-leg-swatch" style="background:${cn.growth};"></span>中国 · 正增速</span>` +
-      `<span><span class="meso-leg-swatch" style="background:${cn.decline};"></span>中国 · 负增速</span>` +
-      `<span><span class="meso-leg-swatch" style="background:${ce.growth};"></span>中东欧 · 正增速</span>` +
-      `<span><span class="meso-leg-swatch" style="background:${ce.decline};"></span>中东欧 · 负增速</span>` +
-      `<span><span class="meso-leg-swatch" style="background:${cn.baseline};"></span>增速 ≈ 0（持平）</span>` +
-      `<span>柱长 = |份额增速| · 颜色 = 正/负 · 方向 = 中轴左/右</span>`
-    );
-  }
-
-  function updatePowerShiftLegend() {
-    if (!mesoSec) return;
-    mesoSec.select(".trans-legend-wrap").attr("class", "trans-legend-wrap meso-chart-legend").html(powerShiftLegendHtml());
   }
 
   // ─── tooltip & panel ─────────────────────────────────────────────────────────
@@ -3369,6 +3483,7 @@
   // ─── SECTION 1: Macro concentration ────────────────────────────────────────
   function drawMacro(parent, w) {
     section(parent, "s1-macro", IL_SECTIONS.macro);
+    macroChartCtx = null;
 
     const card = d3.select(".s1-macro .il-chart");
     S.macroChartW = Math.max(w, 320);
@@ -3898,6 +4013,7 @@
     updateBubbleSidePanel();
     syncBubbleFocus();
     syncBubbleChartHighlights();
+    syncBubbleSearchDropdownStyles();
     if (S.bubbleRegionFilter !== "all") renderBubbleTopListContent();
   }
 
@@ -3937,7 +4053,6 @@
         ev.stopPropagation();
         setBubbleSearchHoverId(d3.select(ev.currentTarget).attr("data-id"));
       });
-    host.on("mouseleave", () => setBubbleSearchHoverId(null));
     syncBubbleSearchDropdownStyles();
   }
 
@@ -3960,7 +4075,7 @@
         ev.stopPropagation();
         clearBubbleSearch();
       });
-    wrap.append("div").attr("class", "bubble-inst-search-results");
+    wrap.append("div").attr("class", "bubble-inst-search-results").on("mouseleave", () => setBubbleSearchHoverId(null));
     input.on("input", function () {
       setBubbleSearchQuery(this.value);
     });
@@ -4548,15 +4663,20 @@
   function bubbleApplyAxes(x, y, t) {
     if (!bubbleChartCtx) return;
     const axisT = t || ((sel) => sel);
+    const clipPlot = "url(#bubble-plot-clip)";
     axisT(bubbleChartCtx.xAxisG)
       .call(bubbleShareAxis(x, "bottom", -bubbleChartCtx.ih))
       .call((sel) => sel.select(".domain").remove())
-      .call((sel) => sel.selectAll(".tick line").attr("stroke", "#e2e8f0"))
+      .call((sel) =>
+        sel.selectAll(".tick line").attr("stroke", "#e2e8f0").attr("clip-path", clipPlot)
+      )
       .call((sel) => sel.selectAll(".tick text").attr("fill", C.muted).attr("font-size", 10).attr("font-family", C.font));
     axisT(bubbleChartCtx.yAxisG)
       .call(bubbleShareAxis(y, "left", -bubbleChartCtx.iw))
       .call((sel) => sel.select(".domain").remove())
-      .call((sel) => sel.selectAll(".tick line").attr("stroke", "#e2e8f0"))
+      .call((sel) =>
+        sel.selectAll(".tick line").attr("stroke", "#e2e8f0").attr("clip-path", clipPlot)
+      )
       .call((sel) => sel.selectAll(".tick text").attr("fill", C.muted).attr("font-size", 10).attr("font-family", C.font));
   }
 
@@ -5184,6 +5304,12 @@
   let mesoPowG = null;
   let mesoChartWrap = null;
 
+  const MESO_PANEL_W = 228;
+  const MESO_LAYOUT_GAP = 12;
+  const MESO_CENTER_GAP = 10;
+  const MESO_SIDE_LAYOUT_MIN = 860;
+  const MESO_RATE_LABEL_GUTTER = 46;
+
   function powerShiftChangeColor(d) {
     return mesoMobilityColor(d);
   }
@@ -5199,15 +5325,31 @@
     );
   }
 
-  function mesoRateLabelAnchor(d, centerX, wBar, rate) {
+  function mesoRateLabelAnchor(d, centerX, wBar, rate, panelLeft, panelRight) {
     const pad = 5;
-    if (rate === null) return { x: centerX + pad, anchor: "start" };
+    const minX = panelLeft + 4;
+    const maxX = panelRight - 4;
+    if (rate === null) return { x: Math.min(centerX + pad, maxX - 28), anchor: "start" };
+    let x;
+    let anchor;
     if (wBar > 0.3) {
-      if (rate >= 0) return { x: centerX + wBar + pad, anchor: "start" };
-      return { x: centerX - wBar - pad, anchor: "end" };
+      if (rate >= 0) {
+        x = centerX + wBar + pad;
+        anchor = "start";
+      } else {
+        x = centerX - wBar - pad;
+        anchor = "end";
+      }
+    } else if (rate < 0) {
+      x = centerX - pad;
+      anchor = "end";
+    } else {
+      x = centerX + pad;
+      anchor = "start";
     }
-    if (rate < 0) return { x: centerX - pad, anchor: "end" };
-    return { x: centerX + pad, anchor: "start" };
+    if (anchor === "start") x = Math.min(x, maxX - 30);
+    else x = Math.max(x, minX + 30);
+    return { x, anchor };
   }
 
   function appendPowerShiftBar(row, part, fill, opacity, x, y, w, h) {
@@ -5329,7 +5471,7 @@
       mesoLabelStyle(row.select(".meso-lbl"));
 
       const rateFill = mesoShareGrowthRateColor(d);
-      const ratePos = mesoRateLabelAnchor(d, centerX, wBar, rate);
+      const ratePos = mesoRateLabelAnchor(d, centerX, wBar, rate, panelLeft, panelRight);
       row
         .append("text")
         .attr("class", "meso-rate-lbl")
@@ -5348,19 +5490,20 @@
 
   function mesoRegionLayout(panelLeft, panelRight, plotH, rankW, nameW) {
     const barAreaLeft = panelLeft + rankW + nameW + 6;
-    const barAreaRight = panelRight - 8;
+    const barAreaRight = panelRight - MESO_RATE_LABEL_GUTTER;
     const centerX = (barAreaLeft + barAreaRight) / 2;
-    const barMaxW = Math.max(28, (barAreaRight - barAreaLeft) / 2 - 6);
+    const halfSpan = (barAreaRight - barAreaLeft) / 2;
+    const barMaxW = Math.max(28, halfSpan - MESO_RATE_LABEL_GUTTER);
     return { plotH, centerX, barMaxW, rankW, nameW, panelLeft, panelRight, barAreaLeft, barAreaRight };
   }
 
   function drawPowerShiftView(g, plotH, chartW) {
     const margin = 24;
-    const centerGap = 14;
+    const centerGap = MESO_CENTER_GAP;
     const plotW = chartW - 2 * margin;
     const halfW = (plotW - centerGap) / 2;
-    const rankW = 18;
-    const nameW = 100;
+    const rankW = 20;
+    const nameW = 108;
 
     const chinaPanelLeft = margin;
     const chinaPanelRight = margin + halfW;
@@ -5380,23 +5523,24 @@
     drawPowerShiftSide(g, mesoTop15Rows("cee"), "cee", ceeLayout, xScale);
   }
 
-  const MESO_ROW_H = 36;
+  const MESO_ROW_H = 40;
   const MESO_PLOT_TOP = 18;
+  const MESO_PLOT_BOTTOM = 28;
 
   function buildMeso(rebuildSection) {
-    const panelW = 248;
-    const layoutGap = 18;
+    const panelW = MESO_PANEL_W;
+    const layoutGap = MESO_LAYOUT_GAP;
     const w = widthOf();
-    const sideLayout = w >= 880;
-    const chartW = sideLayout ? Math.max(520, w - panelW - layoutGap) : Math.max(320, w - 16);
+    const sideLayout = w >= MESO_SIDE_LAYOUT_MIN;
+    const chartW = sideLayout ? Math.max(580, w - panelW - layoutGap) : Math.max(340, w - 16);
     const margin = 24;
-    const centerGap = 14;
+    const centerGap = MESO_CENTER_GAP;
     const plotW = chartW - 2 * margin;
     const halfW = (plotW - centerGap) / 2;
     const chinaPanelRight = margin + halfW;
     const ceePanelLeft = margin + halfW + centerGap;
-    const plotH = TOP_N * MESO_ROW_H + 20;
-    const h = plotH + MESO_PLOT_TOP + 68;
+    const plotH = TOP_N * MESO_ROW_H + 24;
+    const h = plotH + MESO_PLOT_TOP + MESO_PLOT_BOTTOM + 36;
 
     if (rebuildSection || !mesoSec) {
       if (mesoSec) mesoSec.remove();
@@ -5414,20 +5558,17 @@
       const mainCol = layout.append("div").attr("class", "meso-main-col");
       const chartCard = mainCol.append("div").attr("class", "meso-chart-card bubble-side-card");
       mesoChartWrap = chartCard.append("div").attr("class", "meso-chart-wrap");
-      mesoSvg = whiteSvg(mesoChartWrap, chartW, h);
+      mesoSvg = whiteSvg(mesoChartWrap, chartW, h, `0 0 ${chartW} ${h}`);
       mesoG = mesoSvg.append("g").attr("transform", "translate(24,40)");
-
-      chartCard.append("div").attr("class", "trans-legend-wrap meso-chart-legend");
 
       const panelsCol = layout.append("div").attr("class", "meso-panels-col");
       createMesoDetailPanel(panelsCol, "china");
       createMesoDetailPanel(panelsCol, "cee");
     } else {
-      mesoSvg.attr("width", chartW).attr("height", h);
-      mesoChartWrap.select("svg").attr("width", chartW);
+      mesoSvg.attr("width", chartW).attr("height", h).attr("viewBox", `0 0 ${chartW} ${h}`);
+      mesoChartWrap.select("svg").attr("width", chartW).attr("height", h);
       mesoG.selectAll("*").remove();
       mesoSec.select(".meso-layout").classed("meso-layout--stack", !sideLayout);
-      mesoSec.select(".trans-legend-wrap").attr("class", "trans-legend-wrap meso-chart-legend").selectAll("*").remove();
     }
 
     mesoG
@@ -5488,7 +5629,6 @@
 
     mesoPowG = mesoG.append("g").attr("class", "meso-pow").attr("transform", `translate(0,${MESO_PLOT_TOP})`);
     drawPowerShiftView(mesoPowG, plotH, chartW);
-    updatePowerShiftLegend();
 
     mesoSec.select(".meso-layout").style("--meso-chart-h", sideLayout ? `${h}px` : null);
 
