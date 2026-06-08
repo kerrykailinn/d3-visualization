@@ -155,6 +155,7 @@
     bubbleTopListMode: "change",
     bubbleSearchQuery: "",
     bubbleSearchHoverId: null,
+    bubbleSearchPinnedId: null,
     macroMode: "time",
     macroPeriod: "p20",
     macroRegion: "china",
@@ -1497,7 +1498,7 @@
     if (row.mode === "time") {
       const dir = row.delta > 0.0005 ? "进一步向头部集中" : row.delta < -0.0005 ? "结构有所扩散" : "结构基本持平";
       const deltaTxt = fmtMacroPp(row.delta);
-      return (
+    return (
         `2016–2020 期间，${row.regionName}合作${dir}；` +
         `${row.label} 份额较上一期${row.delta >= 0 ? "提升" : "下降"} ${deltaTxt.replace("+", "")}。`
       );
@@ -3347,12 +3348,12 @@
       const baseFill = bar.attr("data-base-fill") || MESO.neutral;
       const baseOp = +bar.attr("data-base-opacity") || 0.85;
 
-      if (!id) {
-        bar.transition().duration(C.dur).attr("fill", baseFill).attr("opacity", baseOp);
-      } else if (active) {
-        bar.transition().duration(C.dur).attr("fill", baseFill).attr("opacity", 1);
-      } else {
-        bar.transition().duration(C.dur).attr("fill", baseFill).attr("opacity", baseOp * dim);
+        if (!id) {
+          bar.transition().duration(C.dur).attr("fill", baseFill).attr("opacity", baseOp);
+        } else if (active) {
+          bar.transition().duration(C.dur).attr("fill", baseFill).attr("opacity", 1);
+        } else {
+          bar.transition().duration(C.dur).attr("fill", baseFill).attr("opacity", baseOp * dim);
       }
     });
 
@@ -3955,10 +3956,8 @@
   }
 
   function bubbleSearchHighlightIds() {
-    const q = S.bubbleSearchQuery.trim();
-    if (!q) return new Set();
     if (S.bubbleSearchHoverId) return new Set([S.bubbleSearchHoverId]);
-    if (S.bubbleSel) return new Set([S.bubbleSel.id]);
+    if (S.bubbleSearchPinnedId) return new Set([S.bubbleSearchPinnedId]);
     return new Set();
   }
 
@@ -3978,6 +3977,7 @@
   function clearBubbleSearch() {
     S.bubbleSearchQuery = "";
     S.bubbleSearchHoverId = null;
+    S.bubbleSearchPinnedId = null;
     const input = document.querySelector(".s3-bubble .bubble-inst-search-input");
     if (input) input.value = "";
     renderBubbleSearchResults();
@@ -3988,6 +3988,7 @@
   function setBubbleSearchQuery(query) {
     S.bubbleSearchQuery = query;
     S.bubbleSearchHoverId = null;
+    S.bubbleSearchPinnedId = null;
     const q = query.trim().toLowerCase();
     if (S.bubbleSel && q && !bubbleInstSearchHaystack(S.bubbleSel).includes(q)) {
       S.bubbleSel = null;
@@ -4006,9 +4007,21 @@
     syncBubbleSearchDropdownStyles();
   }
 
-  function selectBubbleInstitution(d) {
+  function selectBubbleInstitution(d, opts = {}) {
     S.bubbleSel = d || null;
     S.bubbleSearchHoverId = null;
+    if (d && opts.fromSearch) {
+      S.bubbleSearchPinnedId = d.id;
+      S.bubbleSearchQuery = "";
+      const input = document.querySelector(".s3-bubble .bubble-inst-search-input");
+      if (input) {
+        input.value = "";
+        input.blur();
+      }
+      renderBubbleSearchResults();
+    } else {
+      S.bubbleSearchPinnedId = null;
+    }
     hideTip();
     updateBubbleSidePanel();
     syncBubbleFocus();
@@ -4046,8 +4059,7 @@
       .on("click", (ev) => {
         ev.stopPropagation();
         const id = d3.select(ev.currentTarget).attr("data-id");
-        selectBubbleInstitution(data.byId.get(id));
-        syncBubbleSearchDropdownStyles();
+        selectBubbleInstitution(data.byId.get(id), { fromSearch: true });
       })
       .on("mouseenter", (ev) => {
         ev.stopPropagation();
@@ -4065,14 +4077,14 @@
       .attr("placeholder", "搜索机构（中/英文名）")
       .attr("autocomplete", "off")
       .property("value", S.bubbleSearchQuery);
-    wrap
-      .append("button")
-      .attr("type", "button")
+      wrap
+        .append("button")
+        .attr("type", "button")
       .attr("class", "bubble-inst-search-clear")
       .attr("title", "清除搜索")
       .text("×")
-      .on("click", (ev) => {
-        ev.stopPropagation();
+        .on("click", (ev) => {
+          ev.stopPropagation();
         clearBubbleSearch();
       });
     wrap.append("div").attr("class", "bubble-inst-search-results").on("mouseleave", () => setBubbleSearchHoverId(null));
@@ -4223,8 +4235,10 @@
       const d = data.byId.get(id);
       if (!d) return;
       S.bubbleSel = S.bubbleSel && S.bubbleSel.id === id ? null : d;
+      S.bubbleSearchPinnedId = null;
       updateBubbleSidePanel();
       syncBubbleFocus();
+      syncBubbleChartHighlights();
       syncBubbleTopListHighlightStyles();
       if (!S.bubbleSel) renderBubbleTopListContent();
     });
@@ -4260,6 +4274,7 @@
     if (S.bubbleTopListMode === mode) return;
     S.bubbleTopListMode = mode;
     S.bubbleSel = null;
+    S.bubbleSearchPinnedId = null;
     hideTip();
     syncBubbleTopListToggleUI();
     renderBubbleTopListContent();
@@ -4473,8 +4488,8 @@
 
     if (!topListIds.size) {
       bubbleChartCtx.highlightG.selectAll("g.bubble-top-highlight").remove();
-      return;
-    }
+            return;
+          }
 
     const data = bubblePointsForRegionFilter(S.bubbleRegionFilter).filter((d) => topListIds.has(d.id));
     const groups = bubbleChartCtx.highlightG
@@ -4736,7 +4751,7 @@
 
   function mountBubbleZoomControls(parent) {
     const ctrl = parent
-      .append("div")
+        .append("div")
       .attr("class", "bubble-zoom-ctrl")
       .style("display", "inline-flex")
       .style("align-items", "center")
@@ -4753,16 +4768,16 @@
       { label: "重置", title: "重置视图", fn: () => resetBubbleZoom(true) }
     ].forEach(({ label, title, fn }) => {
       btnWrap
-        .append("button")
-        .attr("type", "button")
+          .append("button")
+          .attr("type", "button")
         .attr("class", "bubble-zoom-btn")
         .attr("title", title)
         .text(label)
-        .on("click", (ev) => {
-          ev.stopPropagation();
+          .on("click", (ev) => {
+            ev.stopPropagation();
           fn();
-        });
-    });
+          });
+      });
   }
 
   function bubbleMaxShare(d) {
@@ -4959,8 +4974,10 @@
         } else {
           S.bubbleSel = d;
         }
+        S.bubbleSearchPinnedId = null;
         updateBubbleSidePanel();
         syncBubbleFocus();
+        syncBubbleChartHighlights();
         syncBubbleTopListHighlightStyles();
         if (!S.bubbleSel && S.bubbleRegionFilter !== "all") renderBubbleTopListContent();
       });
@@ -5078,6 +5095,7 @@
   function drawBubbleScatter(parent, w) {
     S.bubbleHover = null;
     S.bubbleSel = null;
+    S.bubbleSearchPinnedId = null;
     bubbleChartCtx = null;
 
     const { card } = section(parent, "s3-bubble", IL_SECTIONS.bubble);
@@ -5146,7 +5164,7 @@
     g.append("defs")
       .append("clipPath")
       .attr("id", "bubble-plot-clip")
-      .append("rect")
+        .append("rect")
       .attr("width", iw)
       .attr("height", ih)
       .attr("rx", 8);
@@ -5172,7 +5190,7 @@
       .attr("opacity", 0.85);
 
     const diagText = plotG
-      .append("text")
+        .append("text")
       .attr("fill", C.muted)
       .attr("font-size", 10)
       .attr("font-family", C.font)
@@ -5193,7 +5211,7 @@
       .style("cursor", "grab");
 
     const xTitle = g
-      .append("text")
+        .append("text")
       .attr("class", "bubble-axis-title bubble-axis-title-x")
       .attr("x", iw / 2)
       .attr("y", ih + 38)
@@ -5305,7 +5323,9 @@
       if (ev.defaultPrevented) return;
       S.bubbleSel = null;
       S.bubbleHover = null;
+      S.bubbleSearchPinnedId = null;
       syncBubbleFocus();
+      syncBubbleChartHighlights();
       updateBubbleSidePanel();
       syncBubbleTopListHighlightStyles();
     });
@@ -5485,27 +5505,27 @@
         }
       }
 
-      row
-        .append("text")
-        .attr("class", "meso-lbl")
+        row
+          .append("text")
+          .attr("class", "meso-lbl")
         .attr("x", nameX)
-        .attr("y", cy)
-        .attr("text-anchor", "start")
-        .attr("dominant-baseline", "middle")
-        .attr("fill", C.text)
+          .attr("y", cy)
+          .attr("text-anchor", "start")
+          .attr("dominant-baseline", "middle")
+          .attr("fill", C.text)
         .attr("title", instDisplayName(d))
         .text(instShortDisplayName(d));
       mesoLabelStyle(row.select(".meso-lbl"));
 
       const rateFill = mesoShareGrowthRateColor(d);
       const ratePos = mesoRateLabelAnchor(d, centerX, wBar, rate, panelLeft, panelRight);
-      row
-        .append("text")
+        row
+          .append("text")
         .attr("class", "meso-rate-lbl")
         .attr("x", ratePos.x)
-        .attr("y", cy)
+          .attr("y", cy)
         .attr("text-anchor", ratePos.anchor)
-        .attr("dominant-baseline", "middle")
+          .attr("dominant-baseline", "middle")
         .attr("fill", rateFill)
         .style("pointer-events", "none")
         .text(fmtMesoGrowthRate(mesoShareGrowthRate(d), d));
@@ -5655,7 +5675,7 @@
       .text("中东欧 · Top15");
 
     mesoPowG = mesoG.append("g").attr("class", "meso-pow").attr("transform", `translate(0,${MESO_PLOT_TOP})`);
-    drawPowerShiftView(mesoPowG, plotH, chartW);
+      drawPowerShiftView(mesoPowG, plotH, chartW);
 
     mesoSec.select(".meso-layout").style("--meso-chart-h", sideLayout ? `${h}px` : null);
 
