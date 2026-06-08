@@ -4663,21 +4663,21 @@
   function bubbleApplyAxes(x, y, t) {
     if (!bubbleChartCtx) return;
     const axisT = t || ((sel) => sel);
-    const clipPlot = "url(#bubble-plot-clip)";
+    const { ih, iw } = bubbleChartCtx;
+
+    axisT(bubbleChartCtx.gridXAxisG)
+      .call(bubbleShareGridAxis(x, "bottom", -ih))
+      .call(bubbleStyleGridAxis);
+    axisT(bubbleChartCtx.gridYAxisG)
+      .call(bubbleShareGridAxis(y, "left", -iw))
+      .call(bubbleStyleGridAxis);
+
     axisT(bubbleChartCtx.xAxisG)
-      .call(bubbleShareAxis(x, "bottom", -bubbleChartCtx.ih))
-      .call((sel) => sel.select(".domain").remove())
-      .call((sel) =>
-        sel.selectAll(".tick line").attr("stroke", "#e2e8f0").attr("clip-path", clipPlot)
-      )
-      .call((sel) => sel.selectAll(".tick text").attr("fill", C.muted).attr("font-size", 10).attr("font-family", C.font));
+      .call(bubbleShareLabelAxis(x, "bottom"))
+      .call(bubbleStyleLabelAxis);
     axisT(bubbleChartCtx.yAxisG)
-      .call(bubbleShareAxis(y, "left", -bubbleChartCtx.iw))
-      .call((sel) => sel.select(".domain").remove())
-      .call((sel) =>
-        sel.selectAll(".tick line").attr("stroke", "#e2e8f0").attr("clip-path", clipPlot)
-      )
-      .call((sel) => sel.selectAll(".tick text").attr("fill", C.muted).attr("font-size", 10).attr("font-family", C.font));
+      .call(bubbleShareLabelAxis(y, "left"))
+      .call(bubbleStyleLabelAxis);
   }
 
   function bubbleApplyPlotGeometry(x, y, r, t, topListIds, hiIds) {
@@ -4827,13 +4827,36 @@
     return pct(v);
   }
 
-  function bubbleShareAxis(scale, orient, tickSize) {
+  function bubbleShareGridAxis(scale, orient, tickSize) {
+    const axis = orient === "bottom" ? d3.axisBottom(scale) : d3.axisLeft(scale);
+    return axis.ticks(8).tickSize(tickSize).tickFormat("");
+  }
+
+  function bubbleShareLabelAxis(scale, orient) {
     const axis = orient === "bottom" ? d3.axisBottom(scale) : d3.axisLeft(scale);
     return axis
       .ticks(8)
-      .tickSize(tickSize)
-      .tickPadding(6)
+      .tickSizeOuter(4)
+      .tickSizeInner(0)
+      .tickPadding(8)
       .tickFormat(bubbleShareTickLabel);
+  }
+
+  function bubbleStyleGridAxis(sel) {
+    sel.select(".domain").remove();
+    sel.selectAll(".tick line").attr("stroke", "#e2e8f0");
+    sel.selectAll(".tick text").remove();
+  }
+
+  function bubbleStyleLabelAxis(sel) {
+    sel.select(".domain").remove();
+    sel.selectAll(".tick line").attr("stroke", "#cbd5e1").attr("stroke-width", 1);
+    sel
+      .selectAll(".tick text")
+      .attr("fill", C.muted)
+      .attr("font-size", 10)
+      .attr("font-family", C.font)
+      .attr("clip-path", null);
   }
 
   function makeBubbleScales(points, iw, ih) {
@@ -5138,6 +5161,8 @@
     const yAxisG = g.append("g").attr("class", "bubble-axis-y");
 
     const plotG = g.append("g").attr("class", "bubble-plot").attr("clip-path", "url(#bubble-plot-clip)");
+    const gridXAxisG = plotG.append("g").attr("class", "bubble-grid-x").attr("transform", `translate(0,${ih})`);
+    const gridYAxisG = plotG.append("g").attr("class", "bubble-grid-y");
 
     const diagLine = plotG
       .append("line")
@@ -5217,6 +5242,8 @@
     bubbleChartCtx = {
       g,
       plotG,
+      gridXAxisG,
+      gridYAxisG,
       bgG,
       highlightG,
       searchHighlightG,
