@@ -1248,6 +1248,18 @@ a {
 .s3-bubble .bubble-region-filter-bar {
   position: relative;
   z-index: 8;
+  background: #fff;
+}
+
+.s3-bubble .bubble-region-filter-bar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 10px;
+  background: #fff;
+  pointer-events: none;
 }
 
 .s3-bubble .bubble-inst-search {
@@ -1302,6 +1314,7 @@ a {
   right: 0;
   max-height: 220px;
   overflow-y: auto;
+  display: none;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -1477,8 +1490,8 @@ a {
 
 .s4-meso .meso-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 248px;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 228px;
+  gap: 12px;
   align-items: start;
   width: 100%;
 }
@@ -1511,15 +1524,10 @@ a {
   background: transparent !important;
 }
 
-.s4-meso .meso-chart-card .meso-chart-legend {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #e2e8f0;
-}
-
 .s4-meso .meso-chart-wrap {
   min-width: 0;
   width: 100%;
+  overflow: visible;
 }
 
 .s4-meso .meso-chart-wrap svg {
@@ -1692,27 +1700,6 @@ a {
   line-height: 1.4;
 }
 
-.s4-meso .meso-chart-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  align-items: center;
-  margin-top: 10px;
-  font-size: 10px;
-  color: #64748b;
-  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  line-height: 1.55;
-}
-
-.s4-meso .meso-leg-swatch {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 1px;
-  margin-right: 5px;
-  vertical-align: -1px;
-}
-
 .s4-meso .meso-region-title {
   font-size: 12px;
   font-weight: 700;
@@ -1789,7 +1776,6 @@ a {
     min-height: 200px;
   }
 }
-
 /* Discipline section layout */
 .discipline-layout {
   align-items: stretch !important;
@@ -1836,7 +1822,7 @@ a {
   flex-direction: column;
 }
 
-/* Discipline data panel container — fills its flex parent, content scrolls only in ranking section */
+/* Discipline data panel container 鈥?fills its flex parent, content scrolls only in ranking section */
 .disc-panel-box {
   flex: 1;
   min-height: 0;
@@ -1858,7 +1844,7 @@ a {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
-/* webkit scrollbar — always visible style */
+/* webkit scrollbar 鈥?always visible style */
 .dp-ranking-list::-webkit-scrollbar { width: 6px !important; }
 .dp-ranking-list::-webkit-scrollbar-track { background: transparent !important; }
 .dp-ranking-list::-webkit-scrollbar-thumb { background: #cbd5e1 !important; border-radius: 3px !important; }
@@ -1883,7 +1869,7 @@ a {
 }
 .dp-ranking-row:last-child { border-bottom: none; }
 
-/* ── Discipline panel redesign ── */
+/* 鈹€鈹€ Discipline panel redesign 鈹€鈹€ */
 .dp-insight-card {
   background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
   border: 1px solid #bfdbfe;
