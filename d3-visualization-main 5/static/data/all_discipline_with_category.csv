@@ -1,0 +1,95 @@
+discipline,discipline_cn,2011_2015_papers,2016_2020_papers,discipline_code,discipline_category
+0702 Physics,物理学,3047,4958,07,理学
+0703 Chemistry,化学,936,2240,07,理学
+0805 Materials Science and Engineering,材料科学与工程,671,1976,08,工学
+0710 Biology,生物学,959,1893,07,理学
+0704 Astronomy,天文学,1136,1833,07,理学
+1002 Clinical Medicine,临床医学,735,1796,10,医学
+0701 Mathematics,数学,786,1519,07,理学
+0812 Computer Science and Technology,计算机科学与技术,662,1307,08,工学
+0830 Environmental Science and Engineering,环境科学与工程,386,1305,08,工学
+1001 Basic Medicine,基础医学,545,1137,10,医学
+0820 Oil and Natural Gas Engineering,石油与天然气工程,243,917,08,工学
+0708 Geophysics,地球物理学,288,721,07,理学
+0804 Instrumentation Science and Technology,仪器科学与技术,287,692,08,工学
+0810 Information and Communication Engineering,信息与通信工程,275,626,08,工学
+1004 Public Health and Preventive Medicine,公共卫生与预防医学,204,506,10,医学
+0814 Civil Engineering,土木工程,180,487,08,工学
+1201 Management Science and Engineering,管理科学与工程,222,481,12,管理学
+0811 Control Science and Engineering,控制科学与工程,220,479,08,工学
+0801 Mechanics,力学,198,478,08,工学
+0802 Mechanical Engineering,机械工程,220,477,08,工学
+0817 Chemical Engineering and Technology,化学工程与技术,177,440,08,工学
+0827 Nuclear Science and Technology,核科学与技术,163,428,08,工学
+0806 Metallurgical Engineering,冶金工程,174,427,08,工学
+0803 Optical Engineering,光学工程,113,401,08,工学
+1400 Cross-field,跨学科,135,398,14,跨学科
+0835 Software Engineering,软件工程,204,393,08,工学
+0713 Ecology,生态学,150,376,07,理学
+0807 Power Engineering and Engineering Thermophysics,动力工程及工程热物理,158,372,08,工学
+1010 Medical Technology,医学技术,162,368,10,医学
+0401 Education,教育学,159,363,04,教育学
+0706 Atmospheric Science,大气科学,143,355,07,理学
+0831 Biomedical Engineering,生物医学工程,183,350,08,工学
+0836 Biotechnology and Bioengineering,生物工程,191,349,08,工学
+1007 Pharmaceutical Science,药学,185,339,10,医学
+1009 Special Medicine,特种医学,153,329,10,医学
+0832 Food Science and Engineering,食品科学与工程,104,328,08,工学
+0816 Surveying and Mapping,测绘科学与技术,151,320,08,工学
+0709 Geology,地质学,144,317,07,理学
+0809 Electronic Science and Technology,电子科学与技术,115,314,08,工学
+0714 Statistics,统计学,173,304,07,理学
+0823 Transportation Engineering,交通运输工程,123,285,08,工学
+0402 Psychology,心理学,128,282,04,教育学
+0705 Geography,地理学,127,279,07,理学
+1202 Business Administration,工商管理,80,264,12,管理学
+0808 Electrical Engineering,电气工程,56,262,08,工学
+0815 Hydraulic Engineering,水利工程,100,262,08,工学
+0825 Aerospace Science and Technology,航空宇航科学与技术,130,257,08,工学
+0711 Systems Science,系统科学,108,254,07,理学
+0833 Urban and Rural Planning,城乡规划学,65,212,08,工学
+0303 Sociology,社会学,86,195,03,法学
+0824 Naval Architecture and Ocean Engineering,船舶与海洋工程,70,177,08,工学
+1204 Public Administration,公共管理,87,176,12,管理学
+0819 Mining Engineering,矿业工程,71,162,08,工学
+0818 Geological Resources and Geological Engineering,地质资源与地质工程,45,155,08,工学
+0828 Agricultural Engineering,农业工程,70,155,08,工学
+0901 Crop Science,作物学,65,153,09,农学
+0712 History of Science and Technology,科学技术史,95,151,07,理学
+0813 Architecture,建筑学,58,148,08,工学
+1003 Stomatology,口腔医学,77,144,10,医学
+1205 Library and Information Science & Archive Management,图书情报与档案管理,71,127,12,管理学
+0707 Marine Science,海洋科学,52,126,07,理学
+0903 Agricultural Resource and Environment Sciences,农业资源与环境,41,119,09,农学
+0907 Forestry,林学,36,115,09,农学
+0301 Law,法学,51,104,03,法学
+0837 Safety Science and Engineering,安全科学与工程,30,104,08,工学
+0905 Animal Science,畜牧学,37,96,09,农学
+0826 Armament Science and Technology,兵器科学与技术,20,95,08,工学
+0202 Applied Economics,应用经济学,7,94,02,经济学
+0302 Political Science,政治学,48,94,03,法学
+0503 Journalism and Communication,新闻传播学,31,85,05,文学
+0101 Philosophy,哲学,31,81,01,哲学
+0906 Veterinary Medicine,兽医学,33,81,09,农学
+0403 Physical Education and Sport Science,体育学,20,79,04,教育学
+0601 Archaeology,考古学,24,74,06,历史学
+0821 Textile Science and Engineering,纺织科学与工程,22,74,08,工学
+1008 Chinese Materia Medica,中药学,25,70,10,医学
+0908 Fisheries,水产,10,68,09,农学
+0822 Light Industry Technology and Engineering,轻工技术与工程,37,66,08,工学
+0201 Theoretical Economics,理论经济学,7,57,02,经济学
+0904 Plant Protection,植物保护,42,56,09,农学
+0603 World History,世界史,24,52,06,历史学
+1302 Music and Dance,音乐与舞蹈学,25,48,13,艺术学
+1203 Economics and Management of Agriculture and Forestry,农林经济管理,12,33,12,管理学
+0902 Horticulture,园艺学,21,29,09,农学
+0839 Cyberspace Security,网络空间安全,7,16,08,工学
+0829 Forestry Engineering,林业工程,2,12,08,工学
+0834 Landscape Architecture,风景园林学,6,10,08,工学
+0909 Grassland Science,草学,4,8,09,农学
+0304 Ethnology,民族学,1,7,03,法学
+1011 Nursing,护理学,1,7,10,医学
+1301 Art Theory,艺术学理论,1,4,13,艺术学
+1303 Drama Film and Television,戏剧与影视学,2,4,13,艺术学
+1305 Design,设计学,0,4,13,艺术学
+1005 Chinese Medicine,中医学,2,1,10,医学

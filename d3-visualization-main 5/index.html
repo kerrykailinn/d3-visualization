@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="title" content="中国—中东欧科研合作图谱">
+  <meta name="description" content="中国—中东欧科研合作增长与结构深化数据可视化系统">
+  <title>中国—中东欧科研合作图谱 | 增长与结构深化</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <div class="site-brand">
+        <span class="site-brand__title">中国—中东欧科研合作图谱</span>
+        <span class="site-brand__meta">2011—2020 · 数据研究版</span>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="#overview">总览</a>
+        <a href="#country">国家</a>
+        <a href="#discipline">学科</a>
+        <a href="#institution">机构</a>
+        <a href="#archive">资料</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero-panel">
+      <div class="hero-panel__inner">
+        <div class="hero-panel__ornament" aria-hidden="true">
+          <div class="hero-frame hero-frame--outer"></div>
+          <div id="hero-map" class="hero-map"></div>
+          <div class="hero-grid"></div>
+        </div>
+
+        <div class="hero-panel__copy">
+          <p class="hero-panel__eyebrow">中国—中东欧科研合作数据可视化系统</p>
+          <h1>增长、扩散与结构演化</h1>
+          <p class="hero-panel__question">中国与中东欧国家论文合作的增长，是否真正带来了更广泛、更均衡、更深入的科研连接?</p>
+          <p class="hero-panel__lead">
+            本系统基于2011-2020年中国与中东欧16国合作论文数据，从国家、学科与机构三个层级追踪合作关系的演化过程，呈现科研合作由规模增长走向结构重组的内在逻辑。
+          </p>
+          <div class="hero-panel__meta">
+            <span>2011-2020</span>
+            <span>中国×中东欧16国</span>
+            <span>国家·学科·机构</span>
+          </div>
+          <div class="hero-panel__actions">
+            <a class="button button-primary" href="#overview">进入总览</a>
+            <a class="text-link" href="#archive">方法与来源</a>
+          </div>
+        </div>
+
+        <aside class="hero-panel__note">
+          <p class="note-kicker">阅读路径</p>
+          <div class="reading-ledger">
+            <div class="reading-ledger__row">
+              <span>问题</span>
+              <p>合作论文数量增长是否伴随合作结构深化?</p>
+            </div>
+            <div class="reading-ledger__row">
+              <span>范围</span>
+              <p>2011—2020年，中国与中东欧16国合作论文</p>
+            </div>
+            <div class="reading-ledger__row">
+              <span>路径</span>
+              <p>国家合作格局 → 学科扩散路径 → 机构网络结构</p>
+            </div>
+            <div class="reading-ledger__row">
+              <span>线索</span>
+              <p>增长趋势、区域分布、学科流向、核心机构变化</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="research-section" id="overview">
+      <div class="section-heading">
+        <div>
+          <span class="section-index">I</span>
+          <p class="section-kicker">总览</p>
+          <h2>中国与全球科研合作格局</h2>
+          <p class="section-intro">先从全球版图出发，观察中国科研合作的整体分布与区域差异。</p>
+        </div>
+      </div>
+      <div class="viz-card viz-card--wide">
+        <div id="overview-chart" class="viz-canvas"></div>
+      </div>
+    </section>
+
+    <section class="research-section research-section--tint" id="country">
+      <div class="section-heading">
+        <div>
+          <span class="section-index">II</span>
+          <p class="section-kicker">国家层</p>
+          <h2>中国—中东欧合作增长与国家分布</h2>
+          <p class="section-intro">观察中国与中东欧16国合作论文总量是否持续增长，以及增长是否扩散到更多国家，还是仍由少数核心国家主导。</p>
+        </div>
+      </div>
+      <article class="viz-card viz-card--wide">
+        <div id="trend-chart" class="viz-canvas"></div>
+      </article>
+
+      <article class="viz-card viz-card--offset">
+        <div class="viz-card__head">
+          <h3>合作国家排序</h3>
+        </div>
+        <div id="ranking-chart" class="viz-canvas"></div>
+      </article>
+    </section>
+
+    <section class="research-section" id="discipline">
+      <div class="section-heading">
+        <div>
+          <span class="section-index">III</span>
+          <p class="section-kicker">学科层</p>
+          <h2>中国—中东欧合作学科分布变化</h2>
+          <p class="section-intro">从合作论文的学科分布切入，判断中国—中东欧科研合作是否仍集中在少数学科，还是已经扩展到更多研究方向。</p>
+        </div>
+      </div>
+      <div class="viz-grid viz-grid--asym discipline-layout">
+        <div class="discipline-col">
+          <article class="viz-card">
+            <div id="discipline-chart" class="viz-canvas"></div>
+          </article>
+
+          <article class="viz-card">
+            <div id="country-discipline-treemap" class="viz-canvas"></div>
+          </article>
+        </div>
+
+      <!-- 右侧改为两个独立的看板容器，分别和上下图表对齐 -->
+      <div class="discipline-panel-col">
+        <!-- 饼图对应的数据看板 -->
+        <aside class="viz-card discipline-data-panel" id="discipline-panel-top">
+          <div class="viz-card__head">
+            <h3>学科分布看板</h3>
+          </div>
+          <div class="viz-canvas">
+            <div id="disc-panel-discipline" class="disc-panel-box"></div>
+          </div>
+        </aside>
+
+        <!-- 树图对应的数据看板 -->
+        <aside class="viz-card discipline-data-panel" id="discipline-panel-bottom">
+          <div class="viz-card__head">
+            <h3>分国家x学科看板</h3>
+          </div>
+          <div class="viz-canvas">
+            <div id="disc-panel-country" class="disc-panel-box"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="research-section research-section--tint" id="institution">
+      <div class="section-heading">
+        <div>
+          <span class="section-index">IV</span>
+          <p class="section-kicker">机构层</p>
+          <h2>中国—中东欧合作机构结构</h2>
+          <p class="section-intro">从合作机构网络切入，判断中国—中东欧科研合作是否仍集中在少数头部机构，还是已形成更广泛的机构参与。</p>
+        </div>
+      </div>
+      <div class="viz-card viz-card--wide">
+        <div class="viz-card__head">
+          <h3>机构协作结构工作台</h3>
+        </div>
+        <div id="network-chart" class="viz-canvas"></div>
+      </div>
+    </section>
+
+    <section class="research-section archive-section" id="archive">
+      <div class="section-heading">
+        <div>
+          <span class="section-index">V</span>
+          <p class="section-kicker">附录</p>
+          <h2>数据来源与说明</h2>
+          <p class="section-intro">此处统一补充数据来源、方法口径、成员分工与引用说明，方便读者理解整套分析的依据。</p>
+        </div>
+      </div>
+
+      <div class="archive-grid">
+        <article class="archive-card archive-card--source">
+          <span class="viz-label">Source</span>
+          <h3>数据来源</h3>
+          <p>此处统一补充全球国家合作数据、中东欧合作数据、学科数据与机构数据来源说明。</p>
+          <div class="archive-source-table-wrap">
+            <table class="archive-source-table">
+              <thead>
+                <tr>
+                  <th>数据模块</th>
+                  <th>对应文件</th>
+                  <th>主要字段</th>
+                  <th>适合回答的问题</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>年度总量</td>
+                  <td>2011-2020.xlsx / Sheet1</td>
+                  <td>年份、中东欧合作论文量、我国国际合作总量、中东欧占比</td>
+                  <td>合作规模是否增长？占我国国际合作比例如何变化？</td>
+                </tr>
+                <tr>
+                  <td>国别总量</td>
+                  <td>中东欧各国125与135发文量.xlsx / Sheet1</td>
+                  <td>国家、125发文量、135发文量、占比、排名、增长率、位次变化</td>
+                  <td>哪些国家合作最多？哪些国家增长最快？排名是否变化？</td>
+                </tr>
+                <tr>
+                  <td>整体学科合作</td>
+                  <td>2011-2015 研究方向.csv<br>2016-2020 研究方向.csv</td>
+                  <td>学科代码、学科名称、国际合作论文数</td>
+                  <td>中东欧整体合作集中在哪些学科？两个阶段学科结构有无变化？</td>
+                </tr>
+                <tr>
+                  <td>各国学科结构</td>
+                  <td>4. 各国合作领域 中各国家 CSV</td>
+                  <td>国家、学科名称、合作论文数</td>
+                  <td>某个国家擅长哪些合作领域？是综合型还是单点型？</td>
+                </tr>
+                <tr>
+                  <td>合作机构</td>
+                  <td>125中国机构.csv<br>125中东欧机构.csv<br>135中国机构.csv<br>135中东欧机构.csv</td>
+                  <td>机构名称、论文量、阶段、地区</td>
+                  <td>哪些机构是合作核心？机构集中度是否变化？</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+        <article class="archive-card">
+          <span class="viz-label">Credits</span>
+          <h3>成员分工</h3>
+          <p>此处补充全球层、国家层、学科层、机构层以及整合工作的具体分工。</p>
+          <div class="archive-member-table-wrap">
+            <table class="archive-member-table">
+              <thead>
+                <tr>
+                  <th>成员名字</th>
+                  <th>负责工作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>周彦利</td>
+                  <td>全球层</td>
+                </tr>
+                <tr>
+                  <td>康思洁</td>
+                  <td>国家层</td>
+                </tr>
+                <tr>
+                  <td>顾舒文</td>
+                  <td>学科层</td>
+                </tr>
+                <tr>
+                  <td>赵宋乐</td>
+                  <td>机构层</td>
+                </tr>
+                <tr>
+                  <td>冉婉鑫、林恺</td>
+                  <td>页面整合</td>
+                </tr>
+                <tr>
+                  <td>林恺</td>
+                  <td>整体规划</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <button class="back-to-top" id="backToTop" type="button" aria-label="返回顶部">↑</button>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="static/js/local-data-cache.js"></script>
+  <script src="static/js/index.js"></script>
+  <script src="static/js/chart-overview.js"></script>
+  <script src="static/js/chart-ranking.js"></script>
+  <script src="static/js/chart-trend.js"></script>
+  <script src="static/js/chart-discipline.js"></script>
+  <script src="static/js/chart-network.js"></script>
+  <script src="static/js/chart-country-treemap.js"></script>
+</body>
+</html>
